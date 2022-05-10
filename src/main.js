@@ -16,10 +16,10 @@ import App from './App.vue';
 import Api from './config/api';
 import $ from '@js/jquery.min.js';
 var moment = require('moment');
-import './assets/css/style.css';
 import './assets/css/bootstrap.css';
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import './assets/css/style.css';
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
 // Make BootstrapVue available throughout your project
 Vue.use(BootstrapVue)

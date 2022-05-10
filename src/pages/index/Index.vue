@@ -19,7 +19,6 @@
           </div>
         </div>
       </div>
-
       <div class="section" id="page1">
         <!-- <div v-if="lang==='简体中文'"> -->
 
@@ -57,7 +56,6 @@
           </div>
         </div>
       </div>
-
       <div class="px-3 ws-sec-1  d-lg-none d-block">
         <div class="w-100  py-2 d-flex justify-content-between align-items-center">
           <div class="d-flex flex-column">
@@ -85,28 +83,15 @@
         </div>
       </div>
       <div class="px-1 ws-sec-1 py-3  d-lg-none d-block" style="border-top: 0px !important;">
-        <div class="row mx-0 w-100">
-          <div class="col-4 d-flex flex-column align-items-center ">
-            <span class="text-center" style="font-size: 14px; font-weight:400;">BTC/USDT</span>
-            <span class="text-center text-danger-1" style="font-size: 17px; font-weight:500;">36562.49</span>
-            <span class="text-center text-danger-1" style="font-size: 14px; font-weight:500;">-0.36%</span>
-            <span class="text-center" style="font-size: 12px; opacity: .5;">=4586632.98 USD</span>
-          </div>
-          <div class="col-4 d-flex flex-column align-items-center ">
-            <span class="text-center" style="font-size: 14px; font-weight:400;">ETH/USDT</span>
-            <span class="text-center text-danger-1" style="font-size: 17px; font-weight:500;">36562.49</span>
-            <span class="text-center text-danger-1" style="font-size: 14px; font-weight:500;">-0.36%</span>
-            <span class="text-center" style="font-size: 12px; opacity: .5;">=4586632.98 USD</span>
-          </div>
-          <div class="col-4 d-flex flex-column align-items-center ">
-            <span class="text-center" style="font-size: 14px; font-weight:400;">LTC/USDT</span>
-            <span class="text-center text-danger-1" style="font-size: 17px; font-weight:500;">36562.49</span>
-            <span class="text-center text-danger-1" style="font-size: 14px; font-weight:500;">-0.36%</span>
-            <span class="text-center" style="font-size: 12px; opacity: .5;">=4586632.98 USD</span>
+        <div class="row mx-0 w-100" >
+          <div class="col-4 d-flex flex-column align-items-center " v-for=" ({ items }, index) in dataIndex" v-if="index < 3" >
+            <span  style="font-size: 14px; font-weight:400; text-align:center;">{{dataIndex[index].symbol}}</span>
+            <span :class="[ dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger-1' : 'text-success' ]" style="font-size: 17px; font-weight:500; text-align:center;">{{dataIndex[index].price.toFixed(2) }}</span>
+            <span :class="[ dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger-1' : 'text-success' ]" style="font-size: 14px; font-weight:500; text-align:center;">{{dataIndex[index].rose}}</span>
+            <span style="font-size: 12px; opacity: .5; text-align:center;">={{dataIndex[index].close.toFixed(2)}} USD</span>
           </div>
         </div>
       </div>
-
       <div id="pagetips" class="d-lg-block d-none" style="background: #172636;">
         <div class="agent-panel">
           <div class="title">
@@ -239,7 +224,6 @@
           </li>
         </ul>
       </div>
-
       <div class="section d-lg-block d-none" id="page5">
         <div class="phone_image"></div>
         <div class="download-data">
@@ -312,6 +296,7 @@
           close: 0,
           volume: 0
         },
+        wstrending: [],
         loading: false,
         percent: 0,
         pageNo: 1,
@@ -915,7 +900,13 @@
     },
     created: function () {
       this.init();
+      console.log(this.dataIndex);
+     
+     Array.from(this.dataIndex).forEach(user => {
+      console.log(user);
+    })
     },
+
     computed: {
       isLogin: function () {
         return this.$store.getters.isLogin;
@@ -947,6 +938,7 @@
       this.getCNYRate();
       this.getSymbol();
       //this.initSwiper();
+      
     },
     methods: {
       seachInputChange() {
@@ -1350,7 +1342,7 @@
     }
   };
 </script>
-<style scoped lang="scss">
+<!-- <style scoped lang="scss">
   @media screen and (max-width:768px) {
     .app_bottom {
       display: block !important;
@@ -2087,8 +2079,8 @@
 </style>
 
 
-<style>
-  .section .ivu-carousel-dots-inside {
+<style> -->
+  <!-- .section .ivu-carousel-dots-inside {
     bottom: 20px;
   }
 
@@ -2404,4 +2396,4 @@
       background-position: -100% 0;
     }
   }
-</style>
+</style> -->

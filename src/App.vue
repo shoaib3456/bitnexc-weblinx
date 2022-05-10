@@ -16,143 +16,7 @@
               <img src="./assets/images/logo_1.png" />
             </div>
           </router-link>
-          <div class="layout-ceiling-main">
-            <!-- 导航条 -->
-            <div class="header_nav">
-              <Menu :active-name="activeNav" width="auto" :open-names="['1']">
-                <Submenu name="1">
-                  <router-link to="/">
-                    <MenuItem name="nav-index">{{$t("header.index")}}</MenuItem>
-                  </router-link>
-                  <router-link to="/exchange">
-                    <MenuItem name="nav-exchange">{{$t("header.exchange")}}</MenuItem>
-                  </router-link>
-                  <router-link to="/swap">
-                    <MenuItem name="nav-swap">{{$t("header.swap1")}}</MenuItem>
-                  </router-link>
-                  <router-link to="/exchange" style="display: none;">
-                    <MenuItem name="nav-swapexchange">{{$t("header.swap2")}}</MenuItem>
-                  </router-link>
-                  <router-link to="/exchange" style="display: none;">
-                    <MenuItem name="nav-swapcfd">{{$t("header.swap3")}}</MenuItem>
-                  </router-link>
-                  <router-link to="/exchange" style="display: none;">
-                    <MenuItem name="nav-swapsecond">{{$t("header.swap4")}}</MenuItem>
-                  </router-link>
-                  <!--<router-link to="/ctc">-->
-                  <!--  <MenuItem name="nav-ctc">{{$t("header.ctc")}}</MenuItem>-->
-                  <!--</router-link>-->
-                  <!--<router-link to="/otc/trade/usdt">-->
-                  <!--  <MenuItem name="nav-otc">{{$t("header.otc")}}</MenuItem>-->
-                  <!--</router-link>-->
-                  <!--<router-link to="/lab" style="position:relative;">-->
-                  <!--  <MenuItem name="nav-lab">{{$t("header.lab")}}</MenuItem>-->
-                  <!--</router-link>-->
-                  <!--<router-link to="/cexchange">-->
-                  <!--  <MenuItem name="nav-cexchange">{{$t("header.cexchange")}}</MenuItem>-->
-                  <!--</router-link>-->
-                  <router-link to="/invite">
-                    <MenuItem name="nav-invite">{{$t("header.invite")}}</MenuItem>
-                  </router-link>
-                  <router-link to="/news" style="display: none;">
-                    <MenuItem name="nav-news">{{$t("header.news")}}</MenuItem>
-                  </router-link>
-                  <router-link to="/announcement/0">
-                    <MenuItem name="nav-service">{{$t("header.service")}}</MenuItem>
-                  </router-link>
-                  <!--<router-link to="/whitepaper">-->
-                  <!--  <MenuItem name="nav-whitepaper">{{$t("header.whitepaper")}}</MenuItem>-->
-                  <!--</router-link>-->
-                </Submenu>
-              </Menu>
-            </div>
-
-
-            <div class="header_nav" style="float:right;margin-left: 10px;">
-              <Menu mode="horizontal" width="auto" @on-select="changelanguage" style="height: 50px;line-height:50px;">
-                <Submenu name="lang">
-                  <template slot="title" class="lang-title">
-                    <span style="display: none;">{{languageValue}}</span>
-                    <img class="lang-img" v-if="lang=='简体中文'" src="./assets/images/lang-zh.png"></img>
-                    <img class="lang-img" v-if="lang=='English'" src="./assets/images/lang-en.png"></img>
-                    <img class="lang-img" v-if="lang=='日本語'" src="./assets/images/lang-jp.png"></img>
-                    <img class="lang-img" v-if="lang=='繁體中文'" src="./assets/images/lang-tw.png"></img>
-                  </template>
-                  <MenuItem name="zh" class="lang-item"><img src="./assets/images/lang-zh.png"></img>简体中文</MenuItem>
-                  <MenuItem name="en" class="lang-item"><img src="./assets/images/lang-en.png"></img>ENGLISH</MenuItem>
-                  <MenuItem name="jp" class="lang-item"><img src="./assets/images/lang-jp.png"></img>日本語</MenuItem>
-                  <MenuItem name="tw" class="lang-item"><img src="./assets/images/lang-tw.png"></img>繁體中文</MenuItem>
-                </Submenu>
-              </Menu>
-            </div>
-            <div class="rightwrapper">
-              <poptip placement="bottom" width="120" class="appdownload" trigger="hover">
-                <a href="javascript:;" style="font-size:14px;">{{$t("header.appdownlaod")}}
-                  <Icon type="md-arrow-dropdown" size="18" />
-                </a>
-                <div class="api" slot="content">
-                  <div class="ios">
-                    <!--<img src="../src/assets/appdownload.png" alt="">-->
-                    <vue-qr :text="androidDownloadUrl" :size="116"></vue-qr>
-                    <div class="tips">
-                      <span>{{$t("header.scandownload")}}</span>
-                    </div>
-                  </div>
-                </div>
-              </poptip>
-            </div>
-            <div class="rr login-container">
-              <!-- 判断是否登录 -->
-              <!-- 登录 -->
-              <div class="login_register isLogin" v-if="isLogin">
-                <div class="mymsg">
-                  <router-link to="/uc/safe">{{$t("header.usercenter")}}</router-link>
-                </div>
-                <Dropdown>
-                  <a href="javascript:void(0)">
-                    <Icon type="md-person" size="20" />
-                    <span>{{strpo(member.username)}}</span>
-                    <Icon type="md-arrow-dropdown" size="16" />
-                  </a>
-                  <DropdownMenu slot="list">
-                    <DropdownItem>
-                      <router-link to="/uc/money">
-                        <Icon type="logo-bitcoin" /> &nbsp;{{$t("header.assetmanage")}}
-                      </router-link>
-                    </DropdownItem>
-                    <DropdownItem>
-                      <router-link to="/uc/entrust/current">
-                        <Icon type="md-swap" /> &nbsp;{{$t("header.trademanage")}}
-                      </router-link>
-                    </DropdownItem>
-                    <DropdownItem>
-                      <router-link to="/uc/innovation/myorders">
-                        <Icon type="md-swap" /> &nbsp;{{$t("header.innovationmanage")}}
-                      </router-link>
-                    </DropdownItem>
-                    <DropdownItem>
-                      <div @click="logout">
-                        <Icon type="md-log-out" /> &nbsp;{{$t("common.logout")}}
-                      </div>
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              </div>
-              <!-- 未登录 -->
-              <div class="login_register" v-else>
-                <Menu active-name11="1-1" width="auto" :open-names="['2']">
-                  <Submenu name="2" id="login_register_theme">
-                    <router-link to="/login" id="login">
-                      <MenuItem name="1-1">{{$t("common.login")}}</MenuItem>
-                    </router-link>
-                    <router-link to="/register" id="register">
-                      <MenuItem name="1-2">{{$t("common.register")}}</MenuItem>
-                    </router-link>
-                  </Submenu>
-                </Menu>
-              </div>
-            </div>
-          </div>
+          
           <span class="chat-bot-icon d-lg-none d-block">
             <b-icon icon="chat-dots "  font-scale="1"></b-icon>
           </span>
@@ -551,7 +415,7 @@
     }
   };
 </script>
-
+<!-- 
 
 <style scoped lang="scss">
   @media screen and (max-width:768px) {
@@ -2669,4 +2533,4 @@
       }
     }
   }
-</style>
+</style> -->

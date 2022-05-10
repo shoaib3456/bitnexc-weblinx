@@ -1,8 +1,11 @@
 <template>
   <div class="login_form">
     <div class="login_right">
+      <div class="d-flex w-100 justify-content-center">
+        <img src="../../assets/images/logo_1.png" class="mb-5" style="width:150px;" />
+      </div>
       <Form ref="formInline" :model="formInline" :rules="ruleInline" inline>
-        <div class="login_title">{{$t('uc.login.login')}}</div>
+        <div class="login_title d-lg-block d-none">{{$t('uc.login.login')}}</div>
         <FormItem prop="user">
           <Input name="user" type="text" v-model="formInline.user" :placeholder="$t('uc.login.usertip')" class="user">
           </Input>
@@ -20,7 +23,7 @@
         <FormItem style="margin-bottom:15px;">
           <Button class="login_btn">{{$t('uc.login.login')}}</Button>
         </FormItem>
-        <div class='to_register'>
+        <div class='to_register' style="margin-top: 100px;">
           <span>{{$t('uc.login.noaccount')}}</span>
           <router-link to="/register">{{$t('uc.login.goregister')}}</router-link>
         </div>
@@ -30,6 +33,8 @@
   </div>
 </template>
 <style scoped lang="scss">
+
+
 /* 验证码 */
 .login_form {
   background: #0b1520 url(../../assets/images/login_bg.png) no-repeat center center;
@@ -112,7 +117,9 @@
   border-color: #d7dde4;
   box-shadow: none;
 }
-/*  */
+
+
+
 </style>
 <script>
 import gtInit from "../../assets/js/gt.js";

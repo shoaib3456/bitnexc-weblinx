@@ -1,8 +1,11 @@
 <template>
   <div class="login_form">
     <div class="login_right">
+    <div class="d-flex w-100 justify-content-center">
+      <img src="../../assets/images/logo_1.png" class="mb-5" style="width:150px;" />
+    </div>
       <Form v-if="allowRegister" ref="formInline" :model="formInline" :rules="ruleInline" inline>
-        <FormItem style="text-align:center;">
+        <FormItem class="d-lg-block d-none" style="text-align:center;">
           <ButtonGroup>
             <Button v-for="(list,index) in buttonLists" :key="list.text" :class="{ active:changeActive == index}" @click="actives(index)">{{list.text}}</Button>
           </ButtonGroup>

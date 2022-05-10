@@ -1,13 +1,20 @@
 <template>
 	<div class="container exchange" :class="skin">
 
+		<div class="ws-exchange-head mt-2 p-2">
+			
+			<span class="w-100 d-flex justify-content-center align-items-center " v-if="isListOpen">Market</span>
+			<span @click="isListOpen=true" class="w-100 d-flex justify-content-start align-items-center py-1" v-if="!isListOpen">
+					<b-icon icon="chevron-left" variant="light"></b-icon> <div class="ps-2">{{currentCoin.coin}}/{{currentCoin.base}}</div> 
+			</span>
+		</div>
 		<div class="main">
-			<div class="right">
+			<div class="right" v-if="isListOpen">
 				<div class="coin-menu" style="overflow:hidden">
-					<div style="padding: 8px 10px;height:48px;">
+					<!-- <div style="padding: 8px 10px;height:48px;">
 						<Input search :placeholder="$t('common.searchplaceholder')" @on-change="seachInputChange"
 							v-model="searchKey" />
-					</div>
+					</div> -->
 					<div class="sc_filter">
 						<span v-show="isLogin" @click="changeBaseCion('favor')"
 							:class="{active:basecion==='favor'}">{{$t('service.CUSTOM')}}</span>
@@ -15,15 +22,17 @@
 						<span @click="changeBaseCion('btc')" :class="{active:basecion==='btc'}">BTC</span>
 						<span @click="changeBaseCion('eth')" :class="{active:basecion==='eth'}">ETH</span>
 					</div>
-					<Table @on-current-change="gohref" highlight-row id="USDT" v-show="basecion==='usdt'"
+					<div class="just-container" @click="isListOpen=false">
+					<Table  @on-current-change="gohref" highlight-row id="USDT" v-show="basecion==='usdt'"
 						:columns="coins.columns" :data="dataIndex"></Table>
-					<Table @on-current-change="gohref" highlight-row id="BTC" v-show="basecion==='btc'"
+					<Table  @on-current-change="gohref" highlight-row id="BTC" v-show="basecion==='btc'"
 						:columns="coins.columns" :data="dataIndex"></Table>
-					<Table @on-current-change="gohref" highlight-row id="ETH" v-show="basecion==='eth'"
+					<Table  @on-current-change="gohref" highlight-row id="ETH" v-show="basecion==='eth'"
 						:columns="coins.columns" :data="dataIndex"></Table>
-					<Table @on-current-change="gohref" highlight-row v-show="basecion==='favor'"
+					<Table  @on-current-change="gohref" highlight-row v-show="basecion==='favor'"
 						:no-data-text="$t('common.nodata')" id="collect" :columns="favorColumns" :data="dataIndex">
 					</Table>
+					</div>
 					<!--
           <p v-show="basecion!='favor'" style="height:40px;line-height:40px;padding-left:10px;border-bottom:1px solid #26303d;font-size:14px;color:rgb(97, 119, 146);">创新版</p>
           <Table @on-current-change="gohref" highlight-row id="USDT2" v-show="basecion==='usdt'" :columns="coins.columns" :data="dataIndex2"></Table>
@@ -32,16 +41,29 @@
 -->
 				</div>
 			</div>
-			<div class="center">
-				<div class="symbol">
-					<div class="item" @click="currentCoinFavorChange">
+			<div class="center" v-if=" !isListOpen" >
+				<div class="symbol flex-column p-3">
+					
+					<div class="w-100 d-flex justify-content-between align-items-center">
+						<div class="d-flex col-5 flex-column align-items-start">
+							<span :class="{buy:currentCoin.change>0,sell:currentCoin.change<0}" style="font-weight:500; font-size:22px;">{{currentCoin.close | toFixed(baseCoinScale)}}</span>
+							<span class="price-cny">≈ {{currentCoin.usdRate*CNYRate | toFixed(2)}} USD</span>
+						</div>
+						<div class="mx-0 row">
+						<div class="col-6 ws-ex-symb-text">24h High</div>
+						<div class="col-6 ws-ex-symb-text text-end">{{currentCoin.high | toFixed(baseCoinScale)}}</div>
+						<div class="col-6 ws-ex-symb-text">24h Low</div>
+						<div class="col-6 ws-ex-symb-text text-end">{{currentCoin.low | toFixed(baseCoinScale)}}</div>
+						<div class="col-6 ws-ex-symb-text">24h Volume</div>
+						<div class="col-6 ws-ex-symb-text text-end">{{currentCoin.volume}} </div>
+						</div>
+					</div>
+
+					<!-- <div class="item" @click="currentCoinFavorChange">
 						<Icon v-if="currentCoinIsFavor" type="ios-star" color="#f0a70a" size="24" />
 						<Icon v-else type="ios-star-outline" color="#f0a70a" size="24" />
-					</div>
-					<div class="item" style="margin-left: -40px;">
-						<span class="coin">{{currentCoin.coin}}
-							<small>/{{currentCoin.base}}</small>
-						</span>
+					</div> -->
+					<!-- <div class="item" style="margin-left: -40px;">
 						<Poptip trigger="hover" :title="coinInfo.name" content="content" placement="bottom-start"
 							word-wrap width="300">
 							<Icon type="md-information-circle" style="color:#546886;margin-left:5px;" />
@@ -51,8 +73,9 @@
 										target="_blank">{{$t("exchange.moredetail")}}</a></p>
 							</div>
 						</Poptip>
-					</div>
-					<div class="item">
+					</div> -->
+
+					<!-- <div class="item">
 						<span class="text">{{$t('service.NewPrice')}}</span>
 						<span class="num"
 							:class="{buy:currentCoin.change>0,sell:currentCoin.change<0}">{{currentCoin.close | toFixed(baseCoinScale)}}</span>
@@ -74,10 +97,7 @@
 					<div class="item">
 						<span class="text">{{$t('service.ExchangeNum')}}</span>
 						<span class="num ">{{currentCoin.volume}} {{currentCoin.coin}}</span>
-					</div>
-					<div class="item">
-						<!-- <img src="../../assets/images/exchange/light-switch.png" alt=""> -->
-					</div>
+					</div> -->
 				</div>
 				<div class="imgtable">
 					<div class="handler">
@@ -90,7 +110,7 @@
 					</div>
 					<DepthGraph :class="{hidden:currentImgTable==='k'}" ref="depthGraph"></DepthGraph>
 				</div>
-				<div class="trade_wrap">
+				<div class="trade_wrap d-none">
 					<div class="trade_panel trade_panel_logout">
 						<div class="mask" v-show="!isLogin">
 							<span>{{$t("common.please")}}
@@ -123,7 +143,7 @@
                 </a> -->
 							</div>
 						</div>
-						<div class="trade_bd">
+						<div class="trade_bd" >
 							<div class="panel panel_buy">
 								<div v-if="isLogin" class="hd hd_login">
 									<span>{{currentCoin.base}}</span>
@@ -195,10 +215,12 @@
 												<div class="slider-block"></div>
 											</div>
 										</div>
+										<div class="d-flex align-items-center">
 										<Button v-if="enableMarketBuy==1 && exchangeable == 1" class="bg-green"
 											@click="buyWithMarketPrice">{{$t("exchange.buyin")}}({{currentCoin.coin}})</Button>
 										<Button v-else
 											class="bg-gray">{{$t("exchange.buyin")}}({{currentCoin.coin}})</Button>
+										</div>
 									</Form>
 								</div>
 							</div>
@@ -282,11 +304,10 @@
 								</div>
 							</div>
 						</div>
-
 					</div>
 				</div>
 			</div>
-			<div class="left plate-wrap" style="position:relative;">
+			<div class="left plate-wrap" v-if=" !isListOpen" style="position:relative;">
 				<div class="lightning-panel" v-if="showCountDown" :style="{background:countDownBgColor}">
 					<img v-if="lang == '简体中文' && publishType=='FENTAN'"
 						src="../../assets/images/lightning-bg.png"></img>
@@ -339,13 +360,25 @@
 					:class="{hidden:selectedPlate==='all'}" :columns="plate.columns" :data="plate.bidRows"
 					:no-data-text="$t('common.nodata')"></Table>
 				<div class="trade-wrap" style="margin-top: 10px;" v-show="!showCountDown">
-					<Table height="264" :columns="trade.columns" :data="trade.rows" :no-data-text="$t('common.nodata')">
+					<Table  :columns="trade.columns" :data="trade.rows" :no-data-text="$t('common.nodata')">
 					</Table>
 				</div>
 
 			</div>
+			<div class="ws-sell-buy w-100" v-if=" !isListOpen" >
+				<div class="w-100 d-flex">
+					<div class="d-flex col p-1">
+						<button v-if="enableMarketBuy==1 && exchangeable == 1" class="btn btn-danger w-100">{{$t("exchange.buyin")}}({{currentCoin.coin}})</button>
+						<button v-else class="btn btn-secondary w-100">{{$t("exchange.buyin")}}({{currentCoin.coin}})</button>
+					</div>
+					<div class="d-flex col p-1">
+						<button v-if="enableMarketSell==1 && exchangeable == 1" class="btn btn-success w-100">{{$t("exchange.sellout")}}({{currentCoin.coin}})</button>
+						<button v-else class="btn btn-secondary w-100">{{$t("exchange.sellout")}}({{currentCoin.coin}})</button>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="order">
+		<div class="order" style="display:none;">
 			<div class="order-handler">
 				<span @click="changeOrder('current')"
 					:class="{active:selectedOrder==='current'}">{{$t('exchange.curdelegation')}}</span>
@@ -842,6 +875,7 @@
 		data() {
 			let self = this;
 			return {
+				isListOpen:true,
 				sliderStep: [25, 50, 75, 100],
 				sliderBuyLimitPercent: 0,
 				sliderSellLimitPercent: 0,
