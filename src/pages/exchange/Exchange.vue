@@ -1,15 +1,18 @@
 <template>
 	<div class="container exchange" :class="skin">
 
-		<div class="ws-exchange-head mt-2 p-2">
+		<div class="ws-exchange-head p-2">
 			
-			<span class="w-100 d-flex justify-content-center align-items-center " v-if="isListOpen">Market</span>
-			<span @click="isListOpen=true" class="w-100 d-flex justify-content-start align-items-center py-1" v-if="!isListOpen">
+			<span class="w-100 d-flex justify-content-center align-items-center " v-if="isListOpen && !isBuySellOpen">Market</span>
+			<span @click="isListOpen=true" class="w-100 d-flex justify-content-start align-items-center py-1" v-if="!isListOpen && !isBuySellOpen">
+					<b-icon icon="chevron-left" variant="light"></b-icon> <div class="ps-2">{{currentCoin.coin}}/{{currentCoin.base}}</div> 
+			</span>
+			<span @click="isBuySellOpen=false" class="w-100 d-flex justify-content-start align-items-center py-1" v-if="!isListOpen && isBuySellOpen">
 					<b-icon icon="chevron-left" variant="light"></b-icon> <div class="ps-2">{{currentCoin.coin}}/{{currentCoin.base}}</div> 
 			</span>
 		</div>
-		<div class="main">
-			<div class="right" v-if="isListOpen">
+		<div class="main ws-exchange-parent">
+			<div class="right" v-if="isListOpen && !isBuySellOpen">
 				<div class="coin-menu" style="overflow:hidden">
 					<!-- <div style="padding: 8px 10px;height:48px;">
 						<Input search :placeholder="$t('common.searchplaceholder')" @on-change="seachInputChange"
@@ -41,8 +44,8 @@
 -->
 				</div>
 			</div>
-			<div class="center" v-if=" !isListOpen" >
-				<div class="symbol flex-column p-3">
+			<div class="center"  >
+				<div class="symbol flex-column p-3" v-if=" !isListOpen && !isBuySellOpen">
 					
 					<div class="w-100 d-flex justify-content-between align-items-center">
 						<div class="d-flex col-5 flex-column align-items-start">
@@ -99,7 +102,7 @@
 						<span class="num ">{{currentCoin.volume}} {{currentCoin.coin}}</span>
 					</div> -->
 				</div>
-				<div class="imgtable">
+				<div class="imgtable" v-if=" !isListOpen && !isBuySellOpen">
 					<div class="handler">
 						<span @click="changeImgTable('k')"
 							:class="{active:currentImgTable==='k'}">{{$t("exchange.kline")}}</span>
@@ -110,8 +113,12 @@
 					</div>
 					<DepthGraph :class="{hidden:currentImgTable==='k'}" ref="depthGraph"></DepthGraph>
 				</div>
-				<div class="trade_wrap d-none">
+				<div class="trade_wrap " v-if="isBuySellOpen">
 					<div class="trade_panel trade_panel_logout">
+					<div class="ws-sell-buy-tabs">
+						<span  v-bind:class="[isBuyTabOpen ? 'active buys': 'buys']"  @click="isBuyTabOpen = true">buy <div></div></span>
+						<span v-bind:class="[!isBuyTabOpen ? 'active selles': 'selles']"  @click="isBuyTabOpen = false">sell <div></div></span>
+					</div>
 						<div class="mask" v-show="!isLogin">
 							<span>{{$t("common.please")}}
 								<router-link to="/login">
@@ -130,7 +137,7 @@
 								<span v-if="publishState == 3">{{$t("exchange.publishstate3")}}</span>
 							</div>
 						</div>
-						<div class="trade_menu">
+						<div class="trade_menu" style="display:none !important;">
 							<span @click="limited_price"
 								:class="{active:!showMarket}">{{$t("exchange.limited_price")}}</span>
 							<span @click="market_price"
@@ -144,7 +151,7 @@
 							</div>
 						</div>
 						<div class="trade_bd" >
-							<div class="panel panel_buy">
+							<div class="panel panel_buy" v-if="isBuyTabOpen">
 								<div v-if="isLogin" class="hd hd_login">
 									<span>{{currentCoin.base}}</span>
 									<span>{{wallet.base|toFloor(baseCoinScale)}}</span>
@@ -224,7 +231,7 @@
 									</Form>
 								</div>
 							</div>
-							<div class="panel panel_sell">
+							<div class="panel panel_sell" v-if="!isBuyTabOpen">
 								<div v-if="isLogin" class="hd hd_login">
 									<span>{{$t("exchange.canuse")}}</span>
 									<span>{{wallet.coin|toFloor(coinScale)}}</span>
@@ -307,7 +314,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="left plate-wrap" v-if=" !isListOpen" style="position:relative;">
+			<div class="left plate-wrap" v-if=" !isListOpen && !isBuySellOpen" style="position:relative;">
 				<div class="lightning-panel" v-if="showCountDown" :style="{background:countDownBgColor}">
 					<img v-if="lang == '简体中文' && publishType=='FENTAN'"
 						src="../../assets/images/lightning-bg.png"></img>
@@ -365,20 +372,20 @@
 				</div>
 
 			</div>
-			<div class="ws-sell-buy w-100" v-if=" !isListOpen" >
+			<div class="ws-sell-buy w-100" v-if=" !isListOpen && !isBuySellOpen" >
 				<div class="w-100 d-flex">
 					<div class="d-flex col p-1">
-						<button v-if="enableMarketBuy==1 && exchangeable == 1" class="btn btn-danger w-100">{{$t("exchange.buyin")}}({{currentCoin.coin}})</button>
+						<button @click="isBuySellOpen=true , isBuyTabOpen = true" v-if="enableMarketBuy==1 && exchangeable == 1" class="btn btn-danger w-100">{{$t("exchange.buyin")}}({{currentCoin.coin}})</button>
 						<button v-else class="btn btn-secondary w-100">{{$t("exchange.buyin")}}({{currentCoin.coin}})</button>
 					</div>
 					<div class="d-flex col p-1">
-						<button v-if="enableMarketSell==1 && exchangeable == 1" class="btn btn-success w-100">{{$t("exchange.sellout")}}({{currentCoin.coin}})</button>
+						<button @click="isBuySellOpen=true , isBuyTabOpen = false" v-if="enableMarketSell==1 && exchangeable == 1" class="btn btn-success w-100">{{$t("exchange.sellout")}}({{currentCoin.coin}})</button>
 						<button v-else class="btn btn-secondary w-100">{{$t("exchange.sellout")}}({{currentCoin.coin}})</button>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="order" style="display:none;">
+		<div class="order d-none" >
 			<div class="order-handler">
 				<span @click="changeOrder('current')"
 					:class="{active:selectedOrder==='current'}">{{$t('exchange.curdelegation')}}</span>
@@ -875,7 +882,9 @@
 		data() {
 			let self = this;
 			return {
+				isBuyTabOpen:true,
 				isListOpen:true,
+				isBuySellOpen:false,
 				sliderStep: [25, 50, 75, 100],
 				sliderBuyLimitPercent: 0,
 				sliderSellLimitPercent: 0,
@@ -1866,6 +1875,11 @@
 		},
 		created: function() {
 			this.init();
+			console.log(this.coins);
+
+		},
+		mounted: function() {
+			console.log(this.coins);
 		},
 		methods: {
 			seachInputChange() {
@@ -3246,3 +3260,4 @@
 		}
 	};
 </script>
+

@@ -128,11 +128,15 @@ body {
         bottom: 9px;
     }
 
-    .mobile-nav {
-        position: absolute;
+    .ws-mobile-nav {
+        position: fixed;
         bottom: 0;
         width: 100%;
         background-color: #141E2B;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
     }
 
     .login_form {
@@ -253,6 +257,160 @@ body {
 
     .ws-sell-buy button {
         border-radius: 0;
+    }
+
+    .exchange {
+        padding: 0 !important;
+    }
+
+    .exchange .ivu-icon-ios-star {
+        display: none !important;
+    }
+
+    .exchange .main .right {
+        flex: 0 0 100% !important;
+    }
+
+    .ws-exchange-parent .ivu-icon.ivu-icon-ios-star-outline {
+        display: none !important;
+    }
+
+    .exchange {
+        background-color: #13161D !important;
+    }
+
+    .exchange .main .right .coin-menu {
+        background-color: unset !important;
+    }
+
+    .exchange .ivu-table {
+        background-color: unset !important;
+    }
+
+    .exchange .ivu-table-wrapper .ivu-table .ivu-table-row td {
+        padding-top: 13px;
+        padding-bottom: 13px;
+    }
+
+    .ws-exchange-parent .ivu-table-header {
+        display: none;
+    }
+
+    .exchange .ivu-table-cell .sell {
+        color: white !important;
+        background-color: #f15057;
+        font-size: 11px;
+        padding: 1px 5px;
+        border-radius: 2px;
+    }
+
+    .exchange .ivu-table-cell .buy {
+        color: white !important;
+        background-color: #00b275;
+        font-size: 11px;
+        padding: 1px 5px;
+        border-radius: 2px;
+    }
+
+    .ws-mobile-nav img {
+        width: 15px;
+        margin-top: 2px;
+        filter: invert(.7) grayscale(1);
+    }
+
+    .ws-mobile-nav-title {
+        font-size: 12px;
+        padding-top: 3px;
+        opacity: .7;
+    }
+
+    .ws-mobile-nav .router-link-active .ws-mobile-nav-title {
+        color: #f0a70a;
+        opacity: 1;
+    }
+
+    .ws-mobile-nav .router-link-active img {
+        filter: invert(0) grayscale(0);
+    }
+
+    .ws-sell-buy-tabs {
+        display: flex;
+        align-items: center;
+        margin: 7px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .ws-sell-buy-tabs span {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        height: 40px;
+        align-items: center;
+        background-color: gray;
+        position: relative;
+        z-index: 1;
+        color: rgb(197, 197, 197);
+    }
+
+    .ws-sell-buy-tabs div {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: #192330;
+        width: 100%;
+        height: 100%;
+        transform: scale(0.99, 0.95);
+        z-index: -1;
+    }
+
+    .ws-sell-buy-tabs .buys {
+        clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+    }
+
+    .ws-sell-buy-tabs .buys div {
+        clip-path: polygon(0 0, 99.5% 0, 90% 100%, 0% 100%);
+    }
+
+    .ws-sell-buy-tabs .selles {
+        clip-path: polygon(9% 0, 100% 0, 100% 100%, 0 100%);
+
+    }
+
+    .ws-sell-buy-tabs .selles div {
+        clip-path: polygon(9% 0%, 100% 0%, 100% 100%, .5% 100%);
+    }
+
+    .ws-sell-buy-tabs .buys.active {
+        background-color: #00B275;
+    }
+
+    .ws-sell-buy-tabs .selles.active {
+        background-color: #F15057;
+    }
+
+    .trade_bd .panel {
+        width: 100% !important;
+        padding: 15px 0px !important;
+    }
+
+    .trade_bd {
+        padding: 0 5px !important;
+    }
+
+    .trade_panel {
+        padding: 5px !important;
+        padding-bottom: 20px !important;
+    }
+
+    .exchange .slider-wrap {
+        margin: 30px 7px 16px 13px !important;
+    }
+
+    .trade_wrap .ivu-input {
+        background-color: transparent;
+        border: 1px solid gray;
     }
 }
 

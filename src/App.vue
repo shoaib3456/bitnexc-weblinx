@@ -9,7 +9,7 @@
           <span>{{time|dateFormat}}&#160;&#160;{{utc}}</span>
         </div>
       </div>
-      <div class="layout">
+      <div class="layout" v-if="isHeaderShow">
         <div class="layout-ceiling">
           <router-link to="/">
             <div class="layout-logo">
@@ -185,12 +185,28 @@
       </div>
     </div>
 
-    <!-- <div class="mobile-nav py-2 px-2">
-      <div class="d-flex flex-column align-items-center text-center">
-          <b-icon icon="house-door-fill"></b-icon>
-          <span>Home</span>
-      </div>
-    </div> -->
+    <div class="ws-mobile-nav py-2 px-2">
+      <router-link to="/home" class="d-flex flex-column align-items-center text-center">
+          <img src="./assets/images/home-icon.svg" alt="">
+          <span class="ws-mobile-nav-title">Home</span>
+      </router-link>
+      <router-link to="/exchange" class="d-flex flex-column align-items-center text-center">
+          <img src="./assets/images/candlestick-icon.svg" alt="">
+          <span class="ws-mobile-nav-title">Market</span>
+      </router-link>
+      <router-link to="/exchange" class="d-flex flex-column align-items-center text-center">
+          <img src="./assets/images/exchange-icon.svg" alt="">
+          <span class="ws-mobile-nav-title">Exchange</span>
+      </router-link>
+      <router-link to="/future" class="d-flex flex-column align-items-center text-center">
+          <img src="./assets/images/pad-icon.svg" alt="">
+          <span class="ws-mobile-nav-title">Future</span>
+      </router-link>
+      <router-link to="/account" class="d-flex flex-column align-items-center text-center">
+          <img src="./assets/images/user-icon.svg" alt="">
+          <span class="ws-mobile-nav-title">MY</span>
+      </router-link>
+    </div>
 
     <template>
       <BackTop :bottom="50"></BackTop>
@@ -199,6 +215,7 @@
 </template>
 <script>
   import { BIcon, BIconArrowUp, BIconArrowDown } from 'bootstrap-vue'
+  import {useRoute} from "vue-router";
   import Vue from "vue";
   import { mapGetters, mapActions } from "vuex";
   import VueQr from 'vue-qr'
@@ -212,6 +229,7 @@
     },
     data() {
       return {
+        isHeaderShow:true,
         isRouterAlive: true,
         pageView: "page-view",
         utc: null,
@@ -250,6 +268,10 @@
         }
       },
       $route(to, from) {
+          let path2 = window.location.hash;
+          if (path2.indexOf('exchange') > -1) {
+            this.isHeaderShow = false
+          }
         this.pageView = "page-view";
         if (to.path == "/reg") {
           this.pageView = "page-view2";
@@ -306,6 +328,8 @@
       exchangeSkin() {
         return this.$store.state.exchangeSkin;
       }
+
+      
     },
     created: function () {
       this.initialize();
