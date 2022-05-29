@@ -1,2883 +1,3739 @@
 <template>
-  <div class="container swap" :class="skin">
-    <div class="main">
-      <div style="display: flex;flex: 0 0 70%;flex-wrap:wrap;justify-content: space-between;">
-        <div class="right">
-          <div class="coin-menu">
-            <div style="padding: 8px 10px;height:48px;">
-              <Input search :placeholder="$t('common.searchplaceholderswap')" @on-change="seachInputChange" v-model="searchKey"/>
-            </div>
-            <div class="sc_filter" style="display: none;">
-              <span @click="changeBaseCion('usdt')" :class="{active:basecion==='usdt'}">USDT</span>
-            </div>
-            <Table height="463" @on-current-change="gohref" highlight-row id="USDT" v-show="basecion==='usdt'" :columns="coins.columns" :data="dataIndex"></Table></Table>
-          </div>
-        </div>
-        <div class="center">
-          <div class="symbol">
-            <div class="item" style="margin-left: 10px;">
-                <span class="coin">{{currentCoin.symbol}} {{$t("swap.swapindex")}}
-                </span>
-            </div>
-            <div class="item">
-              <span class="text">{{$t('service.NewPrice')}}</span>
-              <span class="num" :class="{buy:currentCoin.change>0,sell:currentCoin.change<0}">{{currentCoin.close | toFixed(4)}}</span>
-              <span class="price-cny">≈ ${{currentCoin.usdRate*CNYRate | toFixed(2)}}</span>
-            </div>
-            <div class="item">
-              <span class="text">{{$t('service.Change')}}</span>
-              <span class="num" :class="{buy:currentCoin.change>0,sell:currentCoin.change<0}">{{currentCoin.rose}}</span>
-            </div>
-            <div class="item">
-              <span class="text">{{$t('service.high')}}</span>
-              <span class="num ">{{currentCoin.high | toFixed(4)}}</span>
-            </div>
-            <div class="item">
-              <span class="text">{{$t('service.low')}}</span>
-              <span class="num ">{{currentCoin.low | toFixed(4)}}</span>
-            </div>
-            <div class="item">
-              <span class="text">{{$t('service.ExchangeNum')}}</span>
-              <span class="num ">{{currentCoin.volume |  toFixed(4)}} {{currentCoin.coin}}</span>
-            </div>
-            <div class="item">
-              <!-- <img src="../../assets/images/exchange/light-switch.png" alt=""> -->
-            </div>
-          </div>
-          <div class="imgtable">
-            <div class="handler">
-              <span @click="changeImgTable('k')" :class="{active:currentImgTable==='k'}">{{$t("swap.kline")}}</span>
-              <span @click="changeImgTable('s')" :class="{active:currentImgTable==='s'}">{{$t("swap.depth")}}</span>
-            </div>
-            <div id="kline_container" :class="{hidden:currentImgTable==='s'}">
-            </div>
-            <DepthGraph :class="{hidden:currentImgTable==='k'}" ref="depthGraph"></DepthGraph>
-          </div>
-        </div>
-        <div style="width:100%;margin-top: 5px;flex: 0 0 100%;">
-          <div class="order" style="background: #999;margin-right: 5px;">
-            <div class="order-handler">
-              <span @click="changeOrder('currentPositions')" :class="{active:selectedOrder==='currentPositions'}">{{$t('swap.currentposition')}}</span>
-              <span @click="changeOrder('currentEntrustOrders')" :class="{active:selectedOrder==='currentEntrustOrders'}">{{$t('swap.curdelegation')}}</span>
-              <span @click="changeOrder('historyEntrustOrders')" :class="{active:selectedOrder==='historyEntrustOrders'}">{{$t('swap.hisdelegation')}}</span>
-            </div>
-            <div class="table">
-              <Table height="285" v-if="selectedOrder==='currentPositions'" :columns="currentPosition.columns" :data="positionList" :no-data-text="$t('common.nodata')"></Table>
-              <Table height="285" v-if="selectedOrder==='currentEntrustOrders'" :columns="currentOrder.columns" :no-data-text="$t('common.nodata')" :data="currentEntrustOrderList"></Table>
-              <Table height="285" v-if="selectedOrder==='historyEntrustOrders'" :columns="historyOrder.columns" :no-data-text="$t('common.nodata')" :data="historyEntrustOrderList"></Table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- 盘口 -->
-      <div class="left plate-wrap" style="position:relative; flex: 0 0 17%;">
-        <div class="handlers">
-          <span @click="changePlate('all')" class="handler handler-all" :class="{active:selectedPlate=='all'}"></span>
-          <span @click="changePlate('buy')" class="handler handler-green" :class="{active:selectedPlate=='buy'}"></span>
-          <span @click="changePlate('sell')" class="handler handler-red" :class="{active:selectedPlate=='sell'}"></span>
-        </div>
-        <!-- 盘口：卖 -->
-        <Table v-show="selectedPlate!='buy'" @on-current-change="buyPlate" highlight-row ref="currentRowTable" class="sell_table" :columns="plate.columns" :data="plate.askRows" :no-data-text="$t('common.nodata')"></Table>
-        <div class="plate-nowprice">
-          <span class="price" :class="{buy:currentCoin.change>0,sell:currentCoin.change<0}">{{currentCoin.price | toFixed(baseCoinScale)}}</span>
-          <span v-if="currentCoin.change>0" class="buy">↑</span>
-          <span v-else-if="currentCoin.change<0" class="sell">↓</span>
-          <span class="price-cny"> ≈ {{currentCoin.usdRate*CNYRate | toFixed(2)}} USD</span>
-        </div>
-        <!-- 盘口：买 -->
-        <Table v-show="selectedPlate!='sell'" @on-current-change="sellPlate" highlight-row class="buy_table" :class="{hidden:selectedPlate==='all'}" :columns="plate.columns" :data="plate.bidRows" :no-data-text="$t('common.nodata')"></Table>
+	<div class="container exchange" :class="skin">
 
-        <!-- 开仓/平仓 -->
-        <div class="order" style="margin-top: 5px;background-color: #192330;height: 320px;">
-          <div class="order-handler" style="border-bottom: 1px solid rgb(39, 49, 62);">
-            <span style="width: 50%;text-align: center;" @click="entrustChange(1)" :class="{active:entrustType===1}">{{$t('swap.open')}}</span>
-            <span style="width: 50%;text-align: center;" @click="entrustChange(2)" :class="{active:entrustType===2}">{{$t('swap.close')}}</span>
-          </div>
-          <div class="table open-close">
-            <div v-if="entrustType===1" class="open">
-              <RadioGroup v-model="entrustOrderType" type="button" size="default" @on-change="changeEntrustOrderType">
-                  <Radio label="1">{{$t('swap.limited_price')}}</Radio>
-                  <Radio label="0">{{$t('swap.market_price')}}</Radio>
-                  <Radio label="2">{{$t('swap.spot_price')}}</Radio>
-              </RadioGroup>
-              <Form style="width: 94%;margin-left: 3%;margin-top:10px;">
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='1'">
-                    <label class="before">{{$t('swap.entrustprice')}}</label>
-                    <Input v-model="form.entrustPrice"  @on-keyup="form.entrustPrice=form.entrustPrice.replace(/[^\d^\.]+/g,'')"></Input>
-                    <label class="after">{{currentCoin.base}}</label>
-                  </FormItem>
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='0'">
-                    <label class="before">{{$t('swap.entrustprice')}}</label>
-                    <Input :value="$t('swap.marketpriceplaceholder')" disabled class="market-price" ></Input>
-                  </FormItem>
+		<div class="ws-exchange-head p-2">
 
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='2'">
-                    <label class="before">{{$t('swap.triggleprice')}}</label>
-                    <Input v-model="form.triggerPrice" @on-keyup="form.triggerPrice=form.triggerPrice.replace(/[^\d^\.]+/g,'')"></Input>
-                    <label class="after">{{currentCoin.base}}</label>
-                  </FormItem>
+			<span class="w-100 d-flex justify-content-center align-items-center "
+				v-if="isListOpen && !isBuySellOpen">Market</span>
+			<span @click="isListOpen = true" class="w-100 d-flex justify-content-start align-items-center py-1"
+				v-if="!isListOpen && !isBuySellOpen">
+				<b-icon icon="chevron-left" variant="light"></b-icon>
+				<div class="ps-2">{{ currentCoin.coin }}/{{ currentCoin.base }}</div>
+			</span>
+			<span @click="isBuySellOpen = false" class="w-100 d-flex justify-content-start align-items-center py-1"
+				v-if="!isListOpen && isBuySellOpen">
+				<b-icon icon="chevron-left" variant="light"></b-icon>
+				<div class="ps-2">{{ currentCoin.coin }}/{{ currentCoin.base }}</div>
+			</span>
+		</div>
+		<div class="main ws-exchange-parent">
+			<div class="right" v-if="isListOpen && !isBuySellOpen">
+				<div class="coin-menu" style="overflow:hidden">
+					<!-- <div style="padding: 8px 10px;height:48px;">
+						<Input search :placeholder="$t('common.searchplaceholder')" @on-change="seachInputChange"
+							v-model="searchKey" />
+					</div> -->
+					<div class="sc_filter">
+						<span v-show="isLogin" @click="wsBaseCoinTab = 1" :class="{ active: wsBaseCoinTab == 1 }">{{
+							$t('service.CUSTOM')
+							}}</span>
+						<span @click="wsBaseCoinTab = 2" :class="{ active: wsBaseCoinTab == 2 }">USDT</span>
+						<span @click="wsBaseCoinTab = 3" :class="{ active: wsBaseCoinTab == 3 }">BTC</span>
+						<span @click="wsBaseCoinTab = 4" :class="{ active: wsBaseCoinTab == 4 }">ETH</span>
+					</div>
+					<!-- <div class="just-container" @click="isListOpen=false">
+					<Table  @on-current-change="gohref" highlight-row id="USDT" v-show="basecion==='usdt'"
+						:columns="coins.columns" :data="dataIndex"></Table>
+					<Table  @on-current-change="gohref" highlight-row id="BTC" v-show="basecion==='btc'"
+						:columns="coins.columns" :data="dataIndex"></Table>
+					<Table  @on-current-change="gohref" highlight-row id="ETH" v-show="basecion==='eth'"
+						:columns="coins.columns" :data="dataIndex"></Table>
+					<Table  @on-current-change="gohref" highlight-row v-show="basecion==='favor'"
+						:no-data-text="$t('common.nodata')" id="collect" :columns="favorColumns" :data="dataIndex">
+					</Table>
+					</div> -->
+					<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 1" @click="isListOpen = false">
+						<div v-for=" (item, index) in coins.favor">
+							<router-link :to="coins.favor[index].href">
+								<div class="row ws-ex-tr w-100 mx-0">
+									<div class="col-5 px-0 d-flex flex-column">
+										<div class="d-flex align-items-center"> <span
+												style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+												coins.favor[index].coin
+												}}</span><span style="opacity: .5; font-size: 11px;">
+												/ {{ coins.favor[index].base }}</span> </div>
+										<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+											coins.favor[index].volume
+											}}</span>
+									</div>
+									<div class="col-4 px-0 d-flex flex-column">
+										<span
+											v-bind:class="[coins.favor[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+											style="font-size: 13px;">{{ coins.favor[index].close }}</span>
+										<span style="opacity: .5; font-size: 11px;">{{
+											coins.favor[index].usdRate.toFixed(2)
+											}} USD</span>
+									</div>
+									<div class="col px-0 d-flex align-items-center justify-content-center">
+										<span
+											v-bind:class="[coins.favor[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+											coins.favor[index].rose
+											}}</span>
+									</div>
+								</div>
+							</router-link>
+						</div>
+					</div>
+					<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 2" @click="isListOpen = false">
+						<div v-for=" (item, index) in coins.USDT">
+							<router-link :to="coins.USDT[index].href">
+								<div class="row ws-ex-tr w-100 mx-0">
+									<div class="col-5 px-0 d-flex flex-column">
+										<div class="d-flex align-items-center"> <span
+												style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+												coins.USDT[index].coin
+												}}</span><span style="opacity: .5; font-size: 11px;">
+												/ {{ coins.USDT[index].base }}</span> </div>
+										<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+											coins.USDT[index].volume
+											}}</span>
+									</div>
+									<div class="col-4 px-0 d-flex flex-column">
+										<span
+											v-bind:class="[coins.USDT[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+											style="font-size: 13px;">{{ coins.USDT[index].close }}</span>
+										<span style="opacity: .5; font-size: 11px;">{{
+											coins.USDT[index].usdRate.toFixed(2)
+											}} USD</span>
+									</div>
+									<div class="col px-0 d-flex align-items-center justify-content-center">
+										<span
+											v-bind:class="[coins.USDT[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+											coins.USDT[index].rose
+											}}</span>
+									</div>
+								</div>
+							</router-link>
+						</div>
+					</div>
+					<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 2" @click="isListOpen = false">
+						<div v-for=" (item, index) in coins.BTC">
+							<router-link :to="coins.BTC[index].href">
+								<div class="row ws-ex-tr w-100 mx-0">
+									<div class="col-5 px-0 d-flex flex-column">
+										<div class="d-flex align-items-center"> <span
+												style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+												coins.BTC[index].coin
+												}}</span><span style="opacity: .5; font-size: 11px;">
+												/ {{ coins.BTC[index].base }}</span> </div>
+										<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+											coins.BTC[index].volume
+											}}</span>
+									</div>
+									<div class="col-4 px-0 d-flex flex-column">
+										<span
+											v-bind:class="[coins.BTC[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+											style="font-size: 13px;">{{ coins.BTC[index].close }}</span>
+										<span style="opacity: .5; font-size: 11px;">{{
+											coins.BTC[index].usdRate.toFixed(2)
+											}} USD</span>
+									</div>
+									<div class="col px-0 d-flex align-items-center justify-content-center">
+										<span
+											v-bind:class="[coins.BTC[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+											coins.BTC[index].rose
+											}}</span>
+									</div>
+								</div>
+							</router-link>
+						</div>
+					</div>
+					<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 2" @click="isListOpen = false">
+						<div v-for=" (item, index) in coins.ETH">
+							<router-link :to="coins.ETH[index].href">
+								<div class="row ws-ex-tr w-100 mx-0">
+									<div class="col-5 px-0 d-flex flex-column">
+										<div class="d-flex align-items-center"> <span
+												style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+												coins.ETH[index].coin
+												}}</span><span style="opacity: .5; font-size: 11px;">
+												/ {{ coins.ETH[index].base }}</span> </div>
+										<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+											coins.ETH[index].volume
+											}}</span>
+									</div>
+									<div class="col-4 px-0 d-flex flex-column">
+										<span
+											v-bind:class="[coins.ETH[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+											style="font-size: 13px;">{{ coins.ETH[index].close }}</span>
+										<span style="opacity: .5; font-size: 11px;">{{
+											coins.ETH[index].usdRate.toFixed(2)
+											}} USD</span>
+									</div>
+									<div class="col px-0 d-flex align-items-center justify-content-center">
+										<span
+											v-bind:class="[coins.ETH[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+											coins.ETH[index].rose
+											}}</span>
+									</div>
+								</div>
+							</router-link>
+						</div>
+					</div>
 
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='2'">
-                    <label class="before">{{$t('swap.entrustprice')}}</label>
-                    <Input v-model="form.entrustPrice" :placeholder="$t('swap.triggleplaceholder')" @on-keyup="form.entrustPrice=form.entrustPrice.replace(/[^\d^\.]+/g,'')"></Input>
-                    <label class="after">{{currentCoin.base}}</label>
-                  </FormItem>
+					<!-- <table>
+						<tr  v-for=" (item, index) in coins.USDT">
+							<td>{{ coins.USDT[index].base }}</td>
+							<td>{{ coins.USDT[index].volume }}</td>
+						</tr>
+					</table> -->
 
-                  <FormItem style="margin-bottom: 10px;" >
-                    <label class="before">{{$t('swap.openvolume')}}</label>
-                    <Input v-model="form.volume" v-if="sliderOpenPercent == 0"  @on-keyup="form.volume=form.volume.replace(/\D/g,'')"></Input>
-                    <Input class="market-price" :readonly="true" v-if="sliderOpenPercent != 0" @on-focus="onOpenAmountFocus" :value="sliderOpenPercent + ' %'"></Input>
-                    <label class="after" v-if="sliderOpenPercent == 0">{{$t('swap.shareNumber')}}</label>
-                    <span style="position:absolute;top:32px;right:0px;color: #7c7f82;">1{{$t('swap.shareNumber')}} = {{contractCoinInfo.shareNumber}}USDT</span>
-                  </FormItem>
-                  <div class="split-panel" v-if="entrustOrderType!='2'">
-                    <div :class="{selected:Number(sliderOpenPercent)===25}" @click="onChangeOpenPercent(25)">25%</div>
-                    <div :class="{selected:Number(sliderOpenPercent)===50}" @click="onChangeOpenPercent(50)">50%</div>
-                    <div :class="{selected:Number(sliderOpenPercent)===75}" @click="onChangeOpenPercent(75)">75%</div>
-                    <div :class="{selected:Number(sliderOpenPercent)===100}" @click="onChangeOpenPercent(100)">100%</div>
-                  </div>
+					<!--
+          <p v-show="basecion!='favor'" style="height:40px;line-height:40px;padding-left:10px;border-bottom:1px solid #26303d;font-size:14px;color:rgb(97, 119, 146);">创新版</p>
+          <Table @on-current-change="gohref" highlight-row id="USDT2" v-show="basecion==='usdt'" :columns="coins.columns" :data="dataIndex2"></Table>
+          <Table @on-current-change="gohref" highlight-row id="BTC2" v-show="basecion==='btc'" :columns="coins.columns" :data="dataIndex2"></Table>
+          <Table @on-current-change="gohref" highlight-row id="ETH2" v-show="basecion==='eth'" :columns="coins.columns" :data="dataIndex2"></Table>
+-->
+				</div>
+			</div>
+			<div class="center">
+				<div class="symbol flex-column p-3" v-if="!isListOpen && !isBuySellOpen">
 
-              </Form>
-              <div class="open-tips">
-                <div><span class="green">{{$t('swap.canup')}}:</span><span class="num">{{avaOpenBuy}} {{$t('swap.shareNumber')}}</span></div>
-                <div><span class="red">{{$t('swap.candown')}}:</span><span class="num">{{avaOpenSell}} {{$t('swap.shareNumber')}}</span></div>
-              </div>
-              <div class="operate" v-if="isLogin">
-                <Button type="primary" shape="circle" class="open-up" @click="onOpen(0)">{{$t('swap.openup')}}</Button>
-                <Button type="primary" shape="circle" class="open-down" @click="onOpen(1)">{{$t('swap.opendown')}}</Button>
-              </div>
-              <div class="operate-login" v-if="!isLogin" style="width: 94%; margin-left:3%;">
-                <span style="display: inline-block;width: 100%; text-align: center;border:1px solid #232d3a;padding: 5px 0;border-radius: 5px;">
-                  {{$t("common.please")}}
-                  <router-link to="/login">
-                    <span style="color:#f0a70a;">{{$t("common.login")}}</span>
-                  </router-link> /
-                  <router-link to="/register">
-                    <span style="color:#00dcff;">{{$t("common.register")}}</span>
-                  </router-link>
-                </span>
-              </div>
-            </div>
-            <div v-else class="open">
-              <RadioGroup v-model="entrustOrderType" type="button" size="default" @on-change="changeEntrustOrderType">
-                  <Radio label="1">{{$t('swap.limited_price')}}</Radio>
-                  <Radio label="0">{{$t('swap.market_price')}}</Radio>
-                  <Radio label="2">{{$t('swap.spot_price')}}</Radio>
-              </RadioGroup>
-              <Form style="width: 94%;margin-left: 3%;margin-top:10px;">
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='1'">
-                    <label class="before">{{$t('swap.entrustprice')}}</label>
-                    <Input v-model="form.entrustPrice" @on-keyup="form.entrustPrice=form.entrustPrice.replace(/[^\d^\.]+/g,'')"></Input>
-                    <label class="after">{{currentCoin.base}}</label>
-                  </FormItem>
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='0'">
-                    <label class="before">{{$t('swap.entrustprice')}}</label>
-                    <Input :value="$t('swap.marketpriceplaceholder')" disabled class="market-price"></Input>
-                  </FormItem>
+					<div class="w-100 d-flex justify-content-between align-items-center">
+						<div class="d-flex col-5 flex-column align-items-start">
+							<span :class="{ buy: currentCoin.change > 0, sell: currentCoin.change < 0 }"
+								style="font-weight:500; font-size:22px;">{{ currentCoin.close |
+								toFixed(baseCoinScale)
+								}}</span>
+							<span class="price-cny">≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
+						</div>
+						<div class="mx-0 row">
+							<div class="col-6 ws-ex-symb-text">24h High</div>
+							<div class="col-6 ws-ex-symb-text text-end">{{ currentCoin.high | toFixed(baseCoinScale) }}
+							</div>
+							<div class="col-6 ws-ex-symb-text">24h Low</div>
+							<div class="col-6 ws-ex-symb-text text-end">{{ currentCoin.low | toFixed(baseCoinScale) }}
+							</div>
+							<div class="col-6 ws-ex-symb-text">24h Volume</div>
+							<div class="col-6 ws-ex-symb-text text-end">{{ currentCoin.volume }} </div>
+						</div>
+					</div>
 
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='2'">
-                    <label class="before">{{$t('swap.triggleprice')}}</label>
-                    <Input v-model="form.triggerPrice" @on-keyup="form.trigglePrice=form.triggerPrice.replace(/[^\d^\.]+/g,'')"></Input>
-                    <label class="after">{{currentCoin.base}}</label>
-                  </FormItem>
+					<!-- <div class="item" @click="currentCoinFavorChange">
+						<Icon v-if="currentCoinIsFavor" type="ios-star" color="#f0a70a" size="24" />
+						<Icon v-else type="ios-star-outline" color="#f0a70a" size="24" />
+					</div> -->
+					<!-- <div class="item" style="margin-left: -40px;">
+						<Poptip trigger="hover" :title="coinInfo.name" content="content" placement="bottom-start"
+							word-wrap width="300">
+							<Icon type="md-information-circle" style="color:#546886;margin-left:5px;" />
+							<div class="api" slot="content">
+								<div class="coin-info">{{coinInfo.information}}</div>
+								<p style="text-align:right;margin-top: -10px;"><a :href="coinInfo.infolink"
+										target="_blank">{{$t("exchange.moredetail")}}</a></p>
+							</div>
+						</Poptip>
+					</div> -->
 
-                  <FormItem style="margin-bottom: 10px;" v-if="entrustOrderType=='2'">
-                    <label class="before">{{$t('swap.entrustprice')}}</label>
-                    <Input v-model="form.entrustPrice" :placeholder="$t('swap.triggleplaceholder')"  @on-keyup="form.entrustPrice=form.entrustPrice.replace(/[^\d^\.]+/g,'')"></Input>
-                    <label class="after">{{currentCoin.base}}</label>
-                  </FormItem>
+					<!-- <div class="item">
+						<span class="text">{{$t('service.NewPrice')}}</span>
+						<span class="num"
+							:class="{buy:currentCoin.change>0,sell:currentCoin.change<0}">{{currentCoin.close | toFixed(baseCoinScale)}}</span>
+						<span class="price-cny">≈ {{currentCoin.usdRate*CNYRate | toFixed(2)}} USD</span>
+					</div>
+					<div class="item">
+						<span class="text">{{$t('service.Change')}}</span>
+						<span class="num"
+							:class="{buy:currentCoin.change>0,sell:currentCoin.change<0}">{{currentCoin.rose}}</span>
+					</div>
+					<div class="item">
+						<span class="text">{{$t('service.high')}}</span>
+						<span class="num ">{{currentCoin.high | toFixed(baseCoinScale)}}</span>
+					</div>
+					<div class="item">
+						<span class="text">{{$t('service.low')}}</span>
+						<span class="num ">{{currentCoin.low | toFixed(baseCoinScale)}}</span>
+					</div>
+					<div class="item">
+						<span class="text">{{$t('service.ExchangeNum')}}</span>
+						<span class="num ">{{currentCoin.volume}} {{currentCoin.coin}}</span>
+					</div> -->
+				</div>
+				<div class="imgtable" v-if="!isListOpen && !isBuySellOpen">
+					<div class="handler">
+						<span @click="changeImgTable('k')" :class="{ active: currentImgTable === 'k' }">{{
+							$t("exchange.kline")
+							}}</span>
+						<span @click="changeImgTable('s')" :class="{ active: currentImgTable === 's' }">{{
+							$t("exchange.depth")
+							}}</span>
+					</div>
+					<div id="kline_container" :class="{ hidden: currentImgTable === 's' }">
+					</div>
+					<DepthGraph :class="{ hidden: currentImgTable === 'k' }" ref="depthGraph"></DepthGraph>
+				</div>
+				<div class="trade_wrap ws-trade-wrap " v-if="isBuySellOpen">
+					<div class="trade_panel trade_panel_logout">
+						<div class="ws-sell-buy-tabs">
+							<span style="font-size:12px !important;" v-bind:class="[isBuyTabOpen ? 'active buys' : 'buys']"
+								@click="isBuyTabOpen = true">Close Long
+								<div></div>
+							</span>
+							<span style="font-size:12px !important;" v-bind:class="[!isBuyTabOpen ? 'active selles' : 'selles']"
+								@click="isBuyTabOpen = false">Close Short <div></div></span>
+						</div>
+						<div class="mask" v-show="!isLogin">
+							<span>{{ $t("common.please") }}
+								<router-link to="/login">
+									<span style="color:#f0a70a;">{{ $t("common.login") }}</span>
+								</router-link> /
+								<router-link to="/register">
+									<span style="color:#00dcff;">{{ $t("common.register") }}</span>
+								</router-link>
+							</span>
+						</div>
+            
+						<div class="publish-mask" v-show="isLogin && showPublish">
+							<div style="width: 100%;margin-top:17%;text-align:center;letter-spacing:3px;">
+								<span v-if="publishState == 0">{{ $t("exchange.publishstate0") }}</span>
+								<span v-if="publishState == 1">{{ $t("exchange.publishstate1") }}</span>
+								<span v-if="publishState == 2">{{ $t("exchange.publishstate2") }}</span>
+								<span v-if="publishState == 3">{{ $t("exchange.publishstate3") }}</span>
+							</div>
+						</div>
+						<div class="trade_menu" style="display:none !important;">
+							<span @click="limited_price" :class="{ active: !showMarket }">{{
+								$t("exchange.limited_price")
+								}}</span>
+							<span @click="market_price" :class="{ active: showMarket }">{{ $t("exchange.market_price")
+								}}</span>
+							<div class="fee-wrap" style="display: none;">
+								<span>Taker{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
+								<span>Maker{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
+								<!-- <a href="/#/helpdetail?cate=1&id=7&cateTitle=常见问题">
+                  <Icon type="ios-help-circle-outline" color="#fff" size="16"/>
+                </a> -->
+							</div>
+						</div>
+						<div class="trade_bd">
+            
+							<div class="panel panel_buy" v-if="isBuyTabOpen">
+								<div v-if="isLogin" class="hd hd_login">
+									<span>{{ currentCoin.base }}</span>
+									<span>{{ wallet.base | toFloor(baseCoinScale) }}</span>
+									<span>{{ $t("exchange.canuse") }}</span>
+									<router-link :to="rechargeUSDTUrl">{{ $t("exchange.recharge") }}</router-link>
+									<!-- <a :href="rechargeUSDTUrl">{{$t("exchange.recharge")}}</a> -->
+								</div>
+								<div class="hd" v-else>
+								</div>
+								<div class="bd bd_limited" v-show="!showMarket">
+									<Form ref="formValidate">
+										<FormItem>
+											<label class="before">{{ $t('exchange.buyprice') }}</label>
+											<Input @on-keyup="keyEvent" v-model="form.buy.limitPrice"
+												:placeholder="$t('exchange.buyprice')"></Input>
+											<label class="after">{{ currentCoin.base }}</label>
+											<p class="math_price">≈
+												{{ currentCoin.usdRate / currentCoin.close * form.buy.limitPrice *
+												CNYRate || 0 | toFixed(2)
+												}}
+												USD</p>
+										</FormItem>
+										<FormItem>
+											<label class="before">{{ $t('exchange.buynum') }}</label>
+											<Input @on-keyup="keyEvent" v-model="form.buy.limitAmount"
+												:placeholder="$t('exchange.buynum')"></Input>
+											<label class="after">{{ currentCoin.coin }}</label>
+										</FormItem>
+										<div class="slider-wrap">
+											<Slider class="silder-buy" v-model="sliderBuyLimitPercent" :step="25"
+												show-tip="always" :tip-format="tipFormat" :disabled="sliderBuyDisabled">
+											</Slider>
+											<div class="slider-stop" v-for="item in sliderStep"
+												:style="'left: ' + item + '%;'"
+												@click="silderGo('sliderBuyLimitPercent', item)">
+												<div class="slider-block"></div>
+											</div>
+										</div>
+										<div class="total buy_total">
+											{{ $t("exchange.amount") }}
+											<span>{{ form.buy.limitTurnover | toFloor(baseCoinScale) }}</span>
+											{{ currentCoin.base }}
+										</div>
+										<Button v-if="exchangeable == 1" class="bg-green" @click="buyWithLimitPrice">
+                    OPEN LONG
+                    </Button>
+										<Button v-else class="bg-gray">{{ $t("exchange.buyin") }}({{ currentCoin.coin
+											}})</Button>
+									</Form>
+								</div>
+								<div class="bd bd_market" v-show="showMarket">
+									<Form ref="formValidate">
+										<FormItem>
+											<label class="before">{{ $t('exchange.buyprice') }}</label>
+											<Input disabled :placeholder="$t('exchange.buytip')"></Input>
+											<label class="after">{{ currentCoin.base }}</label>
+										</FormItem>
+										<FormItem>
+											<label class="before">{{ $t('exchange.amount') }}</label>
+											<Input @on-keyup="keyEvent" v-model="form.buy.marketAmount"
+												:placeholder="$t('exchange.amount')"></Input>
+											<label class="after">{{ currentCoin.base }}</label>
+										</FormItem>
+										<div class="slider-wrap">
+											<Slider class="silder-buy" v-model="sliderBuyMarketPercent" :step="25"
+												show-tip="always" :tip-format="tipFormat" :disabled="sliderBuyDisabled">
+											</Slider>
+											<div class="slider-stop" v-for="item in sliderStep"
+												:style="'left: ' + item + '%;'"
+												@click="silderGo('sliderBuyMarketPercent', item)">
+												<div class="slider-block"></div>
+											</div>
+										</div>
+										<div class="d-flex align-items-center">
+											<Button v-if="enableMarketBuy == 1 && exchangeable == 1" class="bg-green"
+												@click="buyWithMarketPrice">{{ $t("exchange.buyin") }}({{
+												currentCoin.coin
+												}})</Button>
+											<Button v-else class="bg-gray">{{ $t("exchange.buyin") }}({{
+												currentCoin.coin
+												}})</Button>
+										</div>
+									</Form>
+								</div>
+							</div>
+							<div class="panel panel_sell" v-if="!isBuyTabOpen">
+								<div v-if="isLogin" class="hd hd_login">
+									<span>{{ $t("exchange.canuse") }}</span>
+									<span>{{ wallet.coin | toFloor(coinScale) }}</span>
+									<span>{{ currentCoin.coin }}</span>
+									<router-link :to="rechargeCoinUrl">{{ $t("exchange.recharge") }}</router-link>
+									<!-- <a :href="rechargeCoinUrl">{{$t("exchange.recharge")}}</a> -->
+								</div>
+								<div class="hd" v-else>
+								</div>
+								<div class="bd bd_limited" v-show="!showMarket">
+									<Form ref="formValidate">
+										<FormItem>
+											<label class="before">{{ $t('exchange.sellprice') }}</label>
+											<Input @on-keyup="keyEvent" v-model="form.sell.limitPrice"
+												:placeholder="$t('exchange.sellprice')"></Input>
+											<label class="after">{{ currentCoin.base }}</label>
+											<p class="math_price">≈
+												{{ currentCoin.usdRate / currentCoin.close * form.sell.limitPrice *
+												CNYRate || 0 | toFixed(2)
+												}}
+												USD</p>
+										</FormItem>
+										<FormItem>
+											<label class="before">{{ $t('exchange.sellnum') }}</label>
+											<Input @on-keyup="keyEvent" v-model="form.sell.limitAmount"
+												:placeholder="$t('exchange.sellnum')"></Input>
+											<label class="after">{{ currentCoin.coin }}</label>
+										</FormItem>
+										<div class="slider-wrap">
+											<Slider class="silder-sell" v-model="sliderSellLimitPercent" :step="25"
+												show-tip="always" :tip-format="tipFormat"
+												:disabled="sliderSellDisabled"></Slider>
+											<div class="slider-stop" v-for="item in sliderStep"
+												:style="'left: ' + item + '%;'"
+												@click="silderGo('sliderSellLimitPercent', item)">
+												<div class="slider-block"></div>
+											</div>
+										</div>
+										<div class="total sell_total">
+											{{ $t("exchange.amount") }}
+											<span>{{ form.sell.limitTurnover | toFloor(coinScale) }}</span>
+											{{ currentCoin.base }}
+										</div>
+										<Button v-if="exchangeable == 1" class="bg-red" @click="sellLimitPrice">{{
+											$t("exchange.sellout")
+											}}({{ currentCoin.coin }})</Button>
+										<Button v-else class="bg-gray">{{ $t("exchange.sellout") }}({{ currentCoin.coin
+											}})</Button>
+									</Form>
+								</div>
+								<div class="bd bd_market" v-show="showMarket">
+									<Form ref="formValidate">
+										<FormItem>
+											<label class="before">{{ $t('exchange.sellprice') }}</label>
+											<Input disabled :placeholder="$t('exchange.selltip')"></Input>
+											<label class="after">{{ currentCoin.base }}</label>
+										</FormItem>
+										<FormItem>
+											<label class="before">{{ $t('exchange.sellnum') }}</label>
+											<Input @on-keyup="keyEvent" v-model="form.sell.marketAmount"
+												:placeholder="$t('exchange.sellnum')"></Input>
+											<label class="after">{{ currentCoin.coin }}</label>
+										</FormItem>
+										<div class="slider-wrap">
+											<Slider class="silder-sell" v-model="sliderSellMarketPercent" :step="25"
+												show-tip="always" :tip-format="tipFormat"
+												:disabled="sliderSellDisabled"></Slider>
+											<div class="slider-stop" v-for="item in sliderStep"
+												:style="'left: ' + item + '%;'"
+												@click="silderGo('sliderSellMarketPercent', item)">
+												<div class="slider-block"></div>
+											</div>
+										</div>
+										<Button v-if="enableMarketSell == 1 && exchangeable == 1" class="bg-red"
+											@click="sellMarketPrice">{{ $t("exchange.sellout") }}
+											({{ currentCoin.coin }})</Button>
+										<Button v-else class="bg-gray">{{ $t("exchange.sellout") }}({{ currentCoin.coin
+											}})</Button>
+									</Form>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="ws-trade-inner-div-2 col px-1">
+						<!-- <Table v-show="selectedPlate != 'buy'" @on-current-change="buyPlate" highlight-row
+							ref="currentRowTable" class="sell_table" :columns="plate.columns" :data="plate.askRows"
+							:no-data-text="$t('common.nodata')"></Table>
+						<div class="plate-nowprice">
+							<span class="price" :class="{ buy: currentCoin.change > 0, sell: currentCoin.change < 0 }">{{
+								currentCoin.price |
+								toFixed(baseCoinScale)
+								}}</span>
+							<span v-if="currentCoin.change > 0" class="buy">↑</span>
+							<span v-else-if="currentCoin.change < 0" class="sell">↓</span>
+							<span class="price-cny"> ≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
+						</div>
+						<Table v-show="selectedPlate != 'sell'" @on-current-change="sellPlate" highlight-row
+							class="buy_table" :class="{ hidden: selectedPlate === 'all' }" :columns="plate.columns"
+							:data="plate.bidRows" :no-data-text="$t('common.nodata')">
+						</Table> -->
+						<div>
+							<div class="row mx-0 py-2 px-1">
+								<div class="col-6 px-0 text-start " style="font-size: 11px; opacity: .7;">Price(USDT)
+								</div>
+								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">Amount({{
+									currentCoin.coin }})</div>
+							</div>
+							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.askRows"
+								v-if="index < 5">
+								<div v-bind:class="[plate.askRows[index].direction == 'SELL' ? 'text-danger col-6 px-0 text-start ' : 'text-success col-3 px-0 text-start ']"
+									style="font-size: 11px; opacity: 1; text-transform:lowercase !important;">{{
+									plate.askRows[index].price }}</div>
+								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">{{
+									plate.askRows[index].amount }}</div>
+								<span class="ws-plate-progress"
+									:style="{ width: ((plate.askRows[index].position /10) * 100).toFixed(2) + '%', backgroundColor: '#4621299e' }"></span>
+							</div>
+							<div class="plate-nowprice ">
+								<span class="price"
+									:class="{ buy: currentCoin.change > 0, sell: currentCoin.change < 0 }">{{
+									currentCoin.price |
+									toFixed(baseCoinScale)
+									}}</span>
+								<span v-if="currentCoin.change > 0" class="buy">↑</span>
+								<span v-else-if="currentCoin.change < 0" class="sell">↓</span>
+								<span class="price-cny" style="font-size: 11px !important; display: flex !important; padding-top: 2px !important; opacity:.5;" ≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
+							</div>
+							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.bidRows"
+								v-if="index < 5">
+								<div v-bind:class="[plate.bidRows[index].direction == 'SELL' ? 'text-danger col-6 px-0 text-start ' : 'text-success col-3 px-0 text-start ']"
+									style="font-size: 11px; opacity: 1; text-transform:lowercase !important;">{{
+									plate.bidRows[index].price }}</div>
+								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">{{
+									plate.bidRows[index].amount }}</div>
+								<span class="ws-plate-progress"
+									:style="{ width: ((plate.bidRows[index].position /10) * 100).toFixed(2) + '%', backgroundColor: 'rgb(15,54,46)' }"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="left plate-wrap pb-5" v-if="!isListOpen && !isBuySellOpen" style="position:relative;">
+				<div class="sc_filter">
+					<span @click="wsPlateTab = 1" :class="{ active: wsPlateTab == 1 }"
+						style="margin:0 !important;">ORDER
+						BOOK</span>
+					<span @click="wsPlateTab = 2" :class="{ active: wsPlateTab == 2 }"
+						style="margin:0 !important;">MARKET
+						HISTORY</span>
+				</div>
+				<div class="lightning-panel" v-if="showCountDown" :style="{ background: countDownBgColor }">
+					<img v-if="lang == '简体中文' && publishType == 'FENTAN'"
+						src="../../assets/images/lightning-bg.png"></img>
+					<img v-if="lang == 'English' && publishType == 'FENTAN'"
+						src="../../assets/images/lightning-bg-en.png"></img>
+					<img v-if="lang == '简体中文' && publishType == 'QIANGGOU'"
+						src="../../assets/images/lightning-bg2.png"></img>
+					<img v-if="lang == 'English' && publishType == 'QIANGGOU'"
+						src="../../assets/images/lightning-bg2-en.png"></img>
+					<div class="l-content">
+						<BZCountDown style="width:100%;margin-top:5px;" :countDownBgColor.sync="countDownBgColor"
+							:publishState.sync="publishState" :publishType="publishType" :currentTime="currentTime"
+							:startTime="startTime" :clearTime="clearTime" :endTime="endTime"
+							:showPublishMask="showPublishMask" :hidePublishMask="hidePublishMask"
+							:hideCountDown="hideCountDown">
+						</BZCountDown>
+						<p class="l-info">
+							<span class="l-txt">{{ $t("exchange.publishamount") }}：</span><span class="l-count">{{
+								publishAmount | toFixedPublishAmount
+								}} </span><span class="l-unit">{{ currentCoin.coin
+								}}</span> &nbsp;&nbsp;&nbsp;&nbsp;
+							<span class="l-txt">{{ $t("exchange.publishprice") }}：</span><span class="l-price">{{
+								publishPrice | toFixedPublishPrice
+								}} </span><span class="l-unit">{{ currentCoin.base
+								}}</span>
+						</p>
+						<p class="l-detail">
+							<router-link target="_blank" to="/announcement/118930">{{ $t("exchange.publishdetail") }}
+							</router-link>
+						</p>
+					</div>
+				</div>
+				<div class="handlers d-none">
+					<span @click="changePlate('all')" class="handler handler-all"
+						:class="{ active: selectedPlate == 'all' }"></span>
+					<span @click="changePlate('buy')" class="handler handler-green"
+						:class="{ active: selectedPlate == 'buy' }"></span>
+					<span @click="changePlate('sell')" class="handler handler-red"
+						:class="{ active: selectedPlate == 'sell' }"></span>
+				</div>
+				<div v-if="wsPlateTab == 1">
+					<Table v-show="selectedPlate != 'buy'" @on-current-change="buyPlate" highlight-row
+						ref="currentRowTable" class="sell_table" :columns="plate.columns" :data="plate.askRows"
+						:no-data-text="$t('common.nodata')"></Table>
+					<div class="plate-nowprice">
+						<span class="price" :class="{ buy: currentCoin.change > 0, sell: currentCoin.change < 0 }">{{
+							currentCoin.price |
+							toFixed(baseCoinScale)
+							}}</span>
+						<span v-if="currentCoin.change > 0" class="buy">↑</span>
+						<span v-else-if="currentCoin.change < 0" class="sell">↓</span>
+						<span class="price-cny"> ≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
+					</div>
+					<Table v-show="selectedPlate != 'sell'" @on-current-change="sellPlate" highlight-row
+						class="buy_table" :class="{ hidden: selectedPlate === 'all' }" :columns="plate.columns"
+						:data="plate.bidRows" :no-data-text="$t('common.nodata')">
+					</Table>
+				</div>
+				<div v-if="wsPlateTab == 2" class="trade-wrap" v-show="!showCountDown">
+					<!-- <Table :columns="trade.columns" :data="trade.rows" :no-data-text="$t('common.nodata')">
+					</Table> -->
 
-                  <FormItem style="margin-bottom: 10px;">
-                    <label class="before">{{$t('swap.closevolume')}}</label>
-                    <Input v-model="form.volume" v-if="sliderClosePercent == 0" @on-keyup="form.volume=form.volume.replace(/\D/g,'')"></Input>
-                    <Input class="market-price" :readonly="true" v-if="sliderClosePercent != 0" @on-focus="onCloseAmountFocus"></Input>
-                    <label class="after">{{$t('swap.shareNumber')}}</label>
-                    <span style="position:absolute;top:32px;right:0px;color: #7c7f82;">1{{$t('swap.shareNumber')}} = {{contractCoinInfo.shareNumber}}USDT</span>
-                  </FormItem>
+					<div>
+						<div class="row mx-0 py-2">
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Time</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Side</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Price(USDT)</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Amount(BTC)</div>
+						</div>
+						<div class="row ws-ex-tr w-100 mx-0 border-0" v-for=" (item, index) in trade.rows">
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
+								{{ new Date(trade.rows[index].time * 1000).toISOString().slice(14, -5) }}</div>
+							<div v-bind:class="[trade.rows[index].direction == 'SELL' ? 'text-danger col-3 px-0 text-center ' : 'text-success col-3 px-0 text-center ']"
+								style="font-size: 11px; opacity: 1; text-transform:lowercase !important;">{{
+								trade.rows[index].direction }}</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{
+								trade.rows[index].price }}</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{
+								trade.rows[index].amount.toFixed(4) }}</div>
+							<!-- <div class="col-5 px-0 d-flex flex-column">
+							<div class="d-flex align-items-center"> <span
+									style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+											coins.ETH[index].coin
+									}}</span><span style="opacity: .5; font-size: 11px;">
+									/ {{ coins.ETH[index].base }}</span> </div>
+							<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+									coins.ETH[index].volume
+							}}</span>
+						</div>
+						<div class="col-4 px-0 d-flex flex-column">
+							<span
+								v-bind:class="[coins.ETH[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+								style="font-size: 13px;">{{ coins.ETH[index].close }}</span>
+							<span style="opacity: .5; font-size: 11px;">{{
+									coins.ETH[index].usdRate.toFixed(2)
+							}} USD</span>
+						</div>
+						<div class="col px-0 d-flex align-items-center justify-content-center">
+							<span
+								v-bind:class="[coins.ETH[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+										coins.ETH[index].rose
+								}}</span>
+						</div> -->
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ws-sell-buy w-100" v-if="!isListOpen && !isBuySellOpen">
+				<div class="w-100 d-flex align-items-center">
+					<div class="d-flex col p-1">
+						<button @click="isBuySellOpen = true, isBuyTabOpen = true"
+							v-if="enableMarketBuy == 1 && exchangeable == 1" class="btn btn-danger w-100">{{
+							$t("exchange.buyin")
+							}}({{ currentCoin.coin }})</button>
+						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.buyin") }}({{ currentCoin.coin
+							}})</button>
+					</div>
+					<div class="d-flex col p-1">
+						<button @click="isBuySellOpen = true, isBuyTabOpen = false"
+							v-if="enableMarketSell == 1 && exchangeable == 1" class="btn btn-success w-100">{{
+							$t("exchange.sellout")
+							}}({{ currentCoin.coin }})</button>
+						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.sellout") }}({{ currentCoin.coin
+							}})</button>
+					</div>
+					<div class="d-flex flex-column align-items-center ps-2">
+						<div class="item" @click="currentCoinFavorChange">
+							<Icon v-if="currentCoinIsFavor" type="ios-star" color="#f0a70a" size="19" />
+							<Icon v-else type="ios-star-outline" color="#f0a70a" size="19" />
+						</div>
+						<span style="font-size:12px; ">Favorites</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="order ws-order" v-if="isBuySellOpen" style="margin-top: 5px !important;">
+			<div class="order-handler">
+				<span @click="changeOrder('current')" :class="{ active: selectedOrder === 'current' }">
+					<!-- {{
+					$t('exchange.curdelegation')
+					}} -->
+					Open Order
+				</span>
+				<span @click="changeOrder('history')" :class="{ active: selectedOrder === 'history' }">
+					<!-- {{
+					$t('exchange.hisdelegation')
+					}} -->
+					Position
+				</span>
+				<router-link v-show="selectedOrder === 'current'" class="linkmore" to="/uc/entrust/current">
+					All</router-link>
+				<router-link v-show="selectedOrder === 'history'" class="linkmore" to="/uc/entrust/history">
+					All</router-link>
+			</div>
+			<div class="table">
+				<Table height="240" v-if="selectedOrder === 'current'" :columns="currentOrder.columns"
+					:data="currentOrder.rows" :no-data-text="$t('common.nodata')"></Table>
+				<div v-else>
+					<div class="row ws-ex-tr w-100 py-2 mx-0" v-for=" (item, index) in historyOrder.rows">
+						<div class="d-flex align-items-center justify-content-between">
+							<div class="d-flex align-items-center">
+								<span
+									v-bind:class="[historyOrder.rows[index].direction == 'SELL' ? 'text-danger' : 'text-success']"
+									style="font-size:12px; text-transform: lowercase;">{{
+									historyOrder.rows[index].direction }}</span>
+								<span class="ps-3" style="font-size:12px;">{{ historyOrder.rows[index].symbol }}</span>
+							</div>
+							<span style="font-size:12px;">Deal</span>
+						</div>
+						<div class="row mx-0">
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">Time</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">Type</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-end">Price({{
+								historyOrder.rows[index].baseSymbol }})</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{ historyOrder.rows[index].time }}
+							</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">Limit</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-end">{{ historyOrder.rows[index].price }}
+							</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">Amount({{
+								historyOrder.rows[index].coinSymbol }})</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">Deal/Fee</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-end">Amount</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{ historyOrder.rows[index].amount
+								}}</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{
+								historyOrder.rows[index].tradedAmount }}</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-end">{{ historyOrder.rows[index].turnover
+								}}</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">Fee({{
+								historyOrder.rows[index].coinSymbol }})</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">Average Price({{
+								historyOrder.rows[index].baseSymbol }})</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-end"></div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{ historyOrder.rows[index].fee }}
+							</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{ historyOrder.rows[index].price
+								}}</div>
+						</div>
+					</div>
+				</div>
 
+			</div>
+		</div>
 
-                  <div class="split-panel" v-if="entrustOrderType!='2'">
-                    <div :class="{selected:Number(sliderClosePercent)===25}" @click="onChangeClosePercent(25)">25%</div>
-                    <div :class="{selected:Number(sliderClosePercent)===50}" @click="onChangeClosePercent(50)">50%</div>
-                    <div :class="{selected:Number(sliderClosePercent)===75}" @click="onChangeClosePercent(75)">75%</div>
-                    <div :class="{selected:Number(sliderClosePercent)===100}" @click="onChangeClosePercent(100)">100%</div>
-                  </div>
-              </Form>
-              <div class="open-tips">
-                <div><span class="red">{{$t('swap.canclosedown')}}:</span><span class="num">{{contractWalletInfo.usdtBuyPosition}} {{$t('swap.shareNumber')}}</span></div>
-                <div><span class="green">{{$t('swap.cancloseup')}}:</span><span class="num">{{contractWalletInfo.usdtSellPosition}} {{$t('swap.shareNumber')}}</span></div>
-              </div>
-              <div class="operate" v-if="isLogin">
-                <Button type="primary" shape="circle" class="open-down" @click="onClose(1)">{{$t('swap.closedown')}}</Button>
-                <Button type="primary" shape="circle" class="open-up" @click="onClose(0)">{{$t('swap.closeup')}}</Button>
-              </div>
-              <div class="operate-login" v-if="!isLogin" style="width: 94%; margin-left:3%;">
-                <span style="display: inline-block;width: 100%; text-align: center;border:1px solid #232d3a;padding: 5px 0;border-radius: 5px;">
-                  {{$t("common.please")}}
-                  <router-link to="/login">
-                    <span style="color:#f0a70a;">{{$t("common.login")}}</span>
-                  </router-link> /
-                  <router-link to="/register">
-                    <span style="color:#00dcff;">{{$t("common.register")}}</span>
-                  </router-link>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- 成交记录 -->
-      <div class="left plate-wrap" style="position:relative; flex: 0 0 13%;">
-        <div style="background-color: #192330;height:40px;line-height:40px;padding-left:5px;color:#61688A;font-size: 13px;">
-          <span>{{$t("swap.latestdeal")}}</span>
-        </div>
-        <div class="trade-wrap">
-          <Table height="472" :columns="trade.columns" :data="trade.rows" :no-data-text="$t('common.nodata')"></Table>
-        </div>
-        <!-- 我的合约账户 -->
-        <div class="order" style="margin-top: 5px;min-height: 320px;background-color: #192330;color:#61688A;">
-          <div style="height:32px;line-height:32px;padding-left:10px;border-bottom: 1px solid #27313e;font-size: 13px;">
-            <span>{{$t("swap.myswapaccount")}}</span>
-              <router-link class="linkmore" to="/uc/swapAssets/">{{$t("swap.zijinhuazhuan")}}</router-link>
-          </div>
-          <div class="table swap-my-account">
-            <div class="account-item" style="margin-top: 20px;">
-              <div style="width:35%;" >{{$t("swap.accountmode")}}</div>     
-              <div class="mode" style="width: 65%;">
-                <Button @click="showMarginModeModal()" v-if="marginMode === '1'" size="small">{{$t("swap.marginMode1")}}</Button>
-                <Button @click="showMarginModeModal()" v-if="marginMode === '0'" size="small">{{$t("swap.marginMode2")}}</Button>
-              </div>
-            </div>
-            <div class="account-item" style="margin-top: 20px;height:42px;padding-bottom:5px;border-bottom: 1px dashed #27313e;">
-              <div style="width:35%;">{{$t("swap.accountmargin")}}</div>
-              <div class="margin" style="width: 65%;display: flex;justify-content: space-between;">
-                <Button @click="showAdjustLeverage(1)" size="small" style="flex: 0 0 47%;border:none;background: #4db872;">{{buyLeverage}}X{{$t('swap.up')}}</Button>
-                <Button @click="showAdjustLeverage(2)" size="small" style="flex: 0 0 47%;border:none;background: #ee6560;">{{sellLeverage}}X{{$t('swap.down')}}</Button>
-              </div>
-            </div>
-
-            <div class="account-item" style="margin-top:10px;"> <div>{{$t("swap.accountquanyi")}}</div>   <div><span>{{totalQuanyi | fixed4}}</span></div></div>
-            <div class="account-item"> <div>{{$t("swap.profitandloss")}}</div>   <div><span>{{profitAndLoss | fixed4}}</span></div></div>
-            <div class="account-item"> <div>{{$t("swap.principalAmount")}}</div> <div><span>{{contractWalletInfo.usdtBalance | fixed4}}</span></div></div>
-            <div class="account-item"> <div>{{$t("swap.positionAmount")}}</div>  <div><span>{{contractWalletInfo.usdtBuyPrincipalAmount + contractWalletInfo.usdtSellPrincipalAmount | fixed4}}</span></div></div>
-            <div class="account-item"> <div>{{$t("swap.frozenAmount")}}</div>    <div><span>{{contractWalletInfo.usdtFrozenBalance | fixed4}}</span></div></div>
-            <div class="account-item"> <div>{{$t("swap.principalRate")}}</div>   <div><span>{{assetRate | percent}} %</span></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 弹出框: 变更仓位模式 -->
-    <Modal
-        v-model="marginModeModal"
-        :title="$t('swap.modifyMarginModeTitle')"
-        width="20"
-        class-name="vertical-center-modal">
-        <div style="text-align: center;width:100%;">
-            <ButtonGroup style="width: 80%;text-align: center;">
-              <Button style="width: 50%;" v-if="marginMode==='1'" type="primary">{{$t("swap.marginMode1")}}</Button>
-              <Button style="width: 50%;" v-else  @click="changeMarginMode('1')">{{$t("swap.marginMode1")}}</Button>
-
-              <Button style="width: 50%;" v-if="marginMode==='0'"  type="primary">{{$t("swap.marginMode2")}}</Button>
-              <Button style="width: 50%;" v-else  @click="changeMarginMode('0')">{{$t("swap.marginMode2")}}</Button>
-            </ButtonGroup>
-        </div>
-        <div slot="footer">
-            <Button type="default" size="large" @click="marginModeModal=false">{{$t("common.close")}}</Button>
-        </div>
-    </Modal>
-
-    <!-- 弹出框: 调整杠杆 -->
-    <Modal
-        v-model="leverageModal"
-        :title="$t('swap.modifyLeverage')"
-        width="25"
-        class-name="vertical-center-modal">
-        <div class="leverage">
-          <!-- 连续杠杆 -->
-          <InputNumber size="large" style="width: 100%;" :value.sync="leverageAdjustVal" v-if="leverageType==2" @on-change="onLeverageChange">
-          </InputNumber>
-          <!-- 离散杠杆 -->
-          <div class="leverage-panel" v-if="leverageType==1 && changeLeverageType==1">
-            <Button v-for="item in leverageList" style="margin-left:5px;margin-right:5px;margin-bottom: 10px;" @click="changeLeverage(Number(item))" :class="{leverageSelect:Number(item)===leverageAdjustVal}">{{item}}X</Button>
-          </div>
-          <div class="leverage-panel" v-if="leverageType==1 && changeLeverageType==2">
-            <Button v-for="item in leverageList" style="margin-left:5px;margin-right:5px;margin-bottom: 10px;" @click="changeLeverage(Number(item))" :class="{leverageSelect:Number(item)===leverageAdjustVal}">{{item}}X</Button>
-          </div>
-        </div>
-        <div slot="footer">
-            <Button type="default" size="large" @click="leverageModal=false">{{$t("common.close")}}</Button>
-            <Button type="primary" size="large" @click="adjustLeverage()">{{$t("common.ok")}}</Button>
-        </div>
-    </Modal>
-  </div>
+	</div>
 </template>
-
-<script>
-import expandRow from "@components/exchange/expand.vue";
-import Datafeeds from "@js/charting_library/datafeed/swaptrade.js";
-var Stomp = require("stompjs");
-var SockJS = require("sockjs-client");
-var moment = require("moment");
-import DepthGraph from "@components/exchange/DepthGraph.vue";
-import $ from "@js/jquery.min.js";
-
-export default {
-  components: { expandRow, DepthGraph},
-  data() {
-    let self = this;
-    return {
-      buyLeverage: "10",
-      sellLeverage: "10",
-      changeLeverageType: 1, // 多仓：1，空仓：2
-      leverageList: [],
-      leverageModal: false,
-      leverageLong: 10,
-      leverageShort: 10,
-      leverageAdjustVal: 10,
-      checkSellCount: 0,
-      checkBuyCount: 0,
-      checkAllCount: 0,
-      marginModeModal: false,
-      marginMode: '1',
-      accountMode: 0,
-      entrustType: 1,
-      entrustOrderType: "1",
-      sliderStep: [25, 50, 75, 100],
-      sliderOpenPercent: 0,
-      sliderClosePercent: 0,
-      memberRate: 0,
-      // userRealVerified: false, //是否实名认证
-      collecRequesting: false,
-      currentCoinIsFavor: false,
-      isUseBHB: false,
-      skin: "night", //皮肤样式day&night
-      currentImgTable: "k",
-      selectedOrder: "currentPositions", //当前显示的委托记录
-      selectedPlate: "all", //当前显示的买卖盘
-      CNYRate: null,
-      datafeed: null,
-      defaultPath: "btc_usdt",
-      basecion: "usdt",
-      coinScale: 6,
-      baseCoinScale: 6,
-      symbolFee: 0.001,
-      dataIndex: [],
-      searchKey: "",
-      coinInfo:{
-
-      },
-      leverageType: 1,
-      contractCoinInfo: {
-        id: 0,
-        baseSymbol: "",
-        coinSymbol: "",
-        symbol: "",
-        openFee: 0,
-        closeFee: 0,
-        enableTriggerEntrust: 1,
-        feePercent: 0,
-        leverageType: 1,
-        leverage: "10,20,30,40,50,60,70,80,90,100",
-        maxShare: 0,
-        minShare: 0,
-        shareNumber: 0
-      },
-      contractWalletInfo: {
-        usdtBalance: 0.0,
-        usdtBuyPosition: 0.0,
-        usdtSellPosition: 0.0,
-        usdtBuyLeverage: 10,
-        usdtSellLeverage: 10,
-        usdtFrozenBalance: 0.0,
-        usdtBuyPrincipalAmount: 0.0,
-        usdtSellPrincipalAmount: 0.0
-      },
-      currentCoin: {
-        base: "",
-        coin: "",
-        symbol: "",
-        price: 0.0
-      },
-      enableMarketBuy: 1, // 0:禁用  1:启用
-      enableMarketSell: 1,
-      exchangeable: 1, // 0:可交易   1:不可交易
-      currentEntrustOrderList: [],
-      historyEntrustOrderList: [],
-      currentPositionList: [],
-      //当前市场上的交易币种，按交易对分
-      coins: {
-        _map: [],
-        USDT: [],
-        columns: [
-          {
-            title: this.$t("swap.contract") + "/" + this.$t("swap.vol"),
-            key: "coin",
-            minWidth: 70,
-            sortable: false,
-            className: "coin-menu-symbol swap-coin-menu-symbol",
-            render: (h, params) => {
-              return h("div", {
-                  style: {
-                    padding: "5px 0"
-                  }
-                },[
-                h("span", {
-                  style: {
-                    fontSize: "14px",
-                    fontWeight: "bold"
-                  }
-                }, params.row.coin + "/USDT " + this.$t("swap.swapindex")),
-                h("br"),
-                h("span", {
-                  style: {
-                    color: "#61688A",
-                    fontSize: "14px"
-                  }
-                }, params.row.volume.toFixed(4))
-              ]);
-            }
-          },
-          {
-            title: this.$t("swap.lastprice") + "/" + this.$t("swap.daychange"),
-            key: "rose",
-            className: "swap-coin-menu-lastprice",
-            sortMethod: function(a, b, type) {
-              let a1 = a.replace(/[^\d|.|-]/g, "") - 0;
-              let b1 = b.replace(/[^\d|.|-]/g, "") - 0;
-              if (type == "asc") {
-                return a1 - b1;
-              } else {
-                return b1 - a1;
-              }
-            },
-            render: (h, params) => {
-              const row = params.row;
-              const className = parseFloat(row.rose) < 0 ? "sell" : "buy";
-              return h("div", {
-                  style: {
-                    padding: "5px 10px",
-                    textAlign: "right",
-                    fontSize: "14px"
-                  }
-                },[
-                  h("span", params.row.close),
-                  h("br"),
-                  h(
-                  "span",
-                  {
-                    attrs: {
-                      class: className
-                    }
-                  },
-                  row.rose
-                )]);
-            }
-          }
-        ]
-      },
-      wallet: {
-        base: 0.0,
-        coin: 0.0
-      },
-      showMarket: false,
-      fixHistoryHeight: 295,
-      // rechargeUrl:'#/finance/recharge',
-      // rechargeUSDTUrl:'#/finance/recharge?name=USDT',
-      form: {
-          trigglePrice: "",
-          entrustPrice: "",
-          volume: ""
-      },
-      trade: {
-        rows: [],
-        columns: [
-          {
-            title: self.$t("swap.price"),
-            key: "price",
-            render: (h, params) => {
-              const row = params.row;
-              const className = row.direction == "BUY" ? "buy" : "sell";
-
-              return h(
-                "span",
-                {
-                  attrs: {
-                    class: className
-                  }
-                },
-                params.row.price.toFixed(4)
-              );
-            },
-            renderHeader: (h, params) => {
-              const title =
-                self.$t("swap.price") + "(" + self.currentCoin.base + ")";
-              return h("span", {}, title);
-            }
-          },
-          {
-            title: self.$t("swap.num"),
-            key: "amount",
-            render: (h, params) => {
-              return h("span", {}, params.row.amount.toFixed(4));
-            },
-            renderHeader: (h, params) => {
-              const title =
-                self.$t("swap.num") + "(" + self.currentCoin.coin + ")";
-              return h("span", {}, title);
-            }
-          },
-          {
-            title: self.$t("swap.time"),
-            key: "time",
-            render: (h, params) => {
-              return h("span", {}, this.timeFormat(params.row.time));
-            }
-          }
-        ]
-      },
-      //   最新价的 table 数据;
-      plate: {
-        maxPostion: 10,
-        columns: [
-          {
-            title: self.$t("swap.price"),
-            key: "price",
-            render: (h, params) => {
-              let str = "";
-              let price = "";
-              const className = params.row.direction.toLowerCase();
-              params.row.price == 0 && (str = h("span", {}, "--"));
-              params.row.price != 0 &&
-                (price = params.row.price.toFixed(4)) &&
-                (str = h(
-                  "span",
-                  {
-                    attrs: {
-                      class: className
-                    }
-                  },
-                  price
-                ));
-              return str;
-            },
-            renderHeader: (h, params) => {
-              const title =
-                self.$t("swap.price") + "(" + self.currentCoin.base + ")";
-              return h("span", {}, title);
-            }
-          },
-          {
-            title: self.$t("swap.num"),
-            key: "amount",
-            render: (h, params) => {
-              let str = "";
-              params.row.amount == 0 && (str = h("span", {}, "--"));
-              params.row.amount != 0 &&
-                (str = h(
-                  "span",
-                  {},
-                  params.row.amount.toFixed(4)
-                ));
-              return str;
-            },
-            renderHeader: (h, params) => {
-              const title =
-                self.$t("swap.num") + "(" + self.currentCoin.coin + ")";
-              return h("span", {}, title);
-            }
-          },
-          {
-            title: self.$t("swap.total"),
-            key: "totalAmount",
-            render: (h, params) => {
-              if (params.row.price == 0 || params.row.totalAmount == 0) {
-                return h("span", {}, "--");
-              } else {
-                return h(
-                  "span",
-                  {},
-                  params.row.totalAmount.toFixed(4)
-                );
-              }
-            },
-            renderHeader: (h, params) => {
-              const title =
-                self.$t("swap.total") + "(" + self.currentCoin.coin + ")";
-              return h("span", {}, title);
-            }
-          },
-          {
-            className: "percenttd",
-            width: 1,
-            render: (h, params) => {
-              let width = "0",
-                backgroundColor =
-                  params.row.direction === "BUY" ? "#00b275" : "#f15057",
-                totle =
-                  params.row.direction === "BUY"
-                    ? this.plate.bidTotle
-                    : this.plate.askTotle;
-              if (params.row.totalAmount) {
-                width = (params.row.totalAmount / totle).toFixed(4) * 100 + "%";
-              }
-              return h(
-                "div",
-                {
-                  style: {
-                    width,
-                    backgroundColor
-                  },
-                  attrs: {
-                    class: "percentdiv"
-                  }
-                },
-                " "
-              );
-            }
-          }
-        ],
-        askRows: [],
-        bidRows: []
-      },
-      currentPosition: {
-        columns: [
-          {
-            title: self.$t("swap.pos_leverage"),
-            key: "leverage",
-            render: (h, params) => {
-              if(params.row.direction == "Buy") {
-                return h("span", {style:{
-                  color:'#FFF',
-                  backgroundColor: "#42b983",
-                  padding: "3px 5px",
-                  borderRadius: "3px",
-                  display: "inline-block",
-                  width: "80px"
-                }}, this.$t("swap.pos_long") + " " + params.row.leverage + "X");
-              }else{
-                return h("span", {style:{
-                  color:'#FFF',
-                  backgroundColor: "#FF0000",
-                  padding: "3px 5px",
-                  borderRadius: "3px",
-                  display: "inline-block",
-                  width: "80px"
-                }}, this.$t("swap.pos_short") + " " + params.row.leverage + "X");
-              }
-            }
-          },
-          {
-            title: self.$t("swap.pos_Pl"),
-            key: "pl",
-            render: (h, params) => {
-              if(params.row.pl > 0) {
-                return h("span", {
-                  style:{
-                    color:'#42b983'
-                  }
-                }, "+" + params.row.pl.toFixed(4) + " USDT");
-              }
-              return h("span", {
-                style:{
-                    color:'#FF0000'
-                  }
-              }, params.row.pl.toFixed(4) + " USDT");
-            }
-          },
-          {
-            title: self.$t("swap.pos_Ratio"),
-            key: "plRatio",
-            render: (h, params) => {
-              if(params.row.plRatio > 0) {
-                return h("span", {
-                  style:{
-                    color:'#42b983'
-                  }
-                }, (params.row.plRatio * 100).toFixed(2) + " %");
-              }
-              return h("span", {
-                style:{
-                    color:'#FF0000'
-                  }
-              }, (params.row.plRatio * 100).toFixed(2) + " %");
-            }
-          },
-          {
-            title: self.$t("swap.pos_pos"),
-            key: "position",
-            render: (h, params) => {
-              return h("span", {}, params.row.position + this.$t("swap.shareNumber"));
-            }
-          },
-          {
-            title: self.$t("swap.pos_canClose"),
-            key: "avaPosition",
-            render: (h, params) => {
-              return h("span", {}, params.row.avaPosition + this.$t("swap.shareNumber"));
-            }
-          },
-          {
-            title: self.$t("swap.pos_openPrice"),
-            key: "openPrice",
-            render: (h, params) => {
-              return h("span", {}, params.row.openPrice.toFixed(4) + " USDT");
-            }
-          },
-          {
-            title: self.$t("swap.pos_margin"),
-            key: "margin",
-            render: (h, params) => {
-              return h("span", {}, params.row.margin.toFixed(2) + " USDT");
-            }
-          },
-          {
-            title: self.$t("swap.pos_mRatio"),
-            key: "mRatio",
-            render: (h, params) => {
-              return h("span", {}, (params.row.mRatio * 100).toFixed(2) + " %");
-            }
-          }
-        ]
-      },
-      currentOrder: {
-        columns: [
-          {
-            title: self.$t("swap.time"),
-            key: "createTime",
-            render: (h, params) => {
-              return h("span", {}, this.dateFormat(params.row.createTime));
-            }
-          },
-          {
-            title: self.$t("swap.ent_entrustType"),
-            key: "entrustType",
-            render: (h, params) => {
-              if(params.row.entrustType == "OPEN") {
-                return h("span", {}, this.$t("swap.open"));
-              }else{
-                return h("span", {}, this.$t("swap.close"));
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_direction"),
-            key: "direction",
-            render: (h, params) => {
-              if(params.row.entrustType == "OPEN") {
-                if(params.row.direction == "BUY") {
-                  return h("span", {style:{color:"#42b983"}}, this.$t("swap.openup"));
-                }else{
-                  return h("span", {style:{color:"#FF0000"}}, this.$t("swap.opendown"));
-                }
-              }else{
-                if(params.row.direction == "BUY") {
-                  return h("span", {style:{color:"#42b983"}}, this.$t("swap.closeup"));
-                }else{
-                  return h("span", {style:{color:"#FF0000"}}, this.$t("swap.closedown"));
-                }
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_type"),
-            key: "type",
-            render: (h, params) => {
-              if(params.row.type == "LIMIT_PRICE") {
-                return h("span", {}, this.$t("swap.limited_price"));
-              }else if(params.row.type == "MARKET_PRICE"){
-                return h("span", {}, this.$t("swap.market_price"));
-              }else{
-                return h("span", {}, this.$t("swap.spot_price"));
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_trigglePrice"),
-            key: "trigglePrice",
-            render: (h, params) => {
-              if(params.row.type == "SPOT_LIMIT") {
-                return h("span", {}, params.row.triggerPrice.toFixed(2));
-              }else{
-                return h("span", {}, "--");
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_entrustPrice"),
-            key: "entrustPrice",
-            render: (h, params) => {
-              return h("span", {}, params.row.entrustPrice.toFixed(2));
-            }
-          },
-          {
-            title: self.$t("swap.ent_tradedPrice"),
-            key: "tradedPrice",
-            render: (h, params) => {
-              return h("span", {}, params.row.tradedPrice.toFixed(2));
-            }
-          },
-          {
-            title: self.$t("swap.ent_margin"),
-            key: "principalAmount",
-            render: (h, params) => {
-              return h("span", {}, params.row.principalAmount.toFixed(2) + "USDT");
-            }
-          },
-          {
-            title: self.$t("swap.ent_volume"),
-            key: "volume",
-            render: (h, params) => {
-              return h("span", {}, params.row.volume + this.$t("swap.shareNumber"));
-            }
-          },
-          {
-            title: self.$t("swap.ent_status"),
-            key: "status",
-            render: (h, params) => {
-              if(params.row.status == "ENTRUST_ING"){
-                return h("span", {}, this.$t("swap.ent_status1"));
-              }else if(params.row.status == "ENTRUST_CANCEL"){
-                return h("span", {}, this.$t("swap.ent_status2"));
-              }else if(params.row.status == "ENTRUST_FAILURE"){
-                return h("span", {}, this.$t("swap.ent_status3"));
-              }else if(params.row.status == "ENTRUST_SUCCESS"){
-                return h("span", {}, this.$t("swap.ent_status4"));
-              }else{}
-            }
-          },
-          {
-            title: self.$t("swap.action"),
-            key: "operate",
-            width: 110,
-            render: (h, params) => {
-              return h(
-                "Button",
-                {
-                  props: {
-                    size: "small"
-                  },
-                  style: {
-                    color: "#f1ac19",
-                    "line-height": "1.2",
-                    backgroundColor: "transparent"
-                  },
-                  on: {
-                    click: () => {
-                      this.cancel(params.row.id);
-                    }
-                  }
-                },
-                self.$t("swap.undo")
-              );
-            }
-          }
-        ],
-        rows: []
-      },
-      historyOrder: {
-        pageSize: 10,
-        total: 10,
-        page: 0,
-        columns: [
-          {
-            title: self.$t("swap.time"),
-            key: "createTime",
-            render: (h, params) => {
-              return h("span", {}, this.dateFormat(params.row.createTime));
-            }
-          },
-          {
-            title: self.$t("swap.ent_entrustType"),
-            key: "entrustType",
-            render: (h, params) => {
-              if(params.row.entrustType == "OPEN") {
-                return h("span", {}, this.$t("swap.open"));
-              }else{
-                return h("span", {}, this.$t("swap.close"));
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_direction"),
-            key: "direction",
-            render: (h, params) => {
-              if(params.row.entrustType == "OPEN") {
-                if(params.row.direction == "BUY") {
-                  return h("span", {style:{color:"#42b983"}}, this.$t("swap.openup"));
-                }else{
-                  return h("span", {style:{color:"#FF0000"}}, this.$t("swap.opendown"));
-                }
-              }else{
-                if(params.row.direction == "BUY") {
-                  return h("span", {style:{color:"#42b983"}}, this.$t("swap.closeup"));
-                }else{
-                  return h("span", {style:{color:"#FF0000"}}, this.$t("swap.closedown"));
-                }
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_type"),
-            key: "type",
-            render: (h, params) => {
-              if(params.row.isFromSpot == 1) {
-                return h("span", {}, this.$t("swap.spot_price"));
-              }
-              if(params.row.type == "LIMIT_PRICE") {
-                return h("span", {}, this.$t("swap.limited_price"));
-              }else if(params.row.type == "MARKET_PRICE"){
-                return h("span", {}, this.$t("swap.market_price"));
-              }else{
-                return h("span", {}, this.$t("swap.spot_price"));
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_trigglePrice"),
-            key: "trigglePrice",
-            render: (h, params) => {
-              if(params.row.isFromSpot == 1) {
-                return h("span", {}, params.row.triggerPrice.toFixed(2));
-              }
-              if(params.row.type == "SPOT_PRICE") {
-                return h("span", {}, params.row.triggerPrice.toFixed(2));
-              }else{
-                return h("span", {}, "--");
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_entrustPrice"),
-            key: "entrustPrice",
-            render: (h, params) => {
-              return h("span", {}, params.row.entrustPrice.toFixed(2));
-            }
-          },
-          {
-            title: self.$t("swap.ent_tradedPrice"),
-            key: "tradedPrice",
-            render: (h, params) => {
-              return h("span", {}, params.row.tradedPrice.toFixed(2));
-            }
-          },
-          {
-            title: self.$t("swap.ent_margin"),
-            key: "principalAmount",
-            render: (h, params) => {
-              return h("span", {}, params.row.principalAmount.toFixed(2) + "USDT");
-            }
-          },
-          {
-            title: self.$t("swap.ent_volume"),
-            key: "volume",
-            render: (h, params) => {
-              return h("span", {}, params.row.volume + this.$t("swap.shareNumber"));
-            }
-          },
-          {
-            title: self.$t("swap.ent_fee"),
-            key: "volume",
-            render: (h, params) => {
-              if(params.row.status != "ENTRUST_CANCEL") {
-                if(params.row.entrustType == "OPEN"){
-                  return h("span", {}, params.row.openFee);  
-                }
-                if(params.row.entrustType == "CLOSE"){
-                  return h("span", {}, params.row.closeFee);  
-                }
-              }else{
-                return h("span", {}, "--");
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_pl"),
-            key: "profitAndLoss",
-            render: (h, params) => {
-              if(params.row.entrustType == "CLOSE"){
-                if(params.row.profitAndLoss < 0){
-                  return h("span", {style:{color:"#FF0000"}}, params.row.profitAndLoss.toFixed(2));
-                }else{
-                  return h("span", {style:{color:"#42b983"}}, params.row.profitAndLoss.toFixed(2));
-                }
-              }else{
-                return h("span", {}, "--");
-              }
-            }
-          },
-          {
-            title: self.$t("swap.ent_status"),
-            key: "volume",
-            render: (h, params) => {
-              if(params.row.isBlast == 1){
-                return h("span", {}, this.$t("swap.ent_statusblast"));
-              }
-              if(params.row.status == "ENTRUST_CANCEL") {
-                return h("span", {}, this.$t("swap.ent_status2"));
-              } else if(params.row.status == "ENTRUST_FAILURE") {
-                return h("span", {}, this.$t("swap.ent_status3"));
-              } else if(params.row.status == "ENTRUST_SUCCESS") {
-                return h("span", {}, this.$t("swap.ent_status4"));
-              }
-            }
-          }
-        ],
-        rows: []
-      },
-      fullTrade: {}
-    };
-  },
-  filters: {
-
-  },
-  computed: {
-    rechargeUSDTUrl: function() {
-      return "/uc/recharge?name="+this.currentCoin.base;
-      // return "#/finance/recharge?name=" + this.currentCoin.base;
-    },
-    rechargeCoinUrl: function() {
-      return "/uc/recharge?name=" + this.currentCoin.coin;
-      // return "#/finance/recharge?name=" + this.currentCoin.coin;
-    },
-    isLogin: function() {
-      return this.$store.getters.isLogin;
-    },
-    member: function() {
-      return this.$store.getters.member;
-    },
-    lang: function() {
-      return this.$store.state.lang;
-    },
-    profitAndLoss: function() {
-      if(!this.isLogin || this.contractWalletInfo == null) {
-        return 0;
-      }
-      var buyPL = 0;
-      if(this.contractWalletInfo.usdtBuyPrice > 0){
-        buyPL = (this.currentCoin.price / this.contractWalletInfo.usdtBuyPrice -1) * (this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition) * this.contractWalletInfo.usdtShareNumber;
-      }
-      var sellPL = 0;
-      if(this.contractWalletInfo.usdtSellPrice > 0){
-        sellPL = (1 - this.currentCoin.price / this.contractWalletInfo.usdtSellPrice) * (this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition) * this.contractWalletInfo.usdtShareNumber;
-      }
-
-      return (buyPL + sellPL);
-    },
-    totalQuanyi: function() {
-      if(!this.isLogin || this.contractWalletInfo == null) {
-        return 0;
-      }
-      var buyPL = 0;
-      if(this.contractWalletInfo.usdtBuyPrice > 0){
-        buyPL = (this.currentCoin.price / this.contractWalletInfo.usdtBuyPrice -1) * (this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition) * this.contractWalletInfo.usdtShareNumber;
-      }
-      var sellPL = 0;
-      if(this.contractWalletInfo.usdtSellPrice > 0){
-        sellPL = (1 - this.currentCoin.price / this.contractWalletInfo.usdtSellPrice) * (this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition) * this.contractWalletInfo.usdtShareNumber;
-      }
-
-      return (buyPL + sellPL + this.contractWalletInfo.usdtBalance + this.contractWalletInfo.usdtFrozenBalance + this.contractWalletInfo.usdtBuyPrincipalAmount + this.contractWalletInfo.usdtSellPrincipalAmount);
-    },
-    assetRate: function(){
-      if(!this.isLogin || this.contractWalletInfo == null) return 0;
-      var zhanyong =  this.contractWalletInfo.usdtFrozenBalance + this.contractWalletInfo.usdtBuyPrincipalAmount + this.contractWalletInfo.usdtSellPrincipalAmount;
-      if(this.totalQuanyi > 0) {
-        return zhanyong / this.totalQuanyi;
-      }else{
-        return 0;
-      }
-    },
-    avaOpenBuy: function(){ // 可开多
-      if(!this.isLogin || this.contractWalletInfo == null) return 0;
-      // 计算可开多/空
-      if(this.contractWalletInfo.usdtPattern == "FIXED") { // 逐仓，直接usdt余额即可
-        return parseInt(this.buyLeverage * this.contractWalletInfo.usdtBalance / this.contractCoinInfo.shareNumber);
-      }else{ // 全仓模式
-        // 计算多仓盈亏
-        var buyPL = 0;
-        if(this.contractWalletInfo.usdtBuyPrice > 0){
-          // 多仓盈亏（当前价格 / 开仓均价 - 1）* （可用多单仓位 + 冻结多单仓位） * 合约面值
-          buyPL = (this.currentCoin.price / this.contractWalletInfo.usdtBuyPrice -1) * (this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition) * this.contractWalletInfo.usdtShareNumber;
-        }
-        // 计算空仓盈亏
-        var sellPL = 0;
-        if(this.contractWalletInfo.usdtSellPrice > 0){
-          // 空仓盈亏（1 - 当前价格 / 开仓均价）* （可用空单仓位 + 冻结空单仓位） * 合约面值
-          sellPL = (1 - this.currentCoin.price / this.contractWalletInfo.usdtSellPrice) * (this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition) * this.contractWalletInfo.usdtShareNumber;
-        }
-        // 计算盈亏（多仓盈亏 + 空仓盈亏 + 多仓保证金 + 空仓保证金）
-        var lossandp = buyPL + sellPL + this.contractWalletInfo.usdtBuyPrincipalAmount + this.contractWalletInfo.usdtSellPrincipalAmount;
-        // 大于0，说明多单和空单还没亏完，直接用可用余额计算能开多少单（计算方法 = 多仓杠杆 * 可用余额 / 合约面值）
-        if(lossandp >= 0) {
-          return parseInt(this.buyLeverage * this.contractWalletInfo.usdtBalance / this.contractCoinInfo.shareNumber);
-        }else{
-          // 小于0，因为是全仓，所以需要考虑盈亏问题，计算方法（多仓杠杆 *（可用余额 - 亏损金额）/ 合约面值）
-          return parseInt(this.buyLeverage * (this.contractWalletInfo.usdtBalance + lossandp) / this.contractCoinInfo.shareNumber);
-        }
-      }
-    },
-    avaOpenSell: function(){ // 可开空
-      if(!this.isLogin || this.contractWalletInfo == null) return 0;
-      // 计算可开多/空
-      if(this.contractWalletInfo.usdtPattern == "FIXED") { // 逐仓，直接usdt余额即可
-        return parseInt(this.sellLeverage * this.contractWalletInfo.usdtBalance / this.contractCoinInfo.shareNumber);
-      }else{
-        // 计算可用
-        var buyPL = 0;
-        if(this.contractWalletInfo.usdtBuyPrice > 0){
-          buyPL = (this.currentCoin.price / this.contractWalletInfo.usdtBuyPrice -1) * (this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition) * this.contractWalletInfo.usdtShareNumber;
-        }
-        var sellPL = 0;
-        if(this.contractWalletInfo.usdtSellPrice > 0){
-          sellPL = (1 - this.currentCoin.price / this.contractWalletInfo.usdtSellPrice) * (this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition) * this.contractWalletInfo.usdtShareNumber;
-        }
-        var lossandp = buyPL + sellPL + this.contractWalletInfo.usdtBuyPrincipalAmount + this.contractWalletInfo.usdtSellPrincipalAmount;
-        if(lossandp >= 0) {
-          return parseInt(this.sellLeverage * this.contractWalletInfo.usdtBalance / this.contractCoinInfo.shareNumber);
-        }else{
-          return parseInt(this.sellLeverage * (this.contractWalletInfo.usdtBalance - lossandp) / this.contractCoinInfo.shareNumber);
-        }
-      }
-    },
-    positionList: function(){
-      if(this.contractWalletInfo.id == 0 || this.currentPositionList.length == 0) {
-        return;
-      }
-      var buyPl = 0;
-      // 构建多仓数据
-      if(this.contractWalletInfo.usdtBuyPosition > 0 || this.contractWalletInfo.usdtFrozenBuyPosition > 0) {
-        buyPl = (this.currentCoin.price / this.contractWalletInfo.usdtBuyPrice - 1) * (this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition) * this.contractWalletInfo.usdtShareNumber;
-        this.$set(this.currentPositionList[0], "direction", "Buy");
-        this.$set(this.currentPositionList[0], "openPrice", this.contractWalletInfo.usdtBuyPrice);
-        this.$set(this.currentPositionList[0], "pl", buyPl);
-        this.$set(this.currentPositionList[0], "position", this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition);
-        this.$set(this.currentPositionList[0], "avaPosition", this.contractWalletInfo.usdtBuyPosition);
-        this.$set(this.currentPositionList[0], "margin", this.contractWalletInfo.usdtBuyPrincipalAmount);
-        this.$set(this.currentPositionList[0], "leverage", this.contractWalletInfo.usdtBuyLeverage);
-        this.$set(this.currentPositionList[0], "plRatio", buyPl / this.contractWalletInfo.usdtBuyPrincipalAmount);
-        this.$set(this.currentPositionList[0], "mRatio", (buyPl + this.contractWalletInfo.usdtBuyPrincipalAmount) / this.contractWalletInfo.usdtBuyPrincipalAmount / this.contractWalletInfo.usdtBuyLeverage);
-        this.$set(this.currentPositionList[0], "cmRatio", this.contractCoinInfo.maintenanceMarginRate);
-
-        if(this.contractWalletInfo.usdtPattern == "FIXED") {
-          if(buyPl + this.contractWalletInfo.usdtBuyPrincipalAmount < 0 && this.checkBuyCount < 5) {
-            this.getMemberContractWallet();
-            this.checkBuyCount++;
-          }
-        }
-      }
-      // 构建空仓数据
-      var sellPl = 0;
-      if(this.contractWalletInfo.usdtSellPosition > 0 || this.contractWalletInfo.usdtFrozenSellPosition > 0) {
-        sellPl = (1 - this.currentCoin.price / this.contractWalletInfo.usdtSellPrice) * (this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition) * this.contractWalletInfo.usdtShareNumber;
-        var temIndex = 0;
-        if(this.currentPositionList.length > 1) {
-          temIndex = 1;
-        }
-        this.$set(this.currentPositionList[temIndex], "direction", "Sell");
-        this.$set(this.currentPositionList[temIndex], "openPrice", this.contractWalletInfo.usdtSellPrice);
-        this.$set(this.currentPositionList[temIndex], "pl", sellPl);
-        this.$set(this.currentPositionList[temIndex], "position", this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition);
-        this.$set(this.currentPositionList[temIndex], "avaPosition", this.contractWalletInfo.usdtSellPosition);
-        this.$set(this.currentPositionList[temIndex], "margin", this.contractWalletInfo.usdtSellPrincipalAmount);
-        this.$set(this.currentPositionList[temIndex], "leverage", this.contractWalletInfo.usdtSellLeverage);
-        this.$set(this.currentPositionList[temIndex], "plRatio", sellPl / this.contractWalletInfo.usdtSellPrincipalAmount);
-        this.$set(this.currentPositionList[temIndex], "mRatio", (sellPl + this.contractWalletInfo.usdtSellPrincipalAmount) / this.contractWalletInfo.usdtSellPrincipalAmount / this.contractWalletInfo.usdtSellLeverage);
-        this.$set(this.currentPositionList[temIndex], "cmRatio", this.contractCoinInfo.maintenanceMarginRate);
-
-        if(this.contractWalletInfo.usdtPattern == "FIXED") {
-          if(sellPl + this.contractWalletInfo.usdtSellPrincipalAmount <= 0 && this.checkSellCount < 5) {
-            this.getMemberContractWallet();
-            this.checkSellCount++;
-          }
-        }
-      }
-      // 可能全仓模式已爆仓
-      if(this.contractWalletInfo.usdtPattern == "CROSSED") {
-        if(buyPl + sellPl + this.contractWalletInfo.usdtBalance + this.contractWalletInfo.usdtFrozenBalance + this.contractWalletInfo.usdtBuyPrincipalAmount + this.contractWalletInfo.usdtSellPrincipalAmount < 0 && this.checkAllCount < 5) {
-          this.getMemberContractWallet();
-          this.checkAllCount++;
-        }
-      }
-      return this.currentPositionList;
-    }
-  },
-  watch: {
-    lang: function() {
-      this.updateLangData();
-    },
-    $route(to, from) {
-      this.init();
-    }
-  },
-  created: function() {
-    this.init();
-  },
-  filters:{
-    dateFormat: function(tick) {
-      return moment(tick).format("MM-DD HH:mm");
-    },
-    fixed2: function(value){
-      return value.toFixed(2);
-    },
-    fixed4: function(value){
-      return value.toFixed(4);
-    },
-    percent: function(value){
-      return (value * 100).toFixed(2);
-    }
-  },
-  methods: {
-    seachInputChange(){
-      this.searchKey = this.searchKey.toUpperCase();
-      this.dataIndex = this.coins.USDT.filter(item => item["coin"].indexOf(this.searchKey) == 0);
-    },
-    silderGo(silder, val) {
-      this[silder] = val;
-    },
-    init() {
-      var params = this.$route.params.pair;
-      if (params == undefined) {
-        this.$router.push("/swap/" + this.defaultPath);
-        params = this.defaultPath;
-      }
-      const basecion = params.split("_")[1];
-      if (basecion) {
-        this.basecion = basecion;
-      }
-      var coin = params.toUpperCase().split("_")[0];
-      var base = params.toUpperCase().split("_")[1];
-      this.currentCoin.symbol = coin + "/" + base;
-      this.currentCoin.coin = coin;
-      this.currentCoin.base = base;
-      this.$store.commit("navigate", "nav-swap");
-      this.$store.commit("setSkin", this.skin);
-      this.currentPositionList = new Array();
-      this.getCNYRate();
-      this.getSymbolInfo();
-      this.getSymbolThumb(); //包含 K线图、getFavor、startWebsock等
-      this.getPlate(); //买卖盘
-      this.getPlateFull();
-      this.sliderOpenPercent = 0;
-      this.sliderClosePercent = 0;
-
-    },
-    tipFormat(val) {
-      return val + "%";
-    },
-    changeBaseCion(str) {
-      this.basecion = str;
-      this.dataIndex = this.coins.USDT;
-    },
-    changePlate(str) {
-      if (str != "all") {
-        this.plate.maxPostion = 20;
-      } else {
-        this.plate.maxPostion = 10;
-      }
-      this.getPlate(str);
-    },
-    changeImgTable(str) {
-      this.currentImgTable = str;
-    },
-    changeOrder(str) {
-      this.selectedOrder = str;
-    },
-    entrustChange(val){
-      this.entrustType = val;
-    },
-    setback() {
-      var obk = document.getElementsByClassName("container")[0];
-      var height = 0;
-      var doc = document;
-      window.innerHeight && (height = window.innerHeight);
-      !window.innerHeight &&
-        doc.body.clientHeight &&
-        (height = doc.body.clientHeight);
-      !window.innerHeight &&
-        !doc.body.clientHeight &&
-        doc.documentElement.clientHeight &&
-        (height = doc.documentElement.clientHeight);
-      obk.style.minHeight = height - 100 + "px";
-    },
-    updateLangData() {
-
-      this.coins.columns[0].title = this.$t("swap.coin");
-      this.coins.columns[1].title = this.$t("swap.lastprice");
-      this.coins.columns[2].title = this.$t("swap.daychange");
-     // this.coins.columns[3].title = this.$t("swap.favorite");
-
-      this.trade.columns[0].title = this.$t("swap.num");
-      this.trade.columns[1].title = this.$t("swap.price");
-      this.trade.columns[2].title = this.$t("swap.time");
-
-      this.plate.columns[0].title = this.$t("swap.stall");
-      this.plate.columns[1].title = this.$t("swap.price");
-      this.plate.columns[2].title = this.$t("swap.num");
-      this.plate.columns[3].title = this.$t("swap.total");
-
-      this.currentOrder.columns[1].title = this.$t("swap.time");
-      this.currentOrder.columns[2].title = this.$t("swap.symbol");
-      this.currentOrder.columns[3].title = this.$t("swap.type");
-      this.currentOrder.columns[4].title = this.$t("swap.direction");
-      this.currentOrder.columns[5].title = this.$t("swap.price");
-      this.currentOrder.columns[6].title = this.$t("swap.num");
-      this.currentOrder.columns[7].title = this.$t("swap.traded");
-      this.currentOrder.columns[8].title = this.$t("swap.dealamount");
-      this.currentOrder.columns[9].title = this.$t("swap.action");
-
-      this.historyOrder.columns[1].title = this.$t("swap.time");
-      this.historyOrder.columns[2].title = this.$t("swap.symbol");
-      this.historyOrder.columns[3].title = this.$t("swap.type");
-      this.historyOrder.columns[4].title = this.$t("swap.direction");
-      this.historyOrder.columns[5].title = this.$t("swap.price");
-      this.historyOrder.columns[6].title = this.$t("swap.num");
-      this.historyOrder.columns[7].title = this.$t("swap.done");
-      this.historyOrder.columns[8].title = this.$t("swap.dealamount");
-      this.historyOrder.columns[9].title = this.$t("swap.status");
-
-      // window.tvWidget.options.time_frames[0].title = this.$t("swap.realtime");
-    },
-    getCNYRate() {
-      // this.$http
-      //   .post(this.host + "/market/exchange-rate/usd-cny")
-      //   .then(response => {
-      //     var resp = response.body;
-      //     this.CNYRate = resp.data;
-      //   });
-      this.CNYRate = 1;
-    },
-    getCoin(symbol) {
-      return this.coins._map[symbol];
-    },
-    getKline() {
-      var that = this;
-      let config = {
-        autosize: true,
-        height: 400,
-        fullscreen: true,
-        symbol: that.symbol,
-        interval: "60", // 默认K线周期
-        timezone: "Asia/Shanghai",
-        toolbar_bg: "#192330",
-        container_id: "kline_container",
-        datafeed: that.datafeed,
-        library_path:
-          process.env.NODE_ENV === "production"
-            ? "/assets/charting_library/"
-            : "/src/assets/js/charting_library/",
-        locale: "zh",
-        debug: false,
-        drawings_access: {
-          type: "black",
-          tools: [{ name: "Regression Trend" }]
-        },
-        disabled_features: [
-          "header_resolutions",
-          "timeframes_toolbar",
-          "header_symbol_search",
-          "header_chart_type",
-          "header_compare",
-          "header_undo_redo",
-          "header_screenshot",
-          "header_saveload",
-          "use_localstorage_for_settings",
-          "left_toolbar",
-          "volume_force_overlay"
-        ],
-        enabled_features: [
-          "hide_last_na_study_output",
-          "move_logo_to_main_pane"
-        ],
-        custom_css_url: "bundles/common.css",
-        supported_resolutions: ["1", "5", "15", "30", "60", "4H", "1D", "1W", "1M"],
-        charts_storage_url: "http://saveload.tradingview.com",
-        charts_storage_api_version: "1.1",
-        client_id: "tradingview.com",
-        user_id: "public_user_id",
-        overrides: {
-          "paneProperties.background": "#192330",
-          "paneProperties.vertGridProperties.color": "rgba(0,0,0,.1)",
-          "paneProperties.horzGridProperties.color": "rgba(0,0,0,.1)",
-          //"scalesProperties.textColor" : "#AAA",
-          "scalesProperties.textColor": "#61688A",
-          "mainSeriesProperties.candleStyle.upColor": "#00b275",
-          "mainSeriesProperties.candleStyle.downColor": "#f15057",
-          "mainSeriesProperties.candleStyle.drawBorder": false,
-          "mainSeriesProperties.candleStyle.wickUpColor": "#589065",
-          "mainSeriesProperties.candleStyle.wickDownColor": "#AE4E54",
-          "paneProperties.legendProperties.showLegend": false,
-
-          "mainSeriesProperties.areaStyle.color1": "rgba(71, 78, 112, 0.5)",
-          "mainSeriesProperties.areaStyle.color2": "rgba(71, 78, 112, 0.5)",
-          "mainSeriesProperties.areaStyle.linecolor": "#9194a4",
-          "volumePaneSize": "small"
-        },
-        time_frames: [
-          {
-            text: "1min",
-            resolution: "1",
-            description: "realtime",
-            title: that.$t("swap.realtime")
-          },
-          { text: "1min", resolution: "1", description: "1min" },
-          { text: "5min", resolution: "5", description: "5min" },
-          { text: "15min", resolution: "15", description: "15min" },
-          { text: "30min", resolution: "30", description: "30min" },
-          {
-            text: "1hour",
-            resolution: "60",
-            description: "1hour",
-            title: "1hour"
-          },
-          { text: "4hour", resolution: "240", description: "4hour",title: "4hour" },
-          {
-            text: "1day",
-            resolution: "1D",
-            description: "1day",
-            title: "1day"
-          },
-          {
-            text: "1week",
-            resolution: "1W",
-            description: "1week",
-            title: "1week"
-          },
-          { text: "1mon", resolution: "1M", description: "1mon" }
-        ]
-      };
-      if (that.skin === "day") {
-        config.toolbar_bg = "#fff";
-        config.custom_css_url = "bundles/common_day.css";
-        config.overrides["paneProperties.background"] = "#fff";
-        config.overrides["mainSeriesProperties.candleStyle.upColor"] =
-          "#a6d3a5";
-        config.overrides["mainSeriesProperties.candleStyle.downColor"] =
-          "#ffa5a6";
-      }
-      require(["@js/charting_library/charting_library.min.js"], function(tv) {
-        var widget = (window.tvWidget = new TradingView.widget(config));
-        widget.onChartReady(function() {
-          widget.chart().executeActionById("drawingToolbarAction");
-          widget
-            .chart()
-            .createStudy("Moving Average", false, false, [5], null, {
-              "plot.color": "#EDEDED"
-            });
-          widget
-            .chart()
-            .createStudy("Moving Average", false, false, [10], null, {
-              "plot.color": "#ffe000"
-            });
-          widget
-            .chart()
-            .createStudy("Moving Average", false, false, [30], null, {
-              "plot.color": "#ce00ff"
-            });
-          widget
-            .chart()
-            .createStudy("Moving Average", false, false, [60], null, {
-              "plot.color": "#00adff"
-            });
-          widget
-            .createButton()
-            .attr("title", "realtime")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(3);
-              widget.setSymbol("", "1");
-            })
-            .append("<span>分时</span>");
-
-          widget
-            .createButton()
-            .attr("title", "M1")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "1");
-            })
-            .append("<span>M1</span>");
-
-          widget
-            .createButton()
-            .attr("title", "M5")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "5");
-            })
-            .append("<span>M5</span>");
-
-          widget
-            .createButton()
-            .attr("title", "M15")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "15");
-            })
-            .append("<span>M15</span>");
-
-          widget
-            .createButton()
-            .attr("title", "M30")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "30");
-            })
-            .append("<span>M30</span>");
-
-          widget
-            .createButton()
-            .attr("title", "H1")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "60");
-            })
-            .append("<span>H1</span>")
-            .addClass("selected");
-
-          widget
-            .createButton()
-            .attr("title", "H4")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "240");
-            })
-            .append("<span>H4</span>");
-
-          widget
-            .createButton()
-            .attr("title", "D1")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "1D");
-            })
-            .append("<span>D1</span>");
-
-          widget
-            .createButton()
-            .attr("title", "W1")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "1W");
-            })
-            .append("<span>W1</span>");
-
-          widget
-            .createButton()
-            .attr("title", "M1")
-            .on("click", function() {
-              if ($(this).hasClass("selected")) return;
-              $(this)
-                .addClass("selected")
-                .parent(".group")
-                .siblings(".group")
-                .find(".button.selected")
-                .removeClass("selected");
-              widget.chart().setChartType(1);
-              widget.setSymbol("", "1M");
-            })
-            .append("<span>M1</span>");
-        });
-      });
-    },
-    getSymbolThumb() {
-      this.$http.post(this.host + this.api.swap.thumb, {}).then(response => {
-        var resp = response.body;
-        //先清空已有数据
-        for (var i = 0; i < resp.length; i++) {
-          var coin = resp[i];
-          coin.base = resp[i].symbol.split("/")[1];
-          this.coins[coin.base] = [];
-          this.coins[coin.base + "2"] = [];
-          this.coins._map = [];
-        }
-        for (var i = 0; i < resp.length; i++) {
-          var coin = resp[i];
-          coin.price = resp[i].close = resp[i].close.toFixed(
-            this.baseCoinScale
-          );
-          coin.rose =
-            resp[i].chg > 0
-              ? "+" + (resp[i].chg * 100).toFixed(2) + "%"
-              : (resp[i].chg * 100).toFixed(2) + "%";
-          coin.coin = resp[i].symbol.split("/")[0];
-          coin.base = resp[i].symbol.split("/")[1];
-          coin.href = (coin.coin + "_" + coin.base).toLowerCase();
-          coin.isFavor = false;
-          this.coins._map[coin.symbol] = coin;
-          if(coin.zone == 0){
-            this.coins[coin.base].push(coin);
-          }else{
-            this.coins[coin.base + "2"].push(coin);
-          }
-          if (coin.symbol == this.currentCoin.symbol) {
-            this.currentCoin = coin;
-            this.form.entrustPrice = coin.price;
-          }
-        }
-        require(["../../assets/js/swap.js"], function(e) {
-          e.clickScTab();
-        });
-        this.startWebsock();
-        this.changeBaseCion(this.basecion);
-      });
-    },
-    getSymbolInfo() {
-      //获取精度
-      this.$http
-        .post(this.host + this.api.swap.symbolInfo, {
-          symbol: this.currentCoin.symbol
-        })
-        .then(response => {
-          var resp = response.body;
-          if (resp != null) {
-            this.currentCoin.coinScale = resp.coinScale;
-            this.currentCoin.baseCoinScale = resp.baseCoinScale;
-
-            this.baseCoinScale = resp.baseCoinScale;
-            this.coinScale = resp.coinScale;
-            this.symbolFee = resp.fee;
-
-            this.enableMarketBuy = resp.enableMarketBuy;
-            this.enableMarketSell = resp.enableMarketSell;
-
-            this.exchangeable = resp.exchangeable;
-
-            this.contractCoinInfo = resp;
-            if(this.contractCoinInfo.leverageType == 1) {
-              this.leverageList = this.contractCoinInfo.leverage.split(",");
-            }
-            if(this.isLogin) {
-              this.getMemberContractWallet(); // 获取用户合约资产信息
-            }
-          }
-        });
-    },
-    getMemberContractWallet() {
-      //获取精度
-      this.$http
-        .post(this.host + this.api.swap.contractWallet, {
-          contractCoinId: this.contractCoinInfo.id
-        }).then(response => {
-          var resp = response.body;
-          if (resp != null) {
-            this.contractWalletInfo = resp.data;
-            if(this.contractWalletInfo == null) {
-              return;
-            }
-            if(this.contractWalletInfo.usdtPattern == "FIXED"){
-              this.marginMode = "1";
-            }else{
-              this.marginMode = "0";
-            }
-            this.buyLeverage = this.contractWalletInfo.usdtBuyLeverage + "";
-            this.sellLeverage = this.contractWalletInfo.usdtSellLeverage + "";
-            // 默认杠杆如不在范围内
-            var levArr = this.contractCoinInfo.leverage.split(",");
-            if(Number(this.buyLeverage) < Number(levArr[0])) {
-              this.buyLeverage = levArr[0];
-            }
-            if(Number(this.sellLeverage) < Number(levArr[0])) {
-              this.sellLeverage = levArr[0];
-            }
-            if(Number(this.buyLeverage) > Number(levArr[levArr.length - 1])) {
-              this.buyLeverage = levArr[levArr.length - 1];
-            }
-            if(Number(this.sellLeverage) > Number(levArr[levArr.length - 1])) {
-              this.sellLeverage = levArr[levArr.length - 1];
-            }
-
-            // 构建多仓数据
-            if(this.contractWalletInfo.usdtBuyPosition > 0 || this.contractWalletInfo.usdtFrozenBuyPosition > 0) {
-              var buyPL = (this.currentCoin.price / this.contractWalletInfo.usdtBuyPrice -1) * (this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition) * this.contractWalletInfo.usdtShareNumber;
-
-              var tItem = {
-                direction: "Buy",
-                openPrice: this.contractWalletInfo.usdtBuyPrice, // 开仓价格
-                pl: buyPL, // 盈亏
-                position: this.contractWalletInfo.usdtBuyPosition + this.contractWalletInfo.usdtFrozenBuyPosition, // 总仓位
-                avaPosition: this.contractWalletInfo.usdtBuyPosition, // 可用仓位
-                margin: this.contractWalletInfo.usdtBuyPrincipalAmount, // 保证金
-                leverage: this.contractWalletInfo.usdtBuyLeverage, // 多仓杠杆
-                plRatio: buyPL / this.contractWalletInfo.usdtBuyPrincipalAmount,
-                mRatio: (buyPL + this.contractWalletInfo.usdtBuyPrincipalAmount) / this.contractWalletInfo.usdtBuyPrincipalAmount / this.contractWalletInfo.usdtBuyLeverage,
-                cmRatio: this.contractCoinInfo.maintenanceMarginRate
-              };
-              this.currentPositionList.splice(1);
-              this.$set(this.currentPositionList, 0, tItem);
-            }else{
-              this.currentPositionList.splice(0, 1);
-            }
-
-            if(this.contractWalletInfo.usdtSellPosition > 0 || this.contractWalletInfo.usdtFrozenSellPosition > 0) {
-                          // 构建空仓数据
-              var sellPL = (1 - this.currentCoin.price / this.contractWalletInfo.usdtSellPrice) * (this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition) * this.contractWalletInfo.usdtShareNumber;
-
-              var tItem = {
-                direction: "Sell",
-                openPrice: this.contractWalletInfo.usdtSellPrice, // 开仓价格
-                pl: sellPL, // 盈亏
-                position: this.contractWalletInfo.usdtSellPosition + this.contractWalletInfo.usdtFrozenSellPosition, // 总仓位
-                avaPosition: this.contractWalletInfo.usdtSellPosition, // 可用仓位
-                margin: this.contractWalletInfo.usdtSellPrincipalAmount, // 保证金
-                leverage: this.contractWalletInfo.usdtSellLeverage, // 多仓杠杆
-                plRatio: this.contractWalletInfo.usdtTotalProfitAndLoss / this.contractWalletInfo.usdtSellPrincipalAmount,
-                mRatio: (sellPL + this.contractWalletInfo.usdtSellPrincipalAmount) / this.contractWalletInfo.usdtSellPrincipalAmount / this.contractWalletInfo.usdtSellLeverage,
-                cmRatio: this.contractCoinInfo.maintenanceMarginRate
-              };
-
-              if(this.currentPositionList.length == 1){
-                this.$set(this.currentPositionList, 1, tItem);
-              }else{
-                this.$set(this.currentPositionList, 0, tItem);
-              }
-            }else{
-              this.currentPositionList.splice(1, 1);
-            }
-            this.getCurrentEntrustOrders();
-            this.getHistoryEntrustOrders();
-          }
-        });
-
-    },
-    getPlate(str="") {
-      //买卖盘
-      var params = {};
-      params["symbol"] = this.currentCoin.symbol;
-      this.$http
-        .post(this.host + this.api.swap.platemini, params)
-        .then(response => {
-          this.plate.askRows = [];
-          this.plate.bidRows = [];
-          let resp = response.body;
-          if (resp.ask && resp.ask.items) {
-            for (var i = 0; i < resp.ask.items.length; i++) {
-              if (i == 0) {
-                resp.ask.items[i].totalAmount = resp.ask.items[i].amount;
-              } else {
-                resp.ask.items[i].totalAmount =
-                  resp.ask.items[i - 1].totalAmount + resp.ask.items[i].amount;
-              }
-            }
-            if (resp.ask.items.length >= this.plate.maxPostion) {
-              for (var i = this.plate.maxPostion; i > 0; i--) {
-                var ask = resp.ask.items[i - 1];
-                ask.direction = "SELL";
-                ask.position = i;
-                this.plate.askRows.push(ask);
-              }
-              const rows = this.plate.askRows,
-                len = rows.length,
-                totle = rows[0].totalAmount;
-              this.plate.askTotle = totle;
-            } else {
-              for (var i = this.plate.maxPostion; i > resp.ask.items.length; i--) {
-                var ask = { price: 0, amount: 0 };
-                ask.direction = "SELL";
-                ask.position = i;
-                ask.totalAmount = ask.amount;
-                this.plate.askRows.push(ask);
-              }
-              for (var i = resp.ask.items.length; i > 0; i--) {
-                var ask = resp.ask.items[i - 1];
-                ask.direction = "SELL";
-                ask.position = i;
-                this.plate.askRows.push(ask);
-              }
-              var askItemIndex = (resp.ask.items.length - 1) > 0 ? (resp.ask.items.length - 1) : 0;
-              const rows = this.plate.askRows,
-                len = rows.length,
-                totle =
-                  rows[askItemIndex]
-                    .totalAmount;
-              this.plate.askTotle = totle;
-            }
-          }
-          if (resp.bid && resp.bid.items) {
-            for (var i = 0; i < resp.bid.items.length; i++) {
-              if (i == 0)
-                resp.bid.items[i].totalAmount = resp.bid.items[i].amount;
-              else
-                resp.bid.items[i].totalAmount =
-                  resp.bid.items[i - 1].totalAmount + resp.bid.items[i].amount;
-            }
-            for (var i = 0; i < resp.bid.items.length; i++) {
-              var bid = resp.bid.items[i];
-              bid.direction = "BUY";
-              bid.position = i + 1;
-              this.plate.bidRows.push(bid);
-              if (i == this.plate.maxPostion - 1) break;
-            }
-            if (resp.bid.items.length < this.plate.maxPostion) {
-              for (
-                var i = resp.bid.items.length;
-                i < this.plate.maxPostion;
-                i++
-              ) {
-                var bid = { price: 0, amount: 0 };
-                bid.direction = "BUY";
-                bid.position = i + 1;
-                bid.totalAmount = 0;
-                this.plate.bidRows.push(bid);
-              }
-              var bidItemIndex = (resp.bid.items.length - 1) > 0 ? (resp.bid.items.length - 1) : 0;
-              const rows = this.plate.bidRows,
-                len = rows.length,
-                totle = rows[bidItemIndex].totalAmount;
-              this.plate.bidTotle = totle;
-            } else {
-              const rows = this.plate.bidRows,
-                len = rows.length,
-                totle = rows[len - 1].totalAmount;
-              this.plate.bidTotle = totle;
-            }
-          }
-          if(str!=""){
-            this.selectedPlate = str;
-          }
-        });
-    },
-    getPlateFull() {
-      //深度图
-      var params = {};
-      params["symbol"] = this.currentCoin.symbol;
-      this.$http
-        .post(this.host + this.api.swap.platefull, params)
-        .then(response => {
-          var resp = response.body;
-          this.fullTrade = resp;
-          resp.skin = this.skin;
-          this.$refs.depthGraph.draw(resp);
-        });
-    },
-    getTrade() {
-      var params = {};
-      params["symbol"] = this.currentCoin.symbol;
-      params["size"] = 20;
-      this.$http
-        .post(this.host + this.api.swap.trade, params)
-        .then(response => {
-          this.trade.rows = [];
-          var resp = response.body;
-          for (var i = 0; i < resp.length; i++) {
-            this.trade.rows.push(resp[i]);
-          }
-        });
-    },
-    startWebsock() {
-      if (this.stompClient) {
-        this.stompClient.ws.close();
-      }
-      var stompClient = null;
-      var that = this;
-      var socket = new SockJS(that.host + that.api.swap.ws);
-      stompClient = Stomp.over(socket);
-      this.stompClient = stompClient;
-      stompClient.debug = false;
-      // this.datafeed = new Datafeeds.WebsockFeed(that.host+'/market',this.currentCoin,stompClient);
-      // this.getKline();
-      stompClient.connect({}, function(frame) {
-        that.datafeed = new Datafeeds.WebsockFeed(
-          that.host + "/swap",
-          that.currentCoin,
-          stompClient,
-          that.baseCoinScale
-        );
-        that.getKline();
-        //订阅价格变化消息
-        stompClient.subscribe("/topic/swap/thumb", function(msg) {
-          var resp = JSON.parse(msg.body);
-          var coin = that.getCoin(resp.symbol);
-          if (coin != null) {
-            // coin.price = resp.close.toFixed(2);
-            coin.price = resp.close;
-            coin.rose =
-              resp.chg > 0
-                ? "+" + (resp.chg * 100).toFixed(2) + "%"
-                : (resp.chg * 100).toFixed(2) + "%";
-            // coin.close = resp.close.toFixed(2);
-            // coin.high = resp.high.toFixed(2);
-            // coin.low = resp.low.toFixed(2);
-            coin.close = resp.close;
-            coin.high = resp.high;
-            coin.low = resp.low;
-            coin.turnover = parseInt(resp.volume);
-            coin.volume = resp.volume;
-            coin.usdRate = resp.usdRate;
-          }
-        });
-        //订阅实时成交信息
-        stompClient.subscribe(
-          "/topic/swap/trade/" + that.currentCoin.symbol,
-          function(msg) {
-            var resp = JSON.parse(msg.body);
-            if (resp.length > 0) {
-              for (var i = 0; i < resp.length; i++) {
-                that.trade.rows.unshift(resp[i]);
-              }
-            }
-            if (that.trade.rows.length > 30) {
-              that.trade.rows = that.trade.rows.slice(0, 30);
-            }
-          }
-        );
-        if (that.isLogin) {
-          //订阅委托取消信息
-          /*
-          stompClient.subscribe(
-            "/topic/swap/order-canceled/" +
-              that.currentCoin.symbol +
-              "/" +
-              that.member.id,
-            function(msg) {
-              var resp = JSON.parse(msg.body);
-              that.refreshAccount();
-            }
-          );
-          //订阅委托交易完成
-          stompClient.subscribe(
-            "/topic/swap/order-completed/" +
-              that.currentCoin.symbol +
-              "/" +
-              that.member.id,
-            function(msg) {
-              var resp = JSON.parse(msg.body);
-              that.refreshAccount();
-            }
-          );
-          //订阅委托部分交易
-          stompClient.subscribe(
-            "/topic/swap/order-trade/" +
-              that.currentCoin.symbol +
-              "/" +
-              that.member.id,
-            function(msg) {
-              var resp = JSON.parse(msg.body);
-              that.refreshAccount();
-            }
-          );
-          */
-        }
-
-        //订阅盘口消息
-        stompClient.subscribe(
-          "/topic/swap/trade-plate/" + that.currentCoin.symbol,
-          function(msg) {
-            var resp = JSON.parse(msg.body);
-            if (resp.direction == "SELL") {
-              var asks = resp.items;
-              that.plate.askRows = [];
-              let totle = 0;
-              for (var i = that.plate.maxPostion - 1; i >= 0; i--) {
-                var ask = {};
-                if (i < asks.length) {
-                  ask = asks[i];
-                } else {
-                  ask["price"] = 0;
-                  ask["amount"] = 0;
-                }
-                ask.direction = "SELL";
-                ask.position = i + 1;
-                that.plate.askRows.push(ask);
-              }
-              for (var i = that.plate.askRows.length - 1; i >= 0; i--) {
-                if (
-                  i == that.plate.askRows.length - 1 ||
-                  that.plate.askRows[i].price == 0
-                ) {
-                  that.plate.askRows[i].totalAmount =
-                    that.plate.askRows[i].amount;
-                } else {
-                  that.plate.askRows[i].totalAmount =
-                    that.plate.askRows[i + 1].totalAmount +
-                    that.plate.askRows[i].amount;
-                }
-                totle += that.plate.askRows[i].amount;
-              }
-              that.plate.askTotle = totle;
-            } else {
-              var bids = resp.items;
-              that.plate.bidRows = [];
-              let totle = 0;
-              for (var i = 0; i < that.plate.maxPostion; i++) {
-                var bid = {};
-                if (i < bids.length) {
-                  bid = bids[i];
-                } else {
-                  bid["price"] = 0;
-                  bid["amount"] = 0;
-                }
-                bid.direction = "BUY";
-                bid.position = i + 1;
-                that.plate.bidRows.push(bid);
-              }
-              for (var i = 0; i < that.plate.bidRows.length; i++) {
-                if (i == 0 || that.plate.bidRows[i].amount == 0) {
-                  that.plate.bidRows[i].totalAmount =
-                    that.plate.bidRows[i].amount;
-                } else {
-                  that.plate.bidRows[i].totalAmount =
-                    that.plate.bidRows[i - 1].totalAmount +
-                    that.plate.bidRows[i].amount;
-                }
-                totle += that.plate.bidRows[i].amount;
-              }
-              that.plate.bidTotle = totle;
-            }
-            if(that.currentImgTable == 's') {
-              that.getPlateFull();
-            }
-          }
-        );
-      });
-    },
-    open_order() {
-      this.showMarket = false;
-    },
-    close_order() {
-      this.showMarket = true;
-    },
-    gohref(currentRow, oldCurrentRow) {
-      this.$router.push({
-          name: 'SwapPair',
-          params: {
-            pair: currentRow.href
-          }
-        });
-    },
-    buyPlate(currentRow) {
-      this.form.entrustPrice = currentRow.price;
-    },
-    sellPlate(currentRow) {
-      this.form.entrustPrice = currentRow.price;
-    },
-    cancel(eid) {
-      var that = this;
-      this.$Modal.confirm({
-        title: "撤单提示",
-        content: this.$t("swap.undotip"),
-        onOk: () => {
-          let params = {
-            entrustId: eid
-          };
-          this.$http
-            .post(this.host + this.api.swap.cancel, params)
-            .then(response => {
-              var resp = response.body;
-              if (resp.code == 0) {
-                this.$Notice.success({
-                  title: this.$t("swap.tip"),
-                  desc: this.$t("swap.cancelsuccess")
-                });
-                setTimeout(function () {
-                  that.getMemberContractWallet();
-                }, 1000);
-              } else {
-                this.$Notice.error({
-                  title: this.$t("swap.tip"),
-                  desc: resp.message
-                });
-              }
-            });
-        }
-      });
-    },
-    timeFormat: function(tick) {
-      return moment(tick).format("HH:mm:ss");
-    },
-    dateFormat: function(tick) {
-      return moment(tick).format("MM-DD HH:mm:ss");
-    },
-    showMarginModeModal(){
-      if(!this.isLogin) return;
-
-      this.marginModeModal = true;
-    },
-    changeMarginMode(val) {
-      if(!this.isLogin) {
-        return;
-      }
-      var that = this;
-      let params = {
-        contractCoinId: this.contractCoinInfo.id,
-        targetPattern: Number(val)
-      };
-      this.$http
-        .post(this.host + this.api.swap.switchPattern, params)
-        .then(response => {
-          var resp = response.body;
-          if (resp.code == 0) {
-            this.$Message.success(this.$t("swap.marginModeSuccessTip"));
-            this.getMemberContractWallet();
-          } else {
-            this.$Message.error(resp.message);
-          }
-        });
-    },
-    showAdjustLeverage(type) {
-      if(!this.isLogin) return;
-
-      this.leverageModal = true;
-      this.leverageType = this.contractCoinInfo.leverageType;
-      if(type == 1) {
-        this.leverageAdjustVal = Number(this.contractWalletInfo.usdtBuyLeverage);
-      }else{
-        this.leverageAdjustVal = Number(this.contractWalletInfo.usdtSellLeverage);
-      }
-      // 默认杠杆如不在范围内
-      var levArr = this.contractCoinInfo.leverage.split(",");
-      if(this.leverageAdjustVal < levArr[0]) {
-        this.leverageAdjustVal = Number(levArr[0]);
-      }
-      if(this.leverageAdjustVal > levArr[levArr.length - 1]) {
-        this.leverageAdjustVal = Number(levArr[levArr.length - 1]);
-      }
-
-      this.changeLeverageType = type;
-    },
-    changeLeverage(lev) { // 离散模式：选择杠杆
-      if(this.changeLeverageType == 1) {//多仓杠杆
-        this.leverageAdjustVal = lev;
-      }else{//空仓杠杆
-        this.leverageAdjustVal = lev;
-      }
-    },
-    changeEntrustOrderType(value) {
-      if(value == "2") { // 计划委托
-        this.form.trigglePrice = "";
-        this.form.entrustPrice = "";
-        this.form.volume = "";
-      }else if(value == "0") { // 限价委托
-        this.form.entrustPrice = this.currentCoin.price;
-        this.form.volume = "";
-      }
-    },
-    onLeverageChange(val){
-      if(!this.isLogin) return;
-      this.leverageAdjustVal = val;
-    },
-    adjustLeverage(){ // 连续模式，确认选择杠杆
-      if(!this.isLogin) return;
-      var levArr = this.contractCoinInfo.leverage.split(",");
-      if(this.leverageAdjustVal < Number(levArr[0])) {
-        this.leverageAdjustVal = Number(levArr[0]);
-        this.$Message.error(this.$t("swap.levmintip"));
-        return;
-      }
-      if(this.leverageAdjustVal > Number(levArr[levArr.length - 1])) {
-        this.leverageAdjustVal = Number(levArr[levArr.length - 1]);
-        this.$Message.error(this.$t("swap.levmaxtip"));
-        return;
-      }
-
-      if(this.changeLeverageType == 1 && this.buyLeverage == this.leverageAdjustVal) {
-        this.leverageModal = false;
-        return;
-      }
-      if(this.changeLeverageType == 2 && this.sellLeverage == this.leverageAdjustVal){
-        this.leverageModal = false;
-        return;
-      }
-      // TODO 检查是否能够更改为目标杠杆
-
-      this.$Spin.show();
-
-      var that = this;
-      let hasChanged = false;
-      let params = {
-        contractCoinId: this.contractCoinInfo.id,
-        leverage: this.leverageAdjustVal,
-        direction: this.changeLeverageType == 1 ? 0 : 1
-      };
-
-      this.$http
-        .post(this.host + this.api.swap.modifyLeverage, params)
-        .then(response => {
-          var resp = response.body;
-          if (resp.code == 0) {
-            this.$Notice.success({
-              title: that.$t("swap.tip"),
-              desc: that.$t("swap.success")
-            });
-            hasChanged = true;
-            this.getMemberContractWallet();
-          } else {
-            this.$Notice.error({
-              title: that.$t("swap.tip"),
-              desc: resp.message
-            });
-          }
-          this.$Spin.hide();
-
-          if(!hasChanged) {
-            return;
-          }
-          if(this.changeLeverageType == 1){ //多仓杠杆
-            this.buyLeverage = this.leverageAdjustVal;
-          }else{ // 空仓杠杆
-            this.sellLeverage = this.leverageAdjustVal;
-          }
-
-          this.leverageModal = false;
-        });
-    },
-    onOpenAmountFocus(){
-      this.sliderOpenPercent = 0;
-    },
-    onChangeOpenPercent(val) {
-      this.sliderOpenPercent = val;
-    },
-    onCloseAmountFocus(){
-      this.sliderClosePercent = 0;
-    },
-    onChangeClosePercent(val) {
-      this.sliderClosePercent = val;
-    },
-    onOpen(direction){ // 开仓：买入开多
-      if(!this.isLogin) return;
-      var temVolume = 0;
-      if(this.sliderOpenPercent > 0) {
-        if(direction == 0) {
-          temVolume = parseInt(this.avaOpenBuy * this.sliderOpenPercent / 100);
-        }else{
-          temVolume = parseInt(this.avaOpenSell * this.sliderOpenPercent / 100);
-        }
-
-        if(temVolume < 1) {
-          temVolume = 1;
-        }
-      }else{
-        temVolume = parseInt(this.form.volume);
-      }
-      if(this.form.triggerPrice == "" || this.form.triggerPrice == undefined) {
-        this.form.triggerPrice = 0;
-      }
-      var oType = parseInt(this.entrustOrderType);
-      if(oType == 2 && this.form.triggerPrice <= 0) {
-        this.$Message.error(this.$t("swap.triggerpriceshouldbigger"));
-        return;
-      }
-      let params= {
-        type : oType, // 0:市价 1:限价 2计划委托
-        direction : direction,// 买入
-        contractCoinId : this.contractCoinInfo.id,
-        triggerPrice : Number(this.form.triggerPrice),
-        entrustPrice : this.form.entrustPrice == "" ? 0 : Number(this.form.entrustPrice),
-        leverage : direction ==0 ? Number(this.buyLeverage) : Number(this.sellLeverage),
-        volume : temVolume
-      };
-      if(params.volume <= 0) {
-        this.$Message.error(this.$t("swap.pleaseinputopenvolume"));
-        return;
-      }
-      var reg = /^\+?[1-9][0-9]*$/;
-      if(!reg.test(params.volume)){
-        this.$Message.error(this.$t("swap.pleaseinputcorrectopenvolume"));
-        return;
-      }
-      if(direction == 0) { // 买入开多(计划委托时，不需考虑额度问题)
-        if(params.volume > this.avaOpenBuy && params.type != 3) {
-          this.$Message.error(this.$t("swap.noenoughbalance"));
-          return;
-        }
-      }else{ // 卖出开空
-        if(params.volume > this.avaOpenSell && params.type != 3) {
-          this.$Message.error(this.$t("swap.noenoughbalance"));
-          return;
-        }
-      }
-      if(this.entrustOrderType == 1) { // 限价，必须输入价格
-        if(this.form.entrustPrice == "" || this.form.entrustPrice == 0) {
-          this.$Message.error(this.$t("swap.pleaseinputrightentrustprice"));
-          return;
-        }
-      }
-
-
-      this.$Spin.show();
-      var that = this;
-      this.$http
-        .post(this.host + this.api.swap.open, params)
-        .then(response => {
-          var resp = response.body;
-          if (resp.code == 0) {
-            this.$Notice.success({
-              title: that.$t("swap.tip"),
-              desc: that.$t("swap.success")
-            });
-            setTimeout(function () {
-              that.getMemberContractWallet();
-            }, 1000);
-          } else {
-            this.$Notice.error({
-              title: that.$t("swap.tip"),
-              desc: resp.message
-            });
-          }
-          this.$Spin.hide();
-        });
-    },
-    onClose(direction){ // 平仓：卖出平多
-      if(!this.isLogin) return;
-      var temVolume = 0;
-      if(this.sliderClosePercent > 0) {
-        if(direction == 0) {
-          temVolume = parseInt(this.contractWalletInfo.usdtSellPosition * this.sliderClosePercent / 100);
-        }else{
-          temVolume = parseInt(this.contractWalletInfo.usdtBuyPosition * this.sliderClosePercent / 100);
-        }
-
-        if(temVolume < 1) {
-          temVolume = 1;
-        }
-      }else{
-        temVolume = parseInt(this.form.volume);
-      }
-      if(this.form.triggerPrice == "" || this.form.triggerPrice == undefined) {
-        this.form.triggerPrice = 0;
-      }
-      var oType = parseInt(this.entrustOrderType);
-      if(oType == 2 && this.form.triggerPrice <= 0) {
-        this.$Message.error(this.$t("swap.triggerpriceshouldbigger"));
-        return;
-      }
-      let params= {
-        type : this.entrustOrderType, // 0:市价 1:限价 2计划委托
-        direction : direction,// 买入
-        contractCoinId : this.contractCoinInfo.id,
-        triggerPrice : Number(this.form.triggerPrice),
-        entrustPrice : this.form.entrustPrice == "" ? 0 : Number(this.form.entrustPrice),
-        volume : temVolume
-      };
-      if(params.volume <= 0) {
-        this.$Message.error(this.$t("swap.pleaseinputclosevolume"));
-        return;
-      }
-      var reg = /^\+?[1-9][0-9]*$/;
-      if(!reg.test(params.volume)){
-        this.$Message.error(this.$t("swap.pleaseinputcorrectclosevolume"));
-        return;
-      }
-      if(direction == 0) { // 买入开多(计划委托时，不需考虑额度问题)
-        if(params.volume > this.contractWalletInfo.usdtSellPosition && params.type != 3) {
-          this.$Message.error(this.$t("swap.noenoughposition"));
-          return;
-        }
-      }else{ // 卖出开空
-        if(params.volume > this.contractWalletInfo.usdtBuyPosition && params.type != 3) {
-          this.$Message.error(this.$t("swap.noenoughposition"));
-          return;
-        }
-      }
-      if(this.entrustOrderType == 1) { // 限价，必须输入价格
-        if(this.form.entrustPrice == "" || this.form.entrustPrice == 0) {
-          this.$Message.error(this.$t("swap.pleaseinputrightentrustprice"));
-          return;
-        }
-      }
-
-      this.$Spin.show();
-      var that = this;
-      this.$http
-        .post(this.host + this.api.swap.close, params)
-        .then(response => {
-          var resp = response.body;
-          if (resp.code == 0) {
-            this.$Notice.success({
-              title: that.$t("swap.tip"),
-              desc: that.$t("swap.success")
-            });
-            setTimeout(function () {
-              that.getMemberContractWallet();
-            }, 1000);
-          } else {
-            this.$Notice.error({
-              title: that.$t("swap.tip"),
-              desc: resp.message
-            });
-          }
-          this.$Spin.hide();
-        });
-    },
-    getCurrentEntrustOrders(){
-      if(!this.isLogin) return;
-      var that = this;
-      let params = {
-        contractCoinId: this.contractCoinInfo.id,
-        pageNo: 1,
-        pageSize: 50
-      };
-      this.$http
-        .post(this.host + this.api.swap.getEntrustList, params)
-        .then(response => {
-          var resp = response.body;
-          if (resp.content.length > 0) {
-            this.currentEntrustOrderList.splice(0);
-            resp.content.forEach(function(item){
-              that.currentEntrustOrderList.push(item);
-            });
-          }else{
-            this.currentEntrustOrderList.splice(0);
-          }
-        });
-    },
-    getHistoryEntrustOrders(){
-      if(!this.isLogin) return;
-      var that = this;
-      let params = {
-        contractCoinId: this.contractCoinInfo.id,
-        pageNo: 1,
-        pageSize: 50
-      };
-      this.$http
-        .post(this.host + this.api.swap.getHistoryEntrustList, params)
-        .then(response => {
-          var resp = response.body;
-          if (resp.content.length > 0) {
-            this.historyEntrustOrderList.splice(0);
-            resp.content.forEach(function(item){
-              that.historyEntrustOrderList.push(item);
-            });
-          }else{
-            this.historyEntrustOrderList.splice(0);
-          }
-        });
-    },
-  }
-};
-</script>
-
 <style scoped lang="scss">
-@import url(../../assets/css/swap.css);
-$night-bg: #0b1520;
-$night-headerbg: #27313e;
-$night-contentbg: #192330;
-$night-color: #fff;
+	@import url(../../assets/css/exchange.css);
+	$night-bg: #0b1520;
+	$night-headerbg: #27313e;
+	$night-contentbg: #192330;
+	$night-color: #fff;
 
-.swap {
-  color: #fff;
-  background-color: #0b1520;
-  .main {
-    width: 99%;
-    margin-left: 0.3%;
-    display: flex;
-    margin-top: 5px;
-    .left {
-      
-      border-radius: 0px;
-      margin-right: 5px;
-      overflow:hidden;
-      .handlers {
-        font-size: 0;
-        padding: 10px 20px;
-        background-color: #192330;
-        border-top-left-radius: 0px;
-        border-top-right-radius: 0px;
-        .handler {
-          display: inline-block;
-          margin-right: 10px;
-          width: 20px;
-          height: 20px;
-          background-size: 100% 100%;
-          cursor: pointer;
-          &.handler-all {
-            background-image: url("../../assets/images/exchange/plate_all.png");
-            &.active {
-              background-image: url("../../assets/images/exchange/plate_all_active.png");
-            }
-          }
-          &.handler-green {
-            background-image: url("../../assets/images/exchange/plate_green.png");
-            &.active {
-              background-image: url("../../assets/images/exchange/plate_green_active.png");
-            }
-          }
-          &.handler-red {
-            background-image: url("../../assets/images/exchange/plate_red.png");
-            &.active {
-              background-image: url("../../assets/images/exchange/plate_red_active.png");
-            }
-          }
-        }
-      }
-      .plate-nowprice {
-        text-align: center;
-        background-color: #27313e;
-        line-height: 1;
-        display: flex;
-        align-items: center;
-        height: 40px;
-        justify-content: center;
-        font-size: 14px;
-        font-weight: 500;
-        .price {
-          font-size: 18px;
-          margin-right: 10px;
-        }
-        .price-cny {
-          font-size: 12px;
-          margin-left: 10px;
-          font-weight: 400;
-          color: rgba(219, 222, 246, 0.3);
-        }
-      }
-    }
-    .center {
-      flex: 0 0 76%;
-      margin-right: 5px;
-      .imgtable {
-        height: 446px;
-        position: relative;
-        overflow: hidden;
-        .handler {
-          position: absolute;
-          top: 10px;
-          right: 40px;
-          z-index: 1000;
-          > span {
-            background-color: #2c3b59;
-            color: #c7cce6;
-            padding: 4px 8px;
-            cursor: pointer;
-            font-size: 13px;
-            opacity: 0.5;
-            &.active {
-              opacity: 1;
-            }
-          }
-        }
-      }
-      .trade_wrap {
-        .trade_menu {
-          position: relative;
-          background-color: #192330;
-          border-top-left-radius: 0px;
-          border-top-right-radius: 0px;
-          border-bottom: 1px solid #27313e;
-          font-size: 0;
-          height: 40px;
-          line-height: 40px;
-          > span {
-            font-size: 16px;
-            padding: 11px 20px;
-            cursor: pointer;
-            &.active {
-              color: #FFF;
-              border-bottom: 2px solid #f0a70a;
-            }
-            &:first-child {
-              border-top-left-radius: 0px;
-            }
-          }
-          .fee-wrap {
-            position: absolute;
-            top: 0;
-            right: 20px;
-            font-size: 12px;
-            > span {
-              margin-right: 10px;
-              color: #7c7f82;
-            }
-            > a {
-              vertical-align: middle;
-            }
-          }
-        }
-        .trade_panel {
-          position: relative;
-          .mask {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            background-color: rgba(0, 52, 77, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            font-size: 24px;
-            border-radius: 0px;
-            // color: #bcd7e6;
-          }
-          .publish-mask {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 37, 64, 0.93);
-            justify-content: center;
-            align-items: center;
-            z-index: 101;
-            font-size: 24px;
-            border-radius: 0px;
-            // color: #bcd7e6;
-          }
-        }
-        .trade_panel .panel .hd {
-          border-bottom: none;
-          b {
-            color: #fff;
-          }
-          a {
-            color: #f0a70a;
-          }
-        }
-      }
-    }
-    .right {
-      flex: 0 0 23%;
-      .coin-menu {
-        overflow: hidden;
-        height: 512px;
-        background-color: #192330;
-        border-radius: 0px;
-      }
-    }
-  }
-  .symbol {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px 30px;
-    margin-bottom: 5px;
-    align-items: center;
-    background-color: #192330;
-    line-height: 1;
-    border-radius: 0px;
-    .item {
-      .price-cny {
-        font-size: 12px;
-        color: #546886;
-      }
-      .coin {
-        font-size: 20px;
-      }
-      .text {
-        width: 100%;
-        display: block;
-        font-size: 12px;
-        color: #999;
-        margin-bottom: 5px;
-      }
-      .num {
-        font-size: 12px;
-        color: #fff;
-      }
-      > img {
-        display: block;
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-      }
-    }
-  }
-  .order {
-    min-height: 227px;
-    margin-bottom: 10px;
-    overflow:hidden;
-    .order-handler {
-      // background-color: #192330;
-      background-color: #192330;
-      font-size: 0;
-      // line-height: 38px;
-      > span {
-        padding: 0 20px;
-        font-size: 14px;
-        display: inline-block;
-        color: #fff;
-        cursor: pointer;
-        line-height: 30px;
-        background-color: #192330;
-        &.active {
-          color: #f0a70a;
-          background-color: #27313e;
-          border-bottom: 2px solid #f0a70a;
-        }
-        &:first-child {
-          border-top-left-radius: 0px;
-        }
-        &:last-child {
-          border-top-right-radius: 0px;
-        }
-      }
-    }
-  }
-}
-.exchange.day {
-  color: #333;
-  background-color: #fff;
-  .main {
-    .left {
-      background-color: #fff;
-      box-shadow: 0 0 2px #ccc;
-      .handlers {
-        background-color: #fff;
-      }
-      .plate-nowprice {
-        background-color: #fff;
-        border-top: 1px solid #f0f0f0;
-        border-bottom: 1px solid #f0f0f0;
-      }
-    }
-    .imgtable {
-      border-radius: 6px;
-      box-shadow: 0 0 2px #ccc;
-      .handler {
-        > span {
-          border: 1px solid #333;
-        }
-      }
-    }
-    .trade_wrap {
-      box-shadow: 0 0 2px #ccc;
-      .trade_menu {
-        background-color: #fafafa;
-        > span {
-          background-color: #fafafa;
-          border-right: 1px solid #f0f0f0;
-          &.active {
-            background-color: #fff;
-            color: #f0a70a;
-          }
-          &:last-child {
-            border-top-right-radius: 6px;
-          }
-        }
-        .ivu-icon {
-          color: #333 !important;
-        }
-      }
-      .trade_panel {
-        box-shadow: 0 0 2px #ccc;
-        .mask {
-          background-color: rgba(0, 52, 77, 0.8);
-          color: #fff;
-        }
-      }
-      .trade_panel .panel .hd {
-        border-bottom: none;
-        b {
-          color: #333;
-        }
-        a {
-          color: #f0a70a;
-        }
-      }
-    }
-    .right {
-      .coin-menu {
-        background-color: #fff;
-        box-shadow: 0 2px 2px #ccc;
-      }
-      .trade-wrap {
-        box-shadow: 0 0 2px #ccc;
-        border-radius: 6px;
-      }
-      // .ivu-table-wrapper{
-      //         box-shadow:0 0 2px #ccc;
-      //       }
-    }
-  }
-  .symbol {
-    background-color: #fff;
-    box-shadow: 0 0 2px #ccc;
-    .item {
-      .text {
-        color: #999;
-      }
-      .num {
-        color: #333;
-      }
-    }
-  }
-  .order {
-    box-shadow: 0 2px 2px #ccc;
-    min-height: 227px;
-    .order-handler {
-      margin-right: -2px;
-      background-color: #fff;
-      > span {
-        color: #333;
-        background-color: #fafafa;
-        box-shadow: 0 0 2px #ccc;
-        &.active {
-          color: #f0a70a;
-          background-color: #fff;
-        }
-      }
-    }
-  }
-}
-#kline_container{
-    background: #192330;
-}
+	.exchange .ivu-tooltip-inner {
+		padding: 2px 5px !important;
+		min-height: 24px !important;
+	}
 
-.coin-info{
-  color: #8f9ca5;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
-  overflow: hidden;
-  padding-top: 15px;
-}
+	.exchange {
+		color: #fff;
+		background-color: #0b1520;
 
+		.main {
+			display: flex;
+			margin-top: 5px;
+
+			.left {
+				flex: 0 0 20%;
+				border-radius: 0px;
+				margin-right: 10px;
+
+				.handlers {
+					font-size: 0;
+					padding: 10px 20px;
+					background-color: #192330;
+					border-top-left-radius: 0px;
+					border-top-right-radius: 0px;
+
+					.handler {
+						display: inline-block;
+						margin-right: 10px;
+						width: 20px;
+						height: 20px;
+						background-size: 100% 100%;
+						cursor: pointer;
+
+						&.handler-all {
+							background-image: url("../../assets/images/exchange/plate_all.png");
+
+							&.active {
+								background-image: url("../../assets/images/exchange/plate_all_active.png");
+							}
+						}
+
+						&.handler-green {
+							background-image: url("../../assets/images/exchange/plate_green.png");
+
+							&.active {
+								background-image: url("../../assets/images/exchange/plate_green_active.png");
+							}
+						}
+
+						&.handler-red {
+							background-image: url("../../assets/images/exchange/plate_red.png");
+
+							&.active {
+								background-image: url("../../assets/images/exchange/plate_red_active.png");
+							}
+						}
+					}
+				}
+
+				.plate-nowprice {
+					text-align: center;
+					background-color: #27313e;
+					line-height: 1;
+					display: flex;
+					align-items: center;
+					height: 40px;
+					justify-content: center;
+					font-size: 14px;
+					font-weight: 500;
+
+					.price {
+						font-size: 18px;
+						margin-right: 10px;
+					}
+
+					.price-cny {
+						font-size: 12px;
+						margin-left: 10px;
+						font-weight: 400;
+						color: rgba(219, 222, 246, 0.3);
+					}
+				}
+			}
+
+			.center {
+				flex: 0 0 60%;
+				margin-right: 5px;
+
+				.imgtable {
+					// height: 350px;
+					height: 400px;
+					position: relative;
+					overflow: hidden;
+					margin-bottom: 5px;
+
+					.handler {
+						position: absolute;
+						top: 10px;
+						right: 40px;
+						z-index: 1000;
+
+						>span {
+							background-color: #2c3b59;
+							color: #c7cce6;
+							padding: 4px 8px;
+							cursor: pointer;
+							font-size: 13px;
+							opacity: 0.5;
+
+							&.active {
+								opacity: 1;
+							}
+						}
+					}
+				}
+
+				.trade_wrap {
+					.trade_menu {
+						position: relative;
+						background-color: #192330;
+						border-top-left-radius: 0px;
+						border-top-right-radius: 0px;
+						border-bottom: 1px solid #27313e;
+						font-size: 0;
+						height: 40px;
+						line-height: 40px;
+
+						>span {
+							font-size: 16px;
+							padding: 11px 20px;
+							cursor: pointer;
+
+							&.active {
+								color: #fff;
+								border-bottom: 2px solid #f0a70a;
+							}
+
+							&:first-child {
+								border-top-left-radius: 0px;
+							}
+						}
+
+						.fee-wrap {
+							position: absolute;
+							top: 0;
+							right: 20px;
+							font-size: 12px;
+
+							>span {
+								margin-right: 10px;
+								color: #7c7f82;
+							}
+
+							>a {
+								vertical-align: middle;
+							}
+						}
+					}
+
+					.trade_panel {
+						position: relative;
+
+						.mask {
+							position: absolute;
+							width: 100%;
+							height: 100%;
+							display: flex;
+							background-color: rgba(0, 52, 77, 0.8);
+							justify-content: center;
+							align-items: center;
+							z-index: 100;
+							font-size: 24px;
+							border-radius: 0px;
+							// color: #bcd7e6;
+						}
+
+						.publish-mask {
+							position: absolute;
+							width: 100%;
+							height: 100%;
+							background-color: rgba(0, 37, 64, 0.93);
+							justify-content: center;
+							align-items: center;
+							z-index: 101;
+							font-size: 24px;
+							border-radius: 0px;
+							// color: #bcd7e6;
+						}
+					}
+
+					.trade_panel .panel .hd {
+						border-bottom: none;
+
+						b {
+							color: #fff;
+						}
+
+						a {
+							color: #f0a70a;
+						}
+					}
+				}
+			}
+
+			.right {
+				flex: 0 0 19%;
+				margin-right: 5px;
+
+				.coin-menu {
+					height: 787px;
+					// height: 785px;
+					background-color: #192330;
+					margin-bottom: 10px;
+					border-radius: 0px;
+				}
+			}
+		}
+
+		.symbol {
+			display: flex;
+			justify-content: space-between;
+			padding: 15px 30px;
+			margin-bottom: 5px;
+			align-items: center;
+			background-color: #192330;
+			line-height: 1;
+			border-radius: 0px;
+
+			.item {
+				.price-cny {
+					font-size: 12px;
+					color: #546886;
+				}
+
+				.coin {
+					font-size: 20px;
+				}
+
+				.text {
+					width: 100%;
+					display: block;
+					font-size: 12px;
+					color: #999;
+					margin-bottom: 5px;
+				}
+
+				.num {
+					font-size: 12px;
+					color: #fff;
+				}
+
+				>img {
+					display: block;
+					width: 18px;
+					height: 18px;
+					cursor: pointer;
+				}
+			}
+		}
+
+		.order {
+			min-height: 227px;
+			margin-bottom: 10px;
+
+			.order-handler {
+				// background-color: #192330;
+				background-color: #192330;
+				font-size: 0;
+				border-radius: 6px;
+
+				// line-height: 38px;
+				>span {
+					padding: 0 20px;
+					font-size: 14px;
+					display: inline-block;
+					color: #fff;
+					cursor: pointer;
+					line-height: 40px;
+					background-color: #192330;
+
+					&.active {
+						color: #f0a70a;
+						background-color: #27313e;
+					}
+
+					&:first-child {
+						border-top-left-radius: 0px;
+					}
+
+					&:last-child {
+						border-top-right-radius: 0px;
+					}
+				}
+			}
+		}
+	}
+
+	.exchange.day {
+		color: #333;
+		background-color: #fff;
+
+		.main {
+			.left {
+				background-color: #fff;
+				box-shadow: 0 0 2px #ccc;
+
+				.handlers {
+					background-color: #fff;
+				}
+
+				.plate-nowprice {
+					background-color: #fff;
+					border-top: 1px solid #f0f0f0;
+					border-bottom: 1px solid #f0f0f0;
+				}
+			}
+
+			.imgtable {
+				border-radius: 6px;
+				box-shadow: 0 0 2px #ccc;
+
+				.handler {
+					>span {
+						border: 1px solid #333;
+					}
+				}
+			}
+
+			.trade_wrap {
+				box-shadow: 0 0 2px #ccc;
+
+				.trade_menu {
+					background-color: #fafafa;
+
+					>span {
+						background-color: #fafafa;
+						border-right: 1px solid #f0f0f0;
+
+						&.active {
+							background-color: #fff;
+							color: #f0a70a;
+						}
+
+						&:last-child {
+							border-top-right-radius: 6px;
+						}
+					}
+
+					.ivu-icon {
+						color: #333 !important;
+					}
+				}
+
+				.trade_panel {
+					box-shadow: 0 0 2px #ccc;
+
+					.mask {
+						background-color: rgba(0, 52, 77, 0.8);
+						color: #fff;
+					}
+				}
+
+				.trade_panel .panel .hd {
+					border-bottom: none;
+
+					b {
+						color: #333;
+					}
+
+					a {
+						color: #f0a70a;
+					}
+				}
+			}
+
+			.right {
+				.coin-menu {
+					background-color: #fff;
+					box-shadow: 0 2px 2px #ccc;
+				}
+
+				.trade-wrap {
+					box-shadow: 0 0 2px #ccc;
+					border-radius: 6px;
+				}
+
+				// .ivu-table-wrapper{
+				//         box-shadow:0 0 2px #ccc;
+				//       }
+			}
+		}
+
+		.symbol {
+			background-color: #fff;
+			box-shadow: 0 0 2px #ccc;
+
+			.item {
+				.text {
+					color: #999;
+				}
+
+				.num {
+					color: #333;
+				}
+			}
+		}
+
+		.order {
+			box-shadow: 0 2px 2px #ccc;
+			min-height: 227px;
+
+			.order-handler {
+				margin-right: -2px;
+				background-color: #fff;
+
+				>span {
+					color: #333;
+					background-color: #fafafa;
+					box-shadow: 0 0 2px #ccc;
+
+					&.active {
+						color: #f0a70a;
+						background-color: #fff;
+					}
+				}
+			}
+		}
+	}
+
+	#kline_container {
+		background: #192330;
+		height: 100%;
+	}
+
+	.coin-info {
+		color: #8f9ca5;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 5;
+		overflow: hidden;
+		padding-top: 15px;
+	}
+
+	.trade_bd .panel {
+		height: 276px;
+	}
+
+	.trade_panel .panel .hd {
+		height: 10px;
+		line-height: 10px;
+	}
 </style>
+<script>
+	import expandRow from "@components/exchange/expand.vue";
+	import Datafeeds from "@js/charting_library/datafeed/bitrade.js";
+	var Stomp = require("stompjs");
+	var SockJS = require("sockjs-client");
+	var moment = require("moment");
+	import DepthGraph from "@components/exchange/DepthGraph.vue";
+	import $ from "@js/jquery.min.js";
+	import BZCountDown from "@components/exchange/BZCountDown.vue";
+	import { accDiv } from "../../assets/js/decimal";
+
+	export default {
+		components: {
+			expandRow,
+			DepthGraph,
+			BZCountDown,
+		},
+		data() {
+			let self = this;
+			return {
+				isBuyTabOpen: true,
+				isListOpen: false,
+				wsBaseCoinTab: 2,
+				wsPlateTab: 1,
+				isBuySellOpen: true,
+				sliderStep: [25, 50, 75, 100],
+				sliderBuyLimitPercent: 0,
+				sliderSellLimitPercent: 0,
+				sliderBuyMarketPercent: 0,
+				sliderSellMarketPercent: 0,
+				memberRate: 0,
+				// userRealVerified: false, //是否实名认证
+				collecRequesting: false,
+				currentCoinIsFavor: false,
+				isUseBHB: false,
+				skin: "night", //皮肤样式day&night
+				currentImgTable: "k",
+				selectedOrder: "current", //当前显示的委托记录
+				selectedPlate: "all", //当前显示的买卖盘
+				CNYRate: null,
+				datafeed: null,
+				defaultPath: "btc_usdt",
+				basecion: "usdt",
+				coinScale: 6,
+				baseCoinScale: 6,
+				symbolFee: 0.001,
+				dataIndex: [],
+				dataIndex2: [],
+				searchKey: "",
+				coinInfo: {},
+				currentCoin: {
+					base: "",
+					coin: "",
+					symbol: "",
+				},
+				enableMarketBuy: 1, // 0:禁用  1:启用
+				enableMarketSell: 1,
+				exchangeable: 1, // 0:可交易   1:不可交易
+
+				publishType: "NONE",
+				currentTime: 0,
+				publishAmount: 0,
+				publishPrice: 0,
+				startTime: "2000-01-01 00:00:00",
+				endTime: "2000-01-01 00:00:00",
+				clearTime: "2000-01-01 00:00:00",
+				showPublish: false,
+				showCountDown: false,
+				countDownBgColor:
+					"linear-gradient(135deg, rgb(0 199 144 / 63%) 10%, rgb(18 33 41) 100%)",
+				publishState: 0,
+				favorColumns: [
+					{
+						title: this.$t("exchange.coin"),
+						key: "coin",
+						sortable: false,
+						width: 120,
+						className: "coin-menu-symbol",
+						render: (h, params) => {
+							return h("div", [
+								h("Icon", {
+									props: {
+										// color:"red",
+										type: params.row.isFavor ? "ios-star" : "ios-star-outline",
+									},
+									nativeOn: {
+										click: () => {
+											event.stopPropagation(); //阻止事件冒泡
+											if (this.isLogin) {
+												if (
+													event.currentTarget.className ==
+													"ivu-icon ivu-icon-ios-star"
+												) {
+													this.cancelCollect(params.index, params.row);
+													event.currentTarget.className ==
+														"ivu-icon ivu-icon-ios-star-outline";
+												} else {
+													this.collect(params.index, params.row);
+													event.currentTarget.className =
+														"ivu-icon ivu-icon-ios-star";
+												}
+											} else {
+												this.$Message.warning("请先登录");
+											}
+										},
+									},
+								}),
+								h("span", params.row.symbol),
+							]);
+						},
+					},
+					{
+						title: this.$t("exchange.lastprice"),
+						key: "close",
+						sortable: true,
+						sortMethod: function (a, b, type) {
+							let a1 = parseFloat(a);
+							let b1 = parseFloat(b);
+							if (type == "asc") {
+								return a1 - b1;
+							} else {
+								return b1 - a1;
+							}
+						},
+					},
+					{
+						title: this.$t("exchange.daychange"),
+						key: "rose",
+						sortable: true,
+						sortMethod: function (a, b, type) {
+							let a1 = a.replace(/[^\d|.|-]/g, "") - 0;
+							let b1 = b.replace(/[^\d|.|-]/g, "") - 0;
+							if (type == "asc") {
+								return a1 - b1;
+							} else {
+								return b1 - a1;
+							}
+						},
+						render: (h, params) => {
+							const row = params.row;
+							const className = parseFloat(row.rose) < 0 ? "sell" : "buy";
+							return h(
+								"span",
+								{
+									attrs: {
+										class: className,
+									},
+								},
+								row.rose
+							);
+						},
+					},
+				],
+				//当前市场上的交易币种，按交易对分
+				coins: {
+					_map: [],
+					USDT: [],
+					BTC: [],
+					ETH: [],
+					USDT2: [],
+					BTC2: [],
+					ETH2: [],
+					favor: [],
+					columns: [
+						{
+							title: this.$t("exchange.coin"),
+							key: "coin",
+							sortable: false,
+							width: 120,
+							className: "coin-menu-symbol",
+							render: (h, params) => {
+								if (params.row.coin == "FLOW") {
+									return h("div", [
+										h("Icon", {
+											props: {
+												// color:"red",
+												type: params.row.isFavor
+													? "ios-star"
+													: "ios-star-outline",
+											},
+											nativeOn: {
+												click: () => {
+													event.stopPropagation(); //阻止事件冒泡
+													if (this.isLogin) {
+														if (
+															event.currentTarget.className ==
+															"ivu-icon ivu-icon-ios-star"
+														) {
+															this.cancelCollect(params.index, params.row);
+															event.currentTarget.className ==
+																"ivu-icon ivu-icon-ios-star-outline";
+														} else {
+															this.collect(params.index, params.row);
+															event.currentTarget.className =
+																"ivu-icon ivu-icon-ios-star";
+														}
+													} else {
+														this.$Message.warning(this.$t("common.logintip"));
+													}
+												},
+											},
+										}),
+										h("span", params.row.coin),
+										h(
+											"Tooltip",
+											{
+												props: {
+													placement: "top-start",
+													content: "价格跟随演示，价格为BTC价格的0.92%",
+												},
+											},
+											[
+												h(
+													"span",
+													{
+														style: {
+															fontSize: "8px",
+															padding: "2px 2px 1px 2px",
+															color: "#FFF",
+															marginLeft: "5px",
+															background: "#F30",
+															borderRadius: "8px",
+															display: "inline-block",
+															height: "8px",
+															width: "8px",
+														},
+													},
+													""
+												),
+											]
+										),
+									]);
+								} else if (params.row.coin == "FDC") {
+									return h("div", [
+										h("Icon", {
+											props: {
+												// color:"red",
+												type: params.row.isFavor
+													? "ios-star"
+													: "ios-star-outline",
+											},
+											nativeOn: {
+												click: () => {
+													event.stopPropagation(); //阻止事件冒泡
+													if (this.isLogin) {
+														if (
+															event.currentTarget.className ==
+															"ivu-icon ivu-icon-ios-star"
+														) {
+															this.cancelCollect(params.index, params.row);
+															event.currentTarget.className ==
+																"ivu-icon ivu-icon-ios-star-outline";
+														} else {
+															this.collect(params.index, params.row);
+															event.currentTarget.className =
+																"ivu-icon ivu-icon-ios-star";
+														}
+													} else {
+														this.$Message.warning(this.$t("common.logintip"));
+													}
+												},
+											},
+										}),
+										h("span", params.row.coin),
+										h(
+											"Tooltip",
+											{
+												props: {
+													placement: "right",
+													content: "首发抢购活动演示",
+												},
+											},
+											[
+												h(
+													"span",
+													{
+														style: {
+															fontSize: "8px",
+															padding: "2px 2px 1px 2px",
+															color: "#FFF",
+															marginLeft: "5px",
+															background: "#F30",
+															borderRadius: "8px",
+															display: "inline-block",
+															height: "8px",
+															width: "8px",
+														},
+													},
+													""
+												),
+											]
+										),
+									]);
+								} else if (params.row.coin == "FDB") {
+									return h("div", [
+										h("Icon", {
+											props: {
+												// color:"red",
+												type: params.row.isFavor
+													? "ios-star"
+													: "ios-star-outline",
+											},
+											nativeOn: {
+												click: () => {
+													event.stopPropagation(); //阻止事件冒泡
+													if (this.isLogin) {
+														if (
+															event.currentTarget.className ==
+															"ivu-icon ivu-icon-ios-star"
+														) {
+															this.cancelCollect(params.index, params.row);
+															event.currentTarget.className ==
+																"ivu-icon ivu-icon-ios-star-outline";
+														} else {
+															this.collect(params.index, params.row);
+															event.currentTarget.className =
+																"ivu-icon ivu-icon-ios-star";
+														}
+													} else {
+														this.$Message.warning(this.$t("common.logintip"));
+													}
+												},
+											},
+										}),
+										h("span", params.row.coin),
+										h(
+											"Tooltip",
+											{
+												props: {
+													placement: "right",
+													content: "首发分摊活动演示",
+												},
+											},
+											[
+												h(
+													"span",
+													{
+														style: {
+															fontSize: "8px",
+															padding: "2px 2px 1px 2px",
+															color: "#FFF",
+															marginLeft: "5px",
+															background: "#F30",
+															borderRadius: "8px",
+															display: "inline-block",
+															height: "8px",
+															width: "8px",
+														},
+													},
+													""
+												),
+											]
+										),
+									]);
+								}
+								return h("div", [
+									h("Icon", {
+										props: {
+											// color:"red",
+											type: params.row.isFavor ? "ios-star" : "ios-star-outline",
+										},
+										nativeOn: {
+											click: () => {
+												event.stopPropagation(); //阻止事件冒泡
+												if (this.isLogin) {
+													if (
+														event.currentTarget.className ==
+														"ivu-icon ivu-icon-ios-star"
+													) {
+														this.cancelCollect(params.index, params.row);
+														event.currentTarget.className ==
+															"ivu-icon ivu-icon-ios-star-outline";
+													} else {
+														this.collect(params.index, params.row);
+														event.currentTarget.className =
+															"ivu-icon ivu-icon-ios-star";
+													}
+												} else {
+													this.$Message.warning(this.$t("common.logintip"));
+												}
+											},
+										},
+									}),
+									h("span", params.row.coin),
+								]);
+							},
+						},
+						{
+							title: this.$t("exchange.lastprice"),
+							key: "close",
+							sortable: true,
+							sortMethod: function (a, b, type) {
+								let a1 = parseFloat(a);
+								let b1 = parseFloat(b);
+								if (type == "asc") {
+									return a1 - b1;
+								} else {
+									return b1 - a1;
+								}
+							},
+						},
+						{
+							title: this.$t("exchange.daychange"),
+							key: "rose",
+							sortable: true,
+							sortMethod: function (a, b, type) {
+								let a1 = a.replace(/[^\d|.|-]/g, "") - 0;
+								let b1 = b.replace(/[^\d|.|-]/g, "") - 0;
+								if (type == "asc") {
+									return a1 - b1;
+								} else {
+									return b1 - a1;
+								}
+							},
+							render: (h, params) => {
+								const row = params.row;
+								const className = parseFloat(row.rose) < 0 ? "sell" : "buy";
+								return h(
+									"span",
+									{
+										attrs: {
+											class: className,
+										},
+									},
+									row.rose
+								);
+							},
+						},
+					],
+				},
+				wallet: {
+					base: 0.0,
+					coin: 0.0,
+				},
+				showMarket: false,
+				fixHistoryHeight: 295,
+				// rechargeUrl:'#/finance/recharge',
+				// rechargeUSDTUrl:'#/finance/recharge?name=USDT',
+				form: {
+					buy: {
+						limitPrice: 0.0,
+						limitAmount: 0.0,
+						marketAmount: 0.0,
+						limitTurnover: 0.0,
+					},
+					sell: {
+						limitPrice: 0.0,
+						limitAmount: 0.0,
+						marketAmount: 0.0,
+						limitTurnover: 0.0,
+					},
+				},
+				trade: {
+					rows: [],
+					columns: [
+						{
+							title: self.$t("exchange.price"),
+							key: "price",
+							render: (h, params) => {
+								const row = params.row;
+								const className = row.direction == "BUY" ? "buy" : "sell";
+
+								return h(
+									"span",
+									{
+										attrs: {
+											class: className,
+										},
+									},
+									params.row.price.toFixed(this.baseCoinScale)
+								);
+							},
+							renderHeader: (h, params) => {
+								const title =
+									self.$t("exchange.price") + "(" + self.currentCoin.base + ")";
+								return h("span", {}, title);
+							},
+						},
+						{
+							title: self.$t("exchange.num"),
+							key: "amount",
+							render: (h, params) => {
+								return h("span", {}, params.row.amount.toFixed(this.coinScale));
+							},
+							renderHeader: (h, params) => {
+								const title =
+									self.$t("exchange.num") + "(" + self.currentCoin.coin + ")";
+								return h("span", {}, title);
+							},
+						},
+						{
+							title: self.$t("exchange.time"),
+							key: "time",
+							render: (h, params) => {
+								return h("span", {}, this.timeFormat(params.row.time));
+							},
+						},
+					],
+				},
+				//   最新价的 table 数据;
+				plate: {
+					maxPostion: 10,
+					columns: [
+						// {
+						//   title: self.$t("exchange.stall"),
+						//   key: "postion",
+						//   render: (h, params) => {
+						//     const row = params.row;
+						//     const className = row.direction.toLowerCase();
+						//     const title =
+						//       (row.direction == "BUY"
+						//         ? self.$t("exchange.buyin")
+						//         : self.$t("exchange.sellout")) +
+						//       " " +
+						//       row.position;
+						//     return h(
+						//       "span",
+						//       {
+						//         attrs: {
+						//           class: className
+						//         }
+						//       },
+						//       title
+						//     );
+						//   }
+						// },
+						{
+							//   价格;
+							title: self.$t("exchange.price"),
+							key: "price",
+							render: (h, params) => {
+								let str = "";
+								let price = "";
+								const className = params.row.direction.toLowerCase();
+								params.row.price == 0 && (str = h("span", {}, "--"));
+								params.row.price != 0 &&
+									(price = params.row.price.toFixed(this.baseCoinScale)) &&
+									(str = h(
+										"span",
+										{
+											attrs: {
+												class: className,
+											},
+										},
+										price
+									));
+								return str;
+							},
+							renderHeader: (h, params) => {
+								const title =
+									self.$t("exchange.price") + "(" + self.currentCoin.base + ")";
+								return h("span", {}, title);
+							},
+						},
+						{
+							title: self.$t("exchange.num"),
+							key: "amount",
+							render: (h, params) => {
+								let str = "";
+								params.row.amount == 0 && (str = h("span", {}, "--"));
+								params.row.amount != 0 &&
+									(str = h(
+										"span",
+										{},
+										params.row.amount.toFixed(this.coinScale)
+									));
+								return str;
+							},
+							renderHeader: (h, params) => {
+								const title =
+									self.$t("exchange.num") + "(" + self.currentCoin.coin + ")";
+								return h("span", {}, title);
+							},
+						},
+						{
+							title: self.$t("exchange.total"),
+							key: "totalAmount",
+							render: (h, params) => {
+								if (params.row.price == 0 || params.row.totalAmount == 0) {
+									return h("span", {}, "--");
+								} else {
+									return h(
+										"span",
+										{},
+										params.row.totalAmount.toFixed(this.coinScale)
+									);
+								}
+							},
+							renderHeader: (h, params) => {
+								const title =
+									self.$t("exchange.total") + "(" + self.currentCoin.coin + ")";
+								return h("span", {}, title);
+							},
+						},
+						{
+							className: "percenttd",
+							width: 1,
+							render: (h, params) => {
+								let width = "0",
+									backgroundColor =
+										params.row.direction === "BUY" ? "#00b275" : "#f15057",
+									totle =
+										params.row.direction === "BUY"
+											? this.plate.bidTotle
+											: this.plate.askTotle;
+								if (params.row.totalAmount) {
+									width = (params.row.totalAmount / totle).toFixed(4) * 100 + "%";
+								}
+								return h(
+									"div",
+									{
+										style: {
+											width,
+											backgroundColor,
+										},
+										attrs: {
+											class: "percentdiv",
+										},
+									},
+									" "
+								);
+							},
+						},
+					],
+					askRows: [],
+					bidRows: [],
+				},
+				currentOrder: {
+					columns: [
+						{
+							type: "index",
+							width: 40,
+							height: 40,
+							render: (h, params) => {
+								return h(expandRow, {
+									props: {
+										skin: params.row.skin,
+										rows: params.row.detail,
+									},
+								});
+							},
+						},
+						{
+							title: self.$t("exchange.time"),
+							key: "time",
+							render: (h, params) => {
+								return h("span", {}, this.dateFormat(params.row.time));
+							},
+						},
+						{
+							title: self.$t("exchange.symbol"),
+							key: "symbol",
+						},
+						{
+							title: self.$t("exchange.type"),
+							render(h, params) {
+								return h(
+									"span",
+									params.row.type === "LIMIT_PRICE"
+										? self.$t("exchange.limited_price")
+										: self.$t("exchange.market_price")
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.direction"),
+							key: "direction",
+							render: (h, params) => {
+								const row = params.row;
+								const className = row.direction.toLowerCase();
+								return h(
+									"span",
+									{
+										attrs: {
+											class: className,
+										},
+									},
+									row.direction == "BUY"
+										? self.$t("exchange.buyin")
+										: self.$t("exchange.sellout")
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.price"),
+							key: "price",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.price));
+							},
+						},
+						{
+							title: self.$t("exchange.num"),
+							key: "amount",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.amount));
+							},
+						},
+						{
+							title: self.$t("exchange.traded"),
+							key: "tradedAmount",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.tradedAmount));
+							},
+						},
+						{
+							title: self.$t("exchange.dealamount"),
+							key: "turnover",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.turnover));
+							},
+						},
+						{
+							title: self.$t("exchange.fee"),
+							key: "turnover",
+							render(h, params) {
+								return h(
+									"span",
+									params.row.fee ? self.toFloor(params.row.fee) : "--"
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.avgPrice"),
+							key: "turnover",
+							render(h, params) {
+								return h(
+									"span",
+									!params.row.turnover ||
+										!params.row.tradedAmount ||
+										params.row.tradedAmount <= 0
+										? "--"
+										: new Number(
+											self.toFloor(
+												accDiv(
+													self.toFloor(params.row.turnover),
+													self.toFloor(params.row.tradedAmount)
+												)
+											)
+										).toFixed(6)
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.action"),
+							key: "operate",
+							width: 110,
+							render: (h, params) => {
+								return h(
+									"Button",
+									{
+										props: {
+											size: "small",
+										},
+										style: {
+											border: "1px solid #f0ac19",
+											color: "#f1ac19",
+											"line-height": "1.2",
+											"border-radius": "10px",
+										},
+										on: {
+											click: () => {
+												// console.log("======开始撤单")
+												this.cancel(params.index);
+											},
+										},
+									},
+									self.$t("exchange.undo")
+								);
+							},
+						},
+					],
+					rows: [],
+				},
+				historyOrder: {
+					pageSize: 10,
+					total: 10,
+					page: 0,
+					columns: [
+						{
+							type: "index",
+							width: 40,
+							render: (h, params) => {
+								return h(expandRow, {
+									props: {
+										skin: params.row.skin,
+										rows: params.row.detail,
+									},
+								});
+							},
+						},
+						{
+							title: self.$t("exchange.time"),
+							key: "time",
+							render: (h, params) => {
+								return h("span", {}, this.dateFormat(params.row.time));
+							},
+						},
+						{
+							title: self.$t("exchange.symbol"),
+							key: "symbol",
+						},
+						{
+							title: self.$t("exchange.type"),
+							render(h, params) {
+								return h(
+									"span",
+									params.row.type === "LIMIT_PRICE"
+										? self.$t("exchange.limited_price")
+										: self.$t("exchange.market_price")
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.direction"),
+							key: "direction",
+							render: (h, params) => {
+								const row = params.row;
+								const className = row.direction.toLowerCase();
+								return h(
+									"span",
+									{
+										attrs: {
+											class: className,
+										},
+									},
+									row.direction == "BUY"
+										? self.$t("exchange.buyin")
+										: self.$t("exchange.sellout")
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.price"),
+							key: "price",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.price));
+							},
+						},
+						{
+							title: self.$t("exchange.num"),
+							key: "amount",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.amount));
+							},
+						},
+						{
+							title: self.$t("exchange.done"),
+							key: "tradedAmount",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.tradedAmount));
+							},
+						},
+						{
+							title: self.$t("exchange.dealamount"),
+							key: "turnover",
+							render(h, params) {
+								return h("span", self.toFloor(params.row.turnover));
+							},
+						},
+						{
+							title: self.$t("exchange.fee"),
+							key: "turnover",
+							render(h, params) {
+								return h(
+									"span",
+									params.row.fee ? self.toFloor(params.row.fee) : "--"
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.avgPrice"),
+							key: "turnover",
+							render(h, params) {
+								return h(
+									"span",
+									!params.row.turnover ||
+										!params.row.tradedAmount ||
+										params.row.tradedAmount <= 0
+										? "--"
+										: new Number(
+											self.toFloor(
+												accDiv(
+													self.toFloor(params.row.turnover),
+													self.toFloor(params.row.tradedAmount)
+												)
+											)
+										).toFixed(6)
+								);
+							},
+						},
+						{
+							title: self.$t("exchange.status"),
+							key: "status",
+							render: (h, params) => {
+								const status = params.row.status;
+								if (status == "COMPLETED") {
+									return h(
+										"span",
+										{
+											style: {
+												color: "#f0a70a",
+											},
+										},
+										self.$t("exchange.finished")
+									);
+								} else if (status == "CANCELED") {
+									return h(
+										"span",
+										{
+											style: {
+												color: "#7c7f82",
+											},
+										},
+										self.$t("exchange.canceled")
+									);
+								} else {
+									return h("span", {}, "--");
+								}
+							},
+						},
+					],
+					rows: [],
+				},
+				fullTrade: {},
+			};
+		},
+		filters: {
+			toFixedPublishAmount: function (value) {
+				var tem = value.toFixed(7);
+				if (value >= 10) {
+					tem = value.toFixed(6);
+				}
+				if (value >= 100) {
+					tem = value.toFixed(5);
+				}
+				if (value >= 1000) {
+					tem = value.toFixed(4);
+				}
+				if (value >= 10000) {
+					tem = value.toFixed(3);
+				}
+				if (value >= 100000) {
+					tem = value.toFixed(2);
+				}
+				if (value >= 1000000) {
+					tem = value.toFixed(1);
+				}
+				if (value >= 10000000) {
+					tem = value.toFixed(0);
+				}
+				return tem;
+			},
+			toFixedPublishPrice: function (value) {
+				var tem = value.toFixed(5).replace(/0+$/g, "");
+				if (value >= 1) {
+					tem = value.toFixed(4);
+				}
+				if (value >= 10) {
+					tem = value.toFixed(3);
+				}
+				if (value >= 100) {
+					tem = value.toFixed(2);
+				}
+				if (value >= 1000) {
+					tem = value.toFixed(1);
+				}
+				if (value >= 10000) {
+					tem = value.toFixed(1);
+				}
+				return tem;
+			},
+		},
+		computed: {
+			rechargeUSDTUrl: function () {
+				return "/uc/recharge?name=" + this.currentCoin.base;
+				// return "#/finance/recharge?name=" + this.currentCoin.base;
+			},
+			rechargeCoinUrl: function () {
+				return "/uc/recharge?name=" + this.currentCoin.coin;
+				// return "#/finance/recharge?name=" + this.currentCoin.coin;
+			},
+			isLogin: function () {
+				return this.$store.getters.isLogin;
+			},
+			member: function () {
+				return this.$store.getters.member;
+			},
+			lang: function () {
+				return this.$store.state.lang;
+			},
+			sliderBuyDisabled() {
+				let account = this.wallet.base,
+					min = this.toFloor(1 / Math.pow(10, this.baseCoinScale));
+				return account < min;
+			},
+			sliderSellDisabled() {
+				let account = this.wallet.coin,
+					min = this.toFloor(1 / Math.pow(10, this.coinScale));
+				return account < min;
+			},
+		},
+		watch: {
+			"form.buy.limitPrice": function (val) {
+				let price = this.form.buy.limitPrice,
+					account = this.wallet.base,
+					amount = 0;
+				if (val > 0) {
+					amount = this.toFloor(
+						account.div(price).mul(this.sliderBuyLimitPercent).mul(0.01),
+						this.coinScale
+					);
+				}
+				this.form.buy.limitAmount = amount;
+				this.form.buy.limitTurnover = this.toFloor(
+					val.mul(amount),
+					this.baseCoinScale
+				);
+			},
+			"form.buy.limitAmount": function (val) {
+				this.form.buy.limitTurnover = this.toFloor(
+					val.mul(this.form.buy.limitPrice),
+					this.baseCoinScale
+				);
+			},
+			"form.sell.limitPrice": function (val) {
+				this.form.sell.limitTurnover = this.toFloor(
+					val.mul(this.form.sell.limitAmount),
+					this.coinScale
+				);
+			},
+			"form.sell.limitAmount": function (val) {
+				this.form.sell.limitTurnover = this.toFloor(
+					val.mul(this.form.sell.limitPrice),
+					this.coinScale
+				);
+			},
+			lang: function () {
+				this.updateLangData();
+			},
+			$route(to, from) {
+				this.init();
+			},
+			sliderBuyLimitPercent() {
+				let price = this.form.buy.limitPrice,
+					account = this.wallet.base,
+					amount = 0;
+				if (price > 0) {
+					amount = this.toFloor(
+						account.div(price).mul(this.sliderBuyLimitPercent).mul(0.01),
+						this.coinScale
+					);
+				}
+				this.form.buy.limitAmount = amount;
+			},
+			sliderSellLimitPercent() {
+				let account = this.wallet.coin;
+				this.form.sell.limitAmount = this.toFloor(
+					account.mul(this.sliderSellLimitPercent).mul(0.01),
+					this.coinScale
+				);
+			},
+			sliderBuyMarketPercent() {
+				let price = this.form.buy.limitPrice;
+				let account = this.wallet.base;
+				this.form.buy.marketAmount = this.toFloor(
+					account.mul(this.sliderBuyMarketPercent).mul(0.01),
+					this.baseCoinScale
+				);
+			},
+			sliderSellMarketPercent() {
+				let account = this.wallet.coin;
+				this.form.sell.marketAmount = this.toFloor(
+					account.mul(this.sliderSellMarketPercent).mul(0.01),
+					this.coinScale
+				);
+			},
+		},
+		created: function () {
+			this.init();
+			// console.log(this.coins);
+			// console.log(dataIndex);
+			// console.log(this.plate.askRows);
+			// console.log(this.plate);
+			// console.log(this.trade);
+			console.log(this.historyOrder)
+		},
+		mounted: function () {
+			// console.log(this.coins);
+		},
+		methods: {
+			seachInputChange() {
+				this.searchKey = this.searchKey.toUpperCase();
+				if (this.basecion == "favor") {
+					this.dataIndex = this.coins.favor.filter(
+						(item) => item["coin"].indexOf(this.searchKey) == 0
+					);
+				} else if (this.basecion == "usdt") {
+					this.dataIndex = this.coins.USDT.filter(
+						(item) => item["coin"].indexOf(this.searchKey) == 0
+					);
+				} else if (this.basecion == "btc") {
+					this.dataIndex = this.coins.BTC.filter(
+						(item) => item["coin"].indexOf(this.searchKey) == 0
+					);
+				} else if (this.basecion == "eth") {
+					this.dataIndex = this.coins.ETH.filter(
+						(item) => item["coin"].indexOf(this.searchKey) == 0
+					);
+				}
+			},
+			silderGo(silder, val) {
+				this[silder] = val;
+			},
+			init() {
+				var params = this.$route.params.pair;
+				if (params == undefined) {
+					this.$router.push("/exchange/" + this.defaultPath);
+					params = this.defaultPath;
+				}
+				const basecion = params.split("_")[1];
+				if (basecion) {
+					this.basecion = basecion;
+				}
+				var coin = params.toUpperCase().split("_")[0];
+				var base = params.toUpperCase().split("_")[1];
+				this.currentCoin.symbol = coin + "/" + base;
+				this.currentCoin.coin = coin;
+				this.currentCoin.base = base;
+				this.$store.commit("navigate", "nav-exchange");
+				this.$store.commit("setSkin", this.skin);
+				this.getSymbolScale();
+				this.getCoinInfo();
+				this.getSymbol(); //包含 K线图、getFavor、startWebsock等
+				this.getPlate(); //买卖盘
+				this.getPlateFull();
+				this.getTrade();
+				if (this.isLogin) {
+					this.getWallet(); //账户资产信息
+					this.getCurrentOrder(); //当前委托
+					this.getHistoryOrder(); //历史委托
+				}
+				this.sliderBuyLimitPercent = 0;
+				this.sliderSellLimitPercent = 0;
+				this.sliderBuyMarketPercent = 0;
+			},
+			tipFormat(val) {
+				return val + "%";
+			},
+			changeBaseCion(str) {
+				this.basecion = str;
+				if (str == "usdt") {
+					this.dataIndex = this.coins.USDT;
+					this.dataIndex2 = this.coins.USDT2;
+				} else if (str == "btc") {
+					this.dataIndex = this.coins.BTC;
+					this.dataIndex2 = this.coins.BTC2;
+				} else if (str == "eth") {
+					this.dataIndex = this.coins.ETH;
+					this.dataIndex2 = this.coins.ETH2;
+				} else if (str == "favor") {
+					this.dataIndex = this.coins.favor;
+				}
+			},
+			changePlate(str) {
+				if (str != "all") {
+					this.plate.maxPostion = 20;
+				} else {
+					this.plate.maxPostion = 10;
+				}
+				this.getPlate(str);
+				//this.selectedPlate = str;
+			},
+			changeImgTable(str) {
+				this.currentImgTable = str;
+			},
+			changeOrder(str) {
+				this.selectedOrder = str;
+			},
+			setback() {
+				var obk = document.getElementsByClassName("container")[0];
+				var height = 0;
+				var doc = document;
+				window.innerHeight && (height = window.innerHeight);
+				!window.innerHeight &&
+					doc.body.clientHeight &&
+					(height = doc.body.clientHeight);
+				!window.innerHeight &&
+					!doc.body.clientHeight &&
+					doc.documentElement.clientHeight &&
+					(height = doc.documentElement.clientHeight);
+				obk.style.minHeight = height - 100 + "px";
+			},
+			updateLangData() {
+				this.favorColumns[0].title = this.$t("exchange.coin");
+				this.favorColumns[1].title = this.$t("exchange.lastprice");
+				this.favorColumns[2].title = this.$t("exchange.daychange");
+
+				this.coins.columns[0].title = this.$t("exchange.coin");
+				this.coins.columns[1].title = this.$t("exchange.lastprice");
+				this.coins.columns[2].title = this.$t("exchange.daychange");
+				// this.coins.columns[3].title = this.$t("exchange.favorite");
+
+				this.trade.columns[0].title = "abc";
+				// this.trade.columns[0].title = this.$t("exchange.num");
+				// this.trade.columns[1].title = this.$t("exchange.price");
+				// this.trade.columns[2].title = this.$t("exchange.time");
+				// this.trade.columns[3].title = this.$t("exchange.direction");
+
+				this.plate.columns[0].title = this.$t("exchange.stall");
+				this.plate.columns[1].title = this.$t("exchange.price");
+				this.plate.columns[2].title = this.$t("exchange.num");
+				this.plate.columns[3].title = this.$t("exchange.total");
+
+				this.currentOrder.columns[1].title = this.$t("exchange.time");
+				this.currentOrder.columns[2].title = this.$t("exchange.symbol");
+				this.currentOrder.columns[3].title = this.$t("exchange.type");
+				this.currentOrder.columns[4].title = this.$t("exchange.direction");
+				this.currentOrder.columns[5].title = this.$t("exchange.price");
+				this.currentOrder.columns[6].title = this.$t("exchange.num");
+				this.currentOrder.columns[7].title = this.$t("exchange.traded");
+				this.currentOrder.columns[8].title = this.$t("exchange.dealamount");
+				this.currentOrder.columns[9].title = this.$t("exchange.action");
+
+				this.historyOrder.columns[1].title = this.$t("exchange.time");
+				this.historyOrder.columns[2].title = this.$t("exchange.symbol");
+				this.historyOrder.columns[3].title = this.$t("exchange.type");
+				this.historyOrder.columns[4].title = this.$t("exchange.direction");
+				this.historyOrder.columns[5].title = this.$t("exchange.price");
+				this.historyOrder.columns[6].title = this.$t("exchange.num");
+				this.historyOrder.columns[7].title = this.$t("exchange.done");
+				this.historyOrder.columns[8].title = this.$t("exchange.dealamount");
+				this.historyOrder.columns[9].title = this.$t("exchange.status");
+
+				// window.tvWidget.options.time_frames[0].title = this.$t("exchange.realtime");
+			},
+			getCNYRate() {
+				// this.$http
+				// 	.post(this.host + "/market/exchange-rate/usd-cny")
+				// 	.then(response => {
+				// 		var resp = response.body;
+				// 		this.CNYRate = resp.data;
+				// 	});
+				if (this.basecion === "usdt") {
+					this.CNYRate = 1;
+				} else if (this.basecion === "usdt") {
+					for (let item of this.coins.USDT) {
+						if (item.coin === "BTC") {
+							this.CNYRate = item.price;
+						}
+					}
+				} else {
+					for (let item of this.coins.USDT) {
+						if (item.coin === "ETH") {
+							this.CNYRate = item.price;
+						}
+					}
+				}
+			},
+			getCoin(symbol) {
+				return this.coins._map[symbol];
+			},
+			getKline() {
+				var that = this;
+				let config = {
+					autosize: true,
+					height: 320,
+					fullscreen: true,
+					symbol: that.symbol,
+					interval: "60", // 默认K线周期
+					timezone: "Asia/Shanghai",
+					toolbar_bg: "#18202a",
+					container_id: "kline_container",
+					datafeed: that.datafeed,
+					library_path:
+						process.env.NODE_ENV === "production"
+							? "/assets/charting_library/"
+							: "/src/assets/js/charting_library/",
+					locale: "zh",
+					debug: false,
+					drawings_access: {
+						type: "black",
+						tools: [
+							{
+								name: "Regression Trend",
+							},
+						],
+					},
+					disabled_features: [
+						"header_resolutions",
+						"timeframes_toolbar",
+						"header_symbol_search",
+						"header_chart_type",
+						"header_compare",
+						"header_undo_redo",
+						"header_screenshot",
+						"header_saveload",
+						"use_localstorage_for_settings",
+						"left_toolbar",
+						"volume_force_overlay",
+					],
+					enabled_features: [
+						"hide_last_na_study_output",
+						"move_logo_to_main_pane",
+					],
+					custom_css_url: "bundles/common.css",
+					supported_resolutions: ["1", "5", "15", "30", "60", "1D", "1W", "1M"],
+					charts_storage_url: "http://saveload.tradingview.com",
+					charts_storage_api_version: "1.1",
+					client_id: "tradingview.com",
+					user_id: "public_user_id",
+					overrides: {
+						"paneProperties.background": "#1B1E2E",
+						"paneProperties.vertGridProperties.color": "rgba(0,0,0,.1)",
+						"paneProperties.horzGridProperties.color": "rgba(0,0,0,.1)",
+						//"scalesProperties.textColor" : "#AAA",
+						"scalesProperties.textColor": "#61688A",
+						"mainSeriesProperties.candleStyle.upColor": "#00B564", //蜡烛绿色
+						"mainSeriesProperties.candleStyle.downColor": "#f94d55", //蜡烛红色
+						"mainSeriesProperties.candleStyle.drawBorder": false,
+						"mainSeriesProperties.candleStyle.wickUpColor": "#589065",
+						"mainSeriesProperties.candleStyle.wickDownColor": "#AE4E54",
+						"paneProperties.legendProperties.showLegend": false,
+
+						"mainSeriesProperties.areaStyle.color1": "rgba(71, 78, 112, 0.5)",
+						"mainSeriesProperties.areaStyle.color2": "rgba(71, 78, 112, 0.5)",
+						"mainSeriesProperties.areaStyle.linecolor": "#9194a4",
+						volumePaneSize: "small",
+					},
+					studies_overrides: {
+						"volume.volume.color.0": "rgba( 249, 77, 85, 0.7)",
+						"volume.volume.color.1": "rgba( 0, 181, 100, 0.7)",
+						"volume.volume.transparency": 100,
+					},
+					time_frames: [
+						{
+							text: "1min",
+							resolution: "1",
+							description: "realtime",
+							title: that.$t("exchange.realtime"),
+						},
+						{
+							text: "1min",
+							resolution: "1",
+							description: "1min",
+						},
+						{
+							text: "5min",
+							resolution: "5",
+							description: "5min",
+						},
+						{
+							text: "15min",
+							resolution: "15",
+							description: "15min",
+						},
+						{
+							text: "30min",
+							resolution: "30",
+							description: "30min",
+						},
+						{
+							text: "1hour",
+							resolution: "60",
+							description: "1hour",
+							title: "1hour",
+						},
+						/*{ text: "4hour", resolution: "240", description: "4hour",title: "4hour" },*/
+						{
+							text: "1day",
+							resolution: "1D",
+							description: "1day",
+							title: "1day",
+						},
+						{
+							text: "1week",
+							resolution: "1W",
+							description: "1week",
+							title: "1week",
+						},
+						{
+							text: "1mon",
+							resolution: "1M",
+							description: "1mon",
+						},
+					],
+				};
+				if (that.skin === "day") {
+					config.toolbar_bg = "#fff";
+					config.custom_css_url = "bundles/common_day.css";
+					config.overrides["paneProperties.background"] = "#fff";
+					config.overrides["mainSeriesProperties.candleStyle.upColor"] =
+						"#a6d3a5";
+					config.overrides["mainSeriesProperties.candleStyle.downColor"] =
+						"#ffa5a6";
+				}
+				require(["@js/charting_library/charting_library.min.js"], function (tv) {
+					var widget = (window.tvWidget = new TradingView.widget(config));
+					widget.onChartReady(function () {
+						widget.chart().executeActionById("drawingToolbarAction");
+						widget
+							.chart()
+							.createStudy("Moving Average", false, false, [5], null, {
+								"plot.color": "#EDEDED",
+							});
+						widget
+							.chart()
+							.createStudy("Moving Average", false, false, [10], null, {
+								"plot.color": "#ffe000",
+							});
+						widget
+							.chart()
+							.createStudy("Moving Average", false, false, [30], null, {
+								"plot.color": "#ce00ff",
+							});
+						widget
+							.chart()
+							.createStudy("Moving Average", false, false, [60], null, {
+								"plot.color": "#00adff",
+							});
+						widget
+							.createButton()
+							.attr("title", "realtime")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(3);
+								widget.setSymbol("", "1");
+							})
+							.append("<span>分时</span>");
+
+						widget
+							.createButton()
+							.attr("title", "M1")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "1");
+							})
+							.append("<span>M1</span>");
+
+						widget
+							.createButton()
+							.attr("title", "M5")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "5");
+							})
+							.append("<span>M5</span>");
+
+						widget
+							.createButton()
+							.attr("title", "M15")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "15");
+							})
+							.append("<span>M15</span>");
+
+						widget
+							.createButton()
+							.attr("title", "M30")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "30");
+							})
+							.append("<span>M30</span>");
+
+						widget
+							.createButton()
+							.attr("title", "H1")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "60");
+							})
+							.append("<span>H1</span>")
+							.addClass("selected");
+
+						widget
+							.createButton()
+							.attr("title", "D1")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "1D");
+							})
+							.append("<span>D1</span>");
+
+						widget
+							.createButton()
+							.attr("title", "W1")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "1W");
+							})
+							.append("<span>W1</span>");
+
+						widget
+							.createButton()
+							.attr("title", "M1")
+							.on("click", function () {
+								if ($(this).hasClass("selected")) return;
+								$(this)
+									.addClass("selected")
+									.parent(".group")
+									.siblings(".group")
+									.find(".button.selected")
+									.removeClass("selected");
+								widget.chart().setChartType(1);
+								widget.setSymbol("", "1M");
+							})
+							.append("<span>M1</span>");
+					});
+				});
+			},
+			getFavor() {
+				//查询自选(收藏)
+				this.$http
+					.post(this.host + this.api.exchange.favorFind, {})
+					.then((response) => {
+						this.coins.favor = [];
+						this.currentCoinIsFavor = false;
+						var resp = response.body;
+						for (var i = 0; i < resp.length; i++) {
+							var coin = this.getCoin(resp[i].symbol);
+							if (coin != null) {
+								coin.isFavor = true;
+								this.coins.favor.push(coin);
+							}
+							if (this.currentCoin.symbol == resp[i].symbol) {
+								this.currentCoinIsFavor = true;
+							}
+						}
+					});
+			},
+			getSymbol() {
+				this.$http
+					.post(this.host + this.api.market.thumb, {})
+					.then((response) => {
+						var resp = response.body;
+						//先清空已有数据
+						for (var i = 0; i < resp.length; i++) {
+							var coin = resp[i];
+							coin.base = resp[i].symbol.split("/")[1];
+							this.coins[coin.base] = [];
+							this.coins[coin.base + "2"] = [];
+							this.coins._map = [];
+							this.coins.favor = [];
+						}
+						for (var i = 0; i < resp.length; i++) {
+							var coin = resp[i];
+							coin.price = resp[i].close = resp[i].close.toFixed(
+								this.baseCoinScale
+							);
+							coin.rose =
+								resp[i].chg > 0
+									? "+" + (resp[i].chg * 100).toFixed(2) + "%"
+									: (resp[i].chg * 100).toFixed(2) + "%";
+							coin.coin = resp[i].symbol.split("/")[0];
+							coin.base = resp[i].symbol.split("/")[1];
+							coin.href = (coin.coin + "_" + coin.base).toLowerCase();
+							coin.isFavor = false;
+							this.coins._map[coin.symbol] = coin;
+							if (coin.zone == 0) {
+								this.coins[coin.base].push(coin);
+							} else {
+								this.coins[coin.base + "2"].push(coin);
+							}
+							if (coin.symbol == this.currentCoin.symbol) {
+								this.currentCoin = coin;
+								this.form.buy.limitPrice = this.form.sell.limitPrice = coin.price;
+							}
+						}
+						if (this.isLogin) {
+							this.getFavor();
+						}
+						require(["../../assets/js/exchange.js"], function (e) {
+							e.clickScTab();
+						});
+						this.startWebsock();
+						this.changeBaseCion(this.basecion);
+						this.getCNYRate();
+					});
+			},
+			getCoinInfo() {
+				//获取精度
+				this.$http
+					.post(this.host + this.api.market.coinInfo, {
+						unit: this.currentCoin.coin,
+					})
+					.then((response) => {
+						var resp = response.body;
+						if (resp != null) {
+							this.coinInfo = resp;
+						}
+					});
+			},
+			getSymbolScale() {
+				//获取精度
+				this.$http
+					.post(this.host + this.api.market.symbolInfo, {
+						symbol: this.currentCoin.symbol,
+					})
+					.then((response) => {
+						var resp = response.body;
+						if (resp != null) {
+							this.currentCoin.coinScale = resp.coinScale;
+							this.currentCoin.baseCoinScale = resp.baseCoinScale;
+
+							this.baseCoinScale = resp.baseCoinScale;
+							this.coinScale = resp.coinScale;
+							this.symbolFee = resp.fee;
+
+							this.enableMarketBuy = resp.enableMarketBuy;
+							this.enableMarketSell = resp.enableMarketSell;
+
+							this.exchangeable = resp.exchangeable;
+
+							this.publishType = resp.publishType;
+							this.startTime = resp.startTime;
+							this.endTime = resp.endTime;
+							this.clearTime = resp.clearTime;
+							this.currentTime = parseInt(resp.currentTime / 1000);
+							this.publishAmount = resp.publishAmount;
+							this.publishPrice = resp.publishPrice;
+
+							var temCurT = moment(resp.currentTime).format(
+								"YYYY-MM-DD HH:mm:ss"
+							);
+							if (temCurT < this.clearTime) {
+								if (
+									this.publishType == "QIANGGOU" ||
+									this.publishType == "FENTAN"
+								) {
+									this.showPublish = true;
+									this.showCountDown = true;
+								} else {
+									this.showPublish = false;
+									this.showCountDown = false;
+								}
+							} else {
+								this.showPublish = false;
+								this.showCountDown = false;
+							}
+
+							// 获取币种信息
+						}
+					});
+			},
+			getPlate(str = "") {
+				//买卖盘
+				var params = {};
+				params["symbol"] = this.currentCoin.symbol;
+				this.$http
+					.post(this.host + this.api.market.platemini, params)
+					.then((response) => {
+						this.plate.askRows = [];
+						this.plate.bidRows = [];
+						let resp = response.body;
+						if (resp.ask && resp.ask.items) {
+							for (var i = 0; i < resp.ask.items.length; i++) {
+								if (i == 0) {
+									resp.ask.items[i].totalAmount = resp.ask.items[i].amount;
+								} else {
+									resp.ask.items[i].totalAmount =
+										resp.ask.items[i - 1].totalAmount + resp.ask.items[i].amount;
+								}
+							}
+							if (resp.ask.items.length >= this.plate.maxPostion) {
+								for (var i = this.plate.maxPostion; i > 0; i--) {
+									var ask = resp.ask.items[i - 1];
+									ask.direction = "SELL";
+									ask.position = i;
+									this.plate.askRows.push(ask);
+								}
+								const rows = this.plate.askRows,
+									len = rows.length,
+									totle = rows[0].totalAmount;
+								this.plate.askTotle = totle;
+							} else {
+								for (
+									var i = this.plate.maxPostion;
+									i > resp.ask.items.length;
+									i--
+								) {
+									var ask = {
+										price: 0,
+										amount: 0,
+									};
+									ask.direction = "SELL";
+									ask.position = i;
+									ask.totalAmount = ask.amount;
+									this.plate.askRows.push(ask);
+								}
+								for (var i = resp.ask.items.length; i > 0; i--) {
+									var ask = resp.ask.items[i - 1];
+									ask.direction = "SELL";
+									ask.position = i;
+									this.plate.askRows.push(ask);
+								}
+								var askItemIndex =
+									resp.ask.items.length - 1 > 0 ? resp.ask.items.length - 1 : 0;
+								const rows = this.plate.askRows,
+									len = rows.length,
+									totle = rows[askItemIndex].totalAmount;
+								this.plate.askTotle = totle;
+							}
+						}
+						if (resp.bid && resp.bid.items) {
+							for (var i = 0; i < resp.bid.items.length; i++) {
+								if (i == 0)
+									resp.bid.items[i].totalAmount = resp.bid.items[i].amount;
+								else
+									resp.bid.items[i].totalAmount =
+										resp.bid.items[i - 1].totalAmount + resp.bid.items[i].amount;
+							}
+							for (var i = 0; i < resp.bid.items.length; i++) {
+								var bid = resp.bid.items[i];
+								bid.direction = "BUY";
+								bid.position = i + 1;
+								this.plate.bidRows.push(bid);
+								if (i == this.plate.maxPostion - 1) break;
+							}
+							if (resp.bid.items.length < this.plate.maxPostion) {
+								for (
+									var i = resp.bid.items.length;
+									i < this.plate.maxPostion;
+									i++
+								) {
+									var bid = {
+										price: 0,
+										amount: 0,
+									};
+									bid.direction = "BUY";
+									bid.position = i + 1;
+									bid.totalAmount = 0;
+									this.plate.bidRows.push(bid);
+								}
+								var bidItemIndex =
+									resp.bid.items.length - 1 > 0 ? resp.bid.items.length - 1 : 0;
+								const rows = this.plate.bidRows,
+									len = rows.length,
+									totle = rows[bidItemIndex].totalAmount;
+								this.plate.bidTotle = totle;
+							} else {
+								const rows = this.plate.bidRows,
+									len = rows.length,
+									totle = rows[len - 1].totalAmount;
+								this.plate.bidTotle = totle;
+							}
+						}
+						if (str != "") {
+							this.selectedPlate = str;
+						}
+					});
+			},
+			getPlateFull() {
+				//深度图
+				var params = {};
+				params["symbol"] = this.currentCoin.symbol;
+				this.$http
+					.post(this.host + this.api.market.platefull, params)
+					.then((response) => {
+						var resp = response.body;
+						this.fullTrade = resp;
+						resp.skin = this.skin;
+						this.$refs.depthGraph.draw(resp);
+					});
+			},
+			updatePlate(type, row) {
+				//发现该方法未被使用
+				if (type == "sell") {
+					for (var i = 0; i < this.plate.askRows.length; i++) {
+						if (
+							row.price > this.plate.askRows[i].price &&
+							i != 0 &&
+							this.plate.askRows[i].price > 0
+						) {
+							this.plate.askRows.splice(i, 0, row);
+							this.plate.askRows.shift();
+							break;
+						} else if (
+							i == this.plate.askRows.length - 1 &&
+							(row.price < this.plate.askRows[i].price ||
+								this.plate.askRows[i].price == 0)
+						) {
+							this.plate.askRows.push(row);
+							this.plate.askRows.shift();
+							break;
+						}
+					}
+				} else if (type == "buy") {
+					for (var i = 0; i < this.plate.bidRows.length; i++) {
+						if (row.price > this.plate.bidRows[i].price) {
+							this.plate.bidRows.splice(i, 0, row);
+							this.plate.bidRows.pop();
+							break;
+						}
+					}
+				}
+			},
+			getTrade() {
+				var params = {};
+				params["symbol"] = this.currentCoin.symbol;
+				params["size"] = 20;
+				this.$http
+					.post(this.host + this.api.market.trade, params)
+					.then((response) => {
+						this.trade.rows = [];
+						var resp = response.body;
+						for (var i = 0; i < resp.length; i++) {
+							this.trade.rows.push(resp[i]);
+						}
+						for (let ii = 0; ii < this.trade.rows.length; ii++) {
+
+							// function msToTime(s) {
+							// 	var ms = s % 1000;
+							// 	s = (s - ms) / 1000;
+							// 	var secs = s % 60;
+							// 	s = (s - secs) / 60;
+							// 	var mins = s % 60;
+							// 	var hrs = (s - mins) / 60;
+
+							// 	return hrs + ':' + mins + ':' + secs 
+							// }
+							// this.trade.rows[ii].time = msToTime(this.trade.rows[ii].time)
+
+							// this.trade.rows[ii].time  = new Date(this.trade.rows[ii].time * 1000).toISOString().slice(11, -1);
+						}
+					});
+			},
+			startWebsock() {
+				if (this.stompClient) {
+					this.stompClient.ws.close();
+				}
+				var stompClient = null;
+				var that = this;
+				var socket = new SockJS(that.host + that.api.market.ws);
+				stompClient = Stomp.over(socket);
+				this.stompClient = stompClient;
+				stompClient.debug = false;
+				// this.datafeed = new Datafeeds.WebsockFeed(that.host+'/market',this.currentCoin,stompClient);
+				// this.getKline();
+				stompClient.connect({}, function (frame) {
+					that.datafeed = new Datafeeds.WebsockFeed(
+						that.host + "/market",
+						that.currentCoin,
+						stompClient,
+						that.baseCoinScale
+					);
+					that.getKline();
+					//订阅价格变化消息
+					stompClient.subscribe("/topic/market/thumb", function (msg) {
+						var resp = JSON.parse(msg.body);
+						var coin = that.getCoin(resp.symbol);
+						if (coin != null) {
+							// coin.price = resp.close.toFixed(2);
+							coin.price = resp.close;
+							coin.rose =
+								resp.chg > 0
+									? "+" + (resp.chg * 100).toFixed(2) + "%"
+									: (resp.chg * 100).toFixed(2) + "%";
+							// coin.close = resp.close.toFixed(2);
+							// coin.high = resp.high.toFixed(2);
+							// coin.low = resp.low.toFixed(2);
+							coin.close = resp.close;
+							coin.high = resp.high;
+							coin.low = resp.low;
+							coin.turnover = parseInt(resp.volume);
+							coin.volume = resp.volume;
+							coin.usdRate = resp.usdRate;
+						}
+					});
+					//订阅实时成交信息
+					stompClient.subscribe(
+						"/topic/market/trade/" + that.currentCoin.symbol,
+						function (msg) {
+							var resp = JSON.parse(msg.body);
+							if (resp.length > 0) {
+								for (var i = 0; i < resp.length; i++) {
+									that.trade.rows.unshift(resp[i]);
+								}
+							}
+							if (that.trade.rows.length > 30) {
+								that.trade.rows = that.trade.rows.slice(0, 30);
+							}
+						}
+					);
+					if (that.isLogin) {
+						//订阅委托取消信息
+						stompClient.subscribe(
+							"/topic/market/order-canceled/" +
+							that.currentCoin.symbol +
+							"/" +
+							that.member.id,
+							function (msg) {
+								var resp = JSON.parse(msg.body);
+								that.refreshAccount();
+							}
+						);
+						//订阅委托交易完成
+						stompClient.subscribe(
+							"/topic/market/order-completed/" +
+							that.currentCoin.symbol +
+							"/" +
+							that.member.id,
+							function (msg) {
+								var resp = JSON.parse(msg.body);
+								that.refreshAccount();
+							}
+						);
+						//订阅委托部分交易
+						stompClient.subscribe(
+							"/topic/market/order-trade/" +
+							that.currentCoin.symbol +
+							"/" +
+							that.member.id,
+							function (msg) {
+								var resp = JSON.parse(msg.body);
+								that.refreshAccount();
+							}
+						);
+					}
+
+					//订阅盘口消息
+					stompClient.subscribe(
+						"/topic/market/trade-plate/" + that.currentCoin.symbol,
+						function (msg) {
+							var resp = JSON.parse(msg.body);
+							if (resp.direction == "SELL") {
+								var asks = resp.items;
+								that.plate.askRows = [];
+								let totle = 0;
+								for (var i = that.plate.maxPostion - 1; i >= 0; i--) {
+									var ask = {};
+									if (i < asks.length) {
+										ask = asks[i];
+									} else {
+										ask["price"] = 0;
+										ask["amount"] = 0;
+									}
+									ask.direction = "SELL";
+									ask.position = i + 1;
+									that.plate.askRows.push(ask);
+								}
+								for (var i = that.plate.askRows.length - 1; i >= 0; i--) {
+									if (
+										i == that.plate.askRows.length - 1 ||
+										that.plate.askRows[i].price == 0
+									) {
+										that.plate.askRows[i].totalAmount =
+											that.plate.askRows[i].amount;
+									} else {
+										that.plate.askRows[i].totalAmount =
+											that.plate.askRows[i + 1].totalAmount +
+											that.plate.askRows[i].amount;
+									}
+									totle += that.plate.askRows[i].amount;
+								}
+								that.plate.askTotle = totle;
+							} else {
+								var bids = resp.items;
+								that.plate.bidRows = [];
+								let totle = 0;
+								for (var i = 0; i < that.plate.maxPostion; i++) {
+									var bid = {};
+									if (i < bids.length) {
+										bid = bids[i];
+									} else {
+										bid["price"] = 0;
+										bid["amount"] = 0;
+									}
+									bid.direction = "BUY";
+									bid.position = i + 1;
+									that.plate.bidRows.push(bid);
+								}
+								for (var i = 0; i < that.plate.bidRows.length; i++) {
+									if (i == 0 || that.plate.bidRows[i].amount == 0) {
+										that.plate.bidRows[i].totalAmount =
+											that.plate.bidRows[i].amount;
+									} else {
+										that.plate.bidRows[i].totalAmount =
+											that.plate.bidRows[i - 1].totalAmount +
+											that.plate.bidRows[i].amount;
+									}
+									totle += that.plate.bidRows[i].amount;
+								}
+								that.plate.bidTotle = totle;
+							}
+							if (that.currentImgTable == "s") {
+								that.getPlateFull();
+							}
+						}
+					);
+				});
+			},
+			limited_price() {
+				this.showMarket = false;
+			},
+			market_price() {
+				this.showMarket = true;
+			},
+			currentCoinFavorChange() {
+				if (!this.isLogin) {
+					this.$Message.warning(this.$t("common.logintip"));
+					return;
+				}
+				if (this.collecRequesting) {
+					return;
+				}
+				const symbol = this.currentCoin.symbol;
+				this.collecRequesting = true;
+				if (this.currentCoinIsFavor) {
+					//已收藏,去取消收藏
+					this.$http
+						.post(this.host + this.api.exchange.favorDelete, {
+							symbol,
+						})
+						.then((response) => {
+							var resp = response.body;
+							if (resp.code == 0) {
+								this.$Message.info(this.$t("exchange.cancel_favorite"));
+								this.getSymbol(); //刷新状态
+								this.currentCoinIsFavor = false;
+							}
+							this.collecRequesting = false;
+						});
+				} else {
+					//去添加收藏
+					this.$http
+						.post(this.host + this.api.exchange.favorAdd, {
+							symbol,
+						})
+						.then((response) => {
+							var resp = response.body;
+							if (resp.code == 0) {
+								this.$Message.info(this.$t("exchange.do_favorite"));
+								this.getSymbol(); //刷新状态
+								this.currentCoinIsFavor = true;
+							}
+							this.collecRequesting = false;
+						});
+				}
+			},
+			collect(index, row) {
+				if (!this.isLogin) {
+					this.$Message.info(this.$t("common.logintip"));
+					return;
+				}
+				var params = {};
+				params["symbol"] = row.symbol;
+				this.$http
+					.post(this.host + this.api.exchange.favorAdd, params)
+					.then((response) => {
+						var resp = response.body;
+						if (resp.code == 0) {
+							this.$Message.info(this.$t("exchange.do_favorite"));
+							this.getCoin(row.symbol).isFavor = true;
+							row.isFavor = true;
+							this.coins.favor.push(row);
+							if (this.currentCoin.symbol == row.symbol) {
+								this.currentCoinIsFavor = true;
+							}
+						}
+					});
+			},
+			cancelCollect(index, row) {
+				if (!this.isLogin) {
+					this.$Message.info(this.$t("common.logintip"));
+					return;
+				}
+				var params = {};
+				params["symbol"] = row.symbol;
+				this.$http
+					.post(this.host + this.api.exchange.favorDelete, params)
+					.then((response) => {
+						var resp = response.body;
+						if (resp.code == 0) {
+							this.$Message.info(this.$t("exchange.cancel_favorite"));
+							this.getCoin(row.symbol).isFavor = false;
+							for (var i = 0; i < this.coins.favor.length; i++) {
+								var favorCoin = this.coins.favor[i];
+								if (favorCoin.symbol == row.symbol) {
+									this.coins.favor.splice(i, 1);
+									break;
+								}
+							}
+							if (this.currentCoin.symbol == row.symbol) {
+								this.currentCoinIsFavor = false;
+							}
+						}
+					});
+			},
+			gohref(currentRow, oldCurrentRow) {
+				this.$router.push({
+					name: "ExchangePair",
+					params: {
+						pair: currentRow.href,
+					},
+				});
+			},
+			buyWithLimitPrice() {
+				if (this.form.buy.limitAmount == "") {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc: this.$t("exchange.buyamounttip"),
+					});
+					return;
+				}
+				var maxAmount = this.wallet.base / this.form.buy.limitPrice;
+				if (this.form.buy.limitAmount > maxAmount) {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc:
+							this.$t("exchange.buyamounttipwarning") + this.toFloor(maxAmount),
+					});
+					return;
+				}
+				var that = this;
+				var params = {};
+				params["symbol"] = this.currentCoin.symbol;
+				params["price"] = this.form.buy.limitPrice;
+				params["amount"] = this.form.buy.limitAmount;
+				params["direction"] = "BUY";
+				params["type"] = "LIMIT_PRICE";
+				params["useDiscount"] = this.isUseBHB ? "1" : "0"; //是否试用手续费抵扣,0 不使用 1使用
+				this.$http
+					.post(this.host + this.api.exchange.orderAdd, params)
+					.then((response) => {
+						var resp = response.body;
+						if (resp.code == 0) {
+							this.$Notice.success({
+								title: that.$t("exchange.tip"),
+								desc: that.$t("exchange.success"),
+							});
+							this.getWallet();
+							this.getCurrentOrder();
+							this.getHistoryOrder();
+							this.form.buy.limitAmount = 0;
+							this.sliderBuyLimitPercent = 0;
+						} else {
+							this.$Notice.error({
+								title: that.$t("exchange.tip"),
+								desc: resp.message,
+							});
+						}
+					});
+			},
+			buyWithMarketPrice() {
+				if (this.form.buy.marketAmount == "") {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc: this.$t("exchange.pricetip"),
+					});
+					return;
+				}
+				if (this.form.buy.marketAmount > parseFloat(this.wallet.base)) {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc: this.$t("exchange.pricetipwarning") + this.wallet.base,
+					});
+					return;
+				}
+				var params = {};
+				params["symbol"] = this.currentCoin.symbol;
+				params["price"] = 0;
+				params["amount"] = this.form.buy.marketAmount;
+				params["direction"] = "BUY";
+				params["type"] = "MARKET_PRICE";
+				params["useDiscount"] = this.isUseBHB ? "1" : "0"; //是否试用手续费抵扣,0 不使用 1使用
+				var that = this;
+				this.$http
+					.post(this.host + this.api.exchange.orderAdd, params)
+					.then((response) => {
+						var resp = response.body;
+						if (resp.code == 0) {
+							this.$Notice.success({
+								title: that.$t("exchange.tip"),
+								desc: that.$t("exchange.success"),
+							});
+							this.refreshAccount();
+							this.sliderBuyMarketPercent = 0;
+						} else {
+							this.$Notice.error({
+								title: that.$t("exchange.tip"),
+								desc: resp.message,
+							});
+						}
+					});
+			},
+			sellLimitPrice() {
+				if (this.form.sell.limitAmount == "") {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc: this.$t("exchange.sellamounttip"),
+					});
+					return;
+				}
+				if (this.form.sell.limitPrice == "") {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc: this.$t("exchange.sellpricetip"),
+					});
+					return;
+				}
+				if (this.form.sell.limitAmount > parseFloat(this.wallet.coin)) {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc: "最多能卖" + this.wallet.coin + "个",
+					});
+					return;
+				}
+				var params = {};
+				params["symbol"] = this.currentCoin.symbol;
+				params["price"] = this.form.sell.limitPrice;
+				params["amount"] = this.form.sell.limitAmount;
+				params["direction"] = "SELL";
+				params["type"] = "LIMIT_PRICE";
+				params["useDiscount"] = this.isUseBHB ? "1" : "0"; //是否试用手续费抵扣,0 不使用 1使用
+				var that = this;
+				this.$http
+					.post(this.host + this.api.exchange.orderAdd, params)
+					.then((response) => {
+						var resp = response.body;
+
+						if (resp.code == 0) {
+							this.$Notice.success({
+								title: that.$t("exchange.tip"),
+								desc: that.$t("exchange.success"),
+							});
+							this.refreshAccount();
+							this.form.sell.limitAmount = 0;
+							this.sliderSellLimitPercent = 0;
+						} else {
+							this.$Notice.error({
+								title: that.$t("exchange.tip"),
+								desc: resp.message,
+							});
+						}
+					});
+			},
+			sellMarketPrice() {
+				if (this.form.sell.marketAmount == "") {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						desc: this.$t("exchange.sellamounttip"),
+					});
+					return;
+				}
+				if (this.form.sell.marketAmount > parseFloat(this.wallet.coin)) {
+					this.$Notice.error({
+						title: this.$t("exchange.tip"),
+						// desc: this.$t("exchange.sellamounttipwarning") + this.wallet.coin
+						desc: "最多能卖" + this.wallet.coin + "个",
+					});
+					return;
+				}
+
+				var params = {};
+				params["symbol"] = this.currentCoin.symbol;
+				params["price"] = this.form.sell.limitPrice;
+				params["amount"] = this.form.sell.marketAmount;
+				params["direction"] = "SELL";
+				params["type"] = "MARKET_PRICE";
+				params["useDiscount"] = this.isUseBHB ? "1" : "0"; //是否试用手续费抵扣,0 不使用 1使用
+				var that = this;
+				this.$http
+					.post(this.host + this.api.exchange.orderAdd, params)
+					.then((response) => {
+						var resp = response.body;
+						if (resp.code == 0) {
+							this.$Notice.success({
+								title: that.$t("exchange.tip"),
+								desc: that.$t("exchange.success"),
+							});
+							this.refreshAccount();
+							this.sliderSellMarketPercent = 0;
+						} else {
+							this.$Notice.error({
+								title: that.$t("exchange.tip"),
+								desc: resp.message,
+							});
+						}
+					});
+			},
+			buyPlate(currentRow) {
+				this.form.buy.limitPrice = currentRow.price;
+				this.form.sell.limitPrice = currentRow.price;
+			},
+			sellPlate(currentRow) {
+				this.form.buy.limitPrice = currentRow.price;
+				this.form.sell.limitPrice = currentRow.price;
+			},
+			/**
+			 * 获取钱包信息
+			 */
+			getWallet() {
+				this.$http
+					.post(this.host + this.api.uc.wallet + this.currentCoin.base, {})
+					.then((response) => {
+						var resp = response.body;
+						this.wallet.base = resp.data.balance || "";
+					});
+				this.$http
+					.post(this.host + this.api.uc.wallet + this.currentCoin.coin, {})
+					.then((response) => {
+						var resp = response.body;
+						this.wallet.coin = resp.data.balance;
+					});
+			},
+			getCurrentOrder() {
+				//查询当前委托
+				var params = {};
+				params["pageNo"] = 0;
+				params["pageSize"] = 100;
+				params["symbol"] = this.currentCoin.symbol;
+				this.currentOrder.rows = [];
+				var that = this;
+				this.$http
+					.post(this.host + this.api.exchange.current, params)
+					.then((response) => {
+						var resp = response.body;
+						if (resp.content.length > 0) {
+							this.currentOrder.rows = resp.content;
+							this.currentOrder.rows.forEach((row, index) => {
+								row.skin = that.skin;
+								row.price =
+									row.type == "MARKET_PRICE"
+										? that.$t("exchange.marketprice")
+										: row.price;
+							});
+						}
+					});
+			},
+			getHistoryOrder(pageNo) {
+				//查询历史委托
+				if (pageNo == undefined) {
+					pageNo = this.historyOrder.page;
+				} else {
+					pageNo = pageNo - 1;
+				}
+				this.historyOrder.rows = []; //清空数据
+				var params = {};
+				params["pageNo"] = pageNo;
+				params["pageSize"] = this.historyOrder.pageSize;
+				params["symbol"] = this.currentCoin.symbol;
+				var that = this;
+				this.$http
+					.post(this.host + this.api.exchange.history, params)
+					.then((response) => {
+						var resp = response.body;
+						let rows = [];
+						if (resp.content.length > 0) {
+							this.historyOrder.total = resp.totalElements;
+							this.historyOrder.page = resp.number;
+							for (var i = 0; i < resp.content.length; i++) {
+								var row = resp.content[i];
+								if (row) {
+									row.skin = that.skin;
+									row.price =
+										row.type == "MARKET_PRICE"
+											? that.$t("exchange.marketprice")
+											: row.price;
+									// this.historyOrder.rows.push(row);
+									row.time
+									function msrow(t) {
+										const milliseconds = t
+
+										const dateObject = new Date(milliseconds)
+
+										// 30/03/2022, 12:13:49
+										// 03-30 12:13
+
+										let getrowdate = dateObject.toLocaleString();
+										let getrowdatesplit = getrowdate.split(' ')
+										let getrowdateday = getrowdatesplit[0].split('/')
+										let getrowdatetime = getrowdatesplit[1].split(':')
+
+										return getrowdateday[1] + "-" + getrowdateday[0] + " " + getrowdatetime[0] + ":" + getrowdatetime[1]
+									}
+
+									row.time = msrow(row.time)
+									rows.push(row);
+								}
+							}
+							this.historyOrder.rows = rows;
+						}
+					});
+			},
+			cancel(index) {
+				var order = this.currentOrder.rows[index];
+				this.$Modal.confirm({
+					title: "撤单提示",
+					content: this.$t("exchange.undotip"),
+					onOk: () => {
+						this.$http
+							.post(
+								this.host + this.api.exchange.orderCancel + "/" + order.orderId,
+								{}
+							)
+							.then((response) => {
+								var resp = response.body;
+								if (resp.code == 0) {
+									this.refreshAccount();
+									this.$Notice.success({
+										title: this.$t("exchange.tip"),
+										desc: this.$t("exchange.cancelsuccess"),
+									});
+								} else {
+									this.$Notice.error({
+										title: this.$t("exchange.tip"),
+										desc: resp.message,
+									});
+								}
+							});
+					},
+				});
+			},
+			refreshAccount: function () {
+				this.getCurrentOrder();
+				this.getHistoryOrder();
+				this.getWallet();
+			},
+			timeFormat: function (tick) {
+				return moment(tick).format("HH:mm:ss");
+			},
+			dateFormat: function (tick) {
+				return moment(tick).format("YYYY-MM-DD HH:mm:ss");
+			},
+			keyEvent(event) {
+				var re1 = new RegExp(
+					"([0-9]+.[0-9]{" + this.baseCoinScale + "})[0-9]*",
+					""
+				);
+				this.form.buy.limitPrice = this.form.buy.limitPrice
+					.toString()
+					.replace(re1, "$1");
+				this.form.sell.limitPrice = this.form.sell.limitPrice
+					.toString()
+					.replace(re1, "$1");
+				this.form.buy.marketAmount = this.form.buy.marketAmount
+					.toString()
+					.replace(re1, "$1");
+
+				var re2 = new RegExp("([0-9]+.[0-9]{" + this.coinScale + "})[0-9]*", "");
+				this.form.buy.limitAmount = this.form.buy.limitAmount
+					.toString()
+					.replace(re2, "$1");
+				this.form.sell.limitAmount = this.form.sell.limitAmount
+					.toString()
+					.replace(re2, "$1");
+				this.form.sell.marketAmount = this.form.sell.marketAmount
+					.toString()
+					.replace(re2, "$1");
+			},
+			showPublishMask() {
+				if (!this.showPublish) {
+					this.showPublish = true;
+					console.log("show");
+				}
+			},
+			hidePublishMask() {
+				if (this.showPublish) {
+					this.showPublish = false;
+					console.log("hide");
+				}
+			},
+			hideCountDown() {
+				if (this.showCountDown) {
+					this.showCountDown = false;
+				}
+			},
+			setPublishProgress() { },
+		},
+	};
+</script>

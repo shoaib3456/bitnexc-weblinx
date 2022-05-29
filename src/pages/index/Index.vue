@@ -23,7 +23,7 @@
         <!-- <div v-if="lang==='简体中文'"> -->
 
         <div class="spin-wrap ws-spin-wrap banner-panel">
-          <img style="height: 100%;" src="../../assets/images/bannerbg.png" class="d-lg-block d-none"></img>
+          <img style="height: 100%;" src="../../assets/images/bannerbg.png" class="d-none"></img>
           <p
             style="text-align:center;font-size:40px;color:#fff;position:absolute;top: 70px;width:100%;letter-spacing:5px;text-shadow: 0px 0px 10px #000000;">
             {{$t("common.slogan")}}</p>
@@ -56,7 +56,7 @@
           </div>
         </div>
       </div>
-      <div class="px-3 ws-sec-1  d-lg-none d-block">
+      <div class="px-3 ws-sec-1  d-block">
         <div class="w-100  py-2 d-flex justify-content-between align-items-center">
           <div class="d-flex flex-column">
             <span style="font-size: 16px; font-weight:400;">Wallet</span>
@@ -82,7 +82,7 @@
           </div>
         </div>
       </div>
-      <div class="px-1 ws-sec-1 py-3  d-lg-none d-block" style="border-top: 0px !important;">
+      <div class="px-1 ws-sec-1 py-3  d-block" style="border-top: 0px !important;">
         <div class="row mx-0 w-100" >
           <div class="col-4 d-flex flex-column align-items-center " v-for=" ({ items }, index) in dataIndex" v-if="index < 3" >
             <span  style="font-size: 14px; font-weight:400; text-align:center;">{{dataIndex[index].symbol}}</span>
@@ -92,7 +92,76 @@
           </div>
         </div>
       </div>
-      <div id="pagetips" class="d-lg-block d-none" style="background: #172636;">
+      <div class="pb-3">
+        <div class="ws-sec-1 p-0 mb-5" style="border-top: 0px !important;">
+          <div class="w-100 d-flex align-items-center justify-content-center p-2" style="border-bottom: 1px solid #0e151f73;">
+            <span v-bind:class="[isGainerOpen ? 'text-light fs-7 px-2' : 'text-faded fs-7 px-2']" class=" text-light fs-7 px-2" @click="isGainerOpen=true">Gainers</span>
+            <span v-bind:class="[!isGainerOpen ? 'text-light fs-7 px-2' : 'text-faded fs-7 px-2']" @click="isGainerOpen=false">Losers</span>
+          </div>
+          <div v-for=" (item, index) in dataIndex" v-if="dataIndex[index].rose.indexOf('-') > -1 && !isGainerOpen ">
+            <router-link :to="'exchange/'+dataIndex[index].href+'?tab=2'">
+              <div class="row ws-ex-tr w-100 mx-0">
+                <div class="col-5 ps-2 px-0 d-flex flex-column">
+                  <div class="d-flex align-items-center"> <span
+                      style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+                      dataIndex[index].coin
+                      }}</span><span style="opacity: .5; font-size: 11px;">
+                      / {{ dataIndex[index].base }}</span> </div>
+                  <span style="opacity: .5; font-size: 11px;">24H Vol . {{
+                    dataIndex[index].volume
+                    }}</span>
+                </div>
+                <div class="col-4 px-0 d-flex flex-column">
+                  <span
+                    v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+                    style="font-size: 13px;">{{ dataIndex[index].close }}</span>
+                  <span style="opacity: .5; font-size: 11px;">{{
+                    dataIndex[index].usdRate.toFixed(2)
+                    }} USD</span>
+                </div>
+                <div class="col px-0 d-flex align-items-center justify-content-center">
+                  <span
+                    v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+                    dataIndex[index].rose
+                    }}</span>
+                </div>
+              </div>
+            </router-link>
+          </div>
+          <div v-for=" (item, index) in dataIndex" v-if="dataIndex[index].rose.indexOf('-') <= -1 && isGainerOpen ">
+            <router-link :to="'exchange/'+dataIndex[index].href+'?tab=2'">
+              <div class="row ws-ex-tr w-100 mx-0">
+                <div class="col-5 ps-2 px-0 d-flex flex-column">
+                  <div class="d-flex align-items-center"> <span
+                      style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+                      dataIndex[index].coin
+                      }}</span><span style="opacity: .5; font-size: 11px;">
+                      / {{ dataIndex[index].base }}</span> </div>
+                  <span style="opacity: .5; font-size: 11px;">24H Vol . {{
+                    dataIndex[index].volume
+                    }}</span>
+                </div>
+                <div class="col-4 px-0 d-flex flex-column">
+                  <span
+                    v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+                    style="font-size: 13px;">{{ dataIndex[index].close }}</span>
+                  <span style="opacity: .5; font-size: 11px;">{{
+                    dataIndex[index].usdRate.toFixed(2)
+                    }} USD</span>
+                </div>
+                <div class="col px-0 d-flex align-items-center justify-content-center">
+                  <span
+                    v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+                    dataIndex[index].rose
+                    }}</span>
+                </div>
+              </div>
+            </router-link>
+          </div>
+        </div>
+      </div>
+      
+      <div id="pagetips" class="d-none" style="background: #172636;">
         <div class="agent-panel">
           <div class="title">
             <div class="gettingstart">{{$t('sectionPage.gettingstart')}}</div>
@@ -146,13 +215,13 @@
           </div>
         </div>
       </div>
-      <div class="d-lg-block d-none" style="width: 100%;background: #141e2c;display:none;">
+      <div class="d-none" style="width: 100%;background: #141e2c;display:none;">
         <router-link to="/announcement/118930" target="_blank" style="width: 100%;">
           <img src="https://binaricx.oss-ap-southeast-1.aliyuncs.com/bannerimg.png"
             style="width: 72%;margin-left: 14%;margin-top: 20px;">
         </router-link>
       </div>
-      <div class="section d-lg-block d-none" style="padding: 0px 14%;padding-top:50px;background: #141e2c;">
+      <div class="section d-none" style="padding: 0px 14%;padding-top:50px;background: #141e2c;">
         <div ref="trendPanel"
           style="width:100%;border-top:1px solid #1e2834;border-left:1px solid #1e2834;border-right:1px solid #1e2834;text-align: center;padding: 50px 0 0 0;position: relative;">
           <div style="position: absolute;top: 20px;left:20px;font-size: 20px;font-weight: bold;color:#828ea1;">BTC/USDT
@@ -171,7 +240,7 @@
           </div>
         </div>
       </div>
-      <div class="section d-lg-block d-none" id="page2">
+      <div class="section d-none" id="page2">
         <div class="page2nav">
           <div class="board-title" style="display:inline-block;display: none;">{{$t('sectionPage.mainboard')}} &nbsp;
             >>></div>
@@ -193,14 +262,14 @@
 -->
         </div>
       </div>
-      <div class="section bg-light d-lg-block d-none" id="page6">
+      <div class="section bg-light d-none" id="page6">
         <p class="title">{{$t('sectionPage.brandTitle')}}</p>
         <p class="subtitle">{{$t('sectionPage.brandDetail')}}</p>
         <div class="detail">{{$t('sectionPage.brandDesc1')}}</div>
         <div class="detail">{{$t('sectionPage.brandDesc2')}}</div>
         <div class="detail">{{$t('sectionPage.brandDesc3')}}</div>
       </div>
-      <div class="section d-lg-block d-none" id="page4">
+      <div class="section d-none" id="page4">
         <ul>
           <li>
             <div><img src="../../assets/icon1/5_1.png" alt=""></div>
@@ -224,7 +293,7 @@
           </li>
         </ul>
       </div>
-      <div class="section d-lg-block d-none" id="page5">
+      <div class="section d-none" id="page5">
         <div class="phone_image"></div>
         <div class="download-data">
           <p class="tips-title">{{$t('description.download1')}}</p>
@@ -289,6 +358,7 @@
     data() {
       let self = this;
       return {
+        isGainerOpen : true,
         lineValues: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         trendData: {
           highest: 0,

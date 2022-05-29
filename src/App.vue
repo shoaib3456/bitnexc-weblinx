@@ -16,9 +16,9 @@
               <img src="./assets/images/logo_1.png" />
             </div>
           </router-link>
-          
+
           <span class="chat-bot-icon d-lg-none d-block">
-            <b-icon icon="chat-dots "  font-scale="1"></b-icon>
+            <b-icon icon="chat-dots " font-scale="1"></b-icon>
           </span>
         </div>
       </div>
@@ -88,7 +88,7 @@
         <!-- </router-link> -->
       </Menu>
     </Drawer>
-    <div class="footer d-lg-block d-none">
+    <div class="footer  d-none">
       <div class="footer_content">
         <div class="footer_left">
           <img src="./assets/images/logo_2.png" style="margin-top: -50px;width: 250px;height: 250px"></img>
@@ -185,26 +185,26 @@
       </div>
     </div>
 
-    <div class="ws-mobile-nav py-2 px-2">
-      <router-link to="/home" class="d-flex flex-column align-items-center text-center">
-          <img src="./assets/images/home-icon.svg" alt="">
-          <span class="ws-mobile-nav-title">Home</span>
+    <div class="ws-mobile-nav py-2 px-2" v-if="isMobilenavOpen">
+      <router-link exact to="/" class="d-flex flex-column align-items-center text-center">
+        <img src="./assets/images/home-icon.svg" alt="">
+        <span class="ws-mobile-nav-title">Home</span>
       </router-link>
       <router-link to="/exchange" class="d-flex flex-column align-items-center text-center">
-          <img src="./assets/images/candlestick-icon.svg" alt="">
-          <span class="ws-mobile-nav-title">Market</span>
+        <img src="./assets/images/candlestick-icon.svg" alt="">
+        <span class="ws-mobile-nav-title">Market</span>
       </router-link>
-      <router-link to="/exchange" class="d-flex flex-column align-items-center text-center">
-          <img src="./assets/images/exchange-icon.svg" alt="">
-          <span class="ws-mobile-nav-title">Exchange</span>
+      <router-link to="/buysell/btc_usdt" class="d-flex flex-column align-items-center text-center">
+        <img src="./assets/images/exchange-icon.svg" alt="">
+        <span class="ws-mobile-nav-title">Exchange</span>
       </router-link>
-      <router-link to="/future" class="d-flex flex-column align-items-center text-center">
-          <img src="./assets/images/pad-icon.svg" alt="">
-          <span class="ws-mobile-nav-title">Future</span>
+      <router-link to="/swap/btc_usdt" class="d-flex flex-column align-items-center text-center">
+        <img src="./assets/images/pad-icon.svg" alt="">
+        <span class="ws-mobile-nav-title">Future</span>
       </router-link>
-      <router-link to="/account" class="d-flex flex-column align-items-center text-center">
-          <img src="./assets/images/user-icon.svg" alt="">
-          <span class="ws-mobile-nav-title">MY</span>
+      <router-link to="/uc/safe" class="d-flex flex-column align-items-center text-center">
+        <img src="./assets/images/user-icon.svg" alt="">
+        <span class="ws-mobile-nav-title">MY</span>
       </router-link>
     </div>
 
@@ -215,7 +215,7 @@
 </template>
 <script>
   import { BIcon, BIconArrowUp, BIconArrowDown } from 'bootstrap-vue'
-  import {useRoute} from "vue-router";
+  import { useRoute } from "vue-router";
   import Vue from "vue";
   import { mapGetters, mapActions } from "vuex";
   import VueQr from 'vue-qr'
@@ -229,7 +229,8 @@
     },
     data() {
       return {
-        isHeaderShow:true,
+        isHeaderShow: true,
+        isMobilenavOpen: true,
         isRouterAlive: true,
         pageView: "page-view",
         utc: null,
@@ -268,10 +269,21 @@
         }
       },
       $route(to, from) {
-          let path2 = window.location.hash;
-          if (path2.indexOf('exchange') > -1) {
-            this.isHeaderShow = false
-          }
+        let path2 = window.location.hash;
+        let check2 = 0
+        if (path2.indexOf('exchange') > -1 || path2.indexOf('buysell') > -1 || path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1) {
+          this.isHeaderShow = false
+        }
+        else {
+          this.isHeaderShow = true
+        }
+        if (path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 ) {
+          this.isMobilenavOpen = false
+        }
+        else {
+          this.isMobilenavOpen = true
+        }
+
         this.pageView = "page-view";
         if (to.path == "/reg") {
           this.pageView = "page-view2";
@@ -329,7 +341,7 @@
         return this.$store.state.exchangeSkin;
       }
 
-      
+
     },
     created: function () {
       this.initialize();

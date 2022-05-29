@@ -586,7 +586,7 @@ module.exports = {
             idcarddone: 'IDCard certified',
             idcardundo: 'IDCard unauthorized',
             language: 'language',
-            languagetext: 'Chinese',
+            languagetext: 'English',
             registtime: 'Registration time',
             exchangetimes: 'Accumulated transactions',
             exchangeinfo: 'Trading Information',

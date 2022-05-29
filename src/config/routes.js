@@ -47,6 +47,7 @@ export default [
     { path: '/app', component: resolve=>(require(["../pages/uc/AppDownload"],resolve)) },
     { path: '/findPwd', component: resolve=>(require(["../pages/uc/findpwd"],resolve)) },
     { path: '/exchange', component: resolve=>(require(["../pages/exchange/exchange"],resolve)) },
+    { path: '/buysell/:pair', component: resolve=>(require(["../pages/exchange/Buysell"],resolve)) },
     { path: '/exchange/:pair', component: resolve=>(require(["../pages/exchange/exchange"],resolve)), name: "ExchangePair"},
     { path: '/swap', component: resolve=>(require(["../pages/swap/SwapIndex"],resolve)) },
     { path: '/swap/:pair', component: resolve=>(require(["../pages/swap/SwapIndex"],resolve)), name: "SwapPair"},

@@ -1,25 +1,180 @@
 <template>
-	<div class="container exchange" :class="skin">
+	<div class="container ws-buysell-container exchange" :class="skin">
+		<div class="ws-side-bar" style="background-color: #192330 !important;" v-if="isSidebarOpen">
+			<div class="d-flex align-items-center justify-content-between p-3">
+				<div>Exchange</div>
+				<span @click="isSidebarOpen = false">
+					<b-icon icon="menu-button-wide" variant="light"></b-icon>
+				</span>
 
+			</div>
+			<div class="coin-menu" style="overflow:hidden">
+				<div class="sc_filter">
+					<span v-show="isLogin" @click="wsBaseCoinTab = 1" :class="{ active: wsBaseCoinTab == 1 }">{{
+						$t('service.CUSTOM')
+						}}</span>
+					<span @click="wsBaseCoinTab = 2" :class="{ active: wsBaseCoinTab == 2 }">USDT</span>
+					<span @click="wsBaseCoinTab = 3" :class="{ active: wsBaseCoinTab == 3 }">BTC</span>
+					<span @click="wsBaseCoinTab = 4" :class="{ active: wsBaseCoinTab == 4 }">ETH</span>
+				</div>
+				<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 1" @click="isSidebarOpen = false">
+					<div v-for=" (item, index) in coins.favor">
+						<router-link :to="coins.favor[index].href">
+							<div class="row ws-ex-tr w-100 mx-0">
+								<div class="col-5 px-0 d-flex flex-column">
+									<div class="d-flex align-items-center"> <span
+											style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+											coins.favor[index].coin
+											}}</span><span style="opacity: .5; font-size: 11px;">
+											/ {{ coins.favor[index].base }}</span> </div>
+									<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+										coins.favor[index].volume
+										}}</span>
+								</div>
+								<div class="col-4 px-0 d-flex flex-column">
+									<span
+										v-bind:class="[coins.favor[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+										style="font-size: 13px;">{{ coins.favor[index].close }}</span>
+									<span style="opacity: .5; font-size: 11px;">{{
+										coins.favor[index].usdRate.toFixed(2)
+										}} USD</span>
+								</div>
+								<div class="col px-0 d-flex align-items-center justify-content-center">
+									<span
+										v-bind:class="[coins.favor[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+										coins.favor[index].rose
+										}}</span>
+								</div>
+							</div>
+						</router-link>
+					</div>
+				</div>
+				<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 2" @click="isSidebarOpen = false">
+					<div v-for=" (item, index) in coins.USDT">
+						<router-link :to="coins.USDT[index].href">
+							<div class="row ws-ex-tr w-100 mx-0">
+								<div class="col-5 px-0 d-flex flex-column">
+									<div class="d-flex align-items-center"> <span
+											style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+											coins.USDT[index].coin
+											}}</span><span style="opacity: .5; font-size: 11px;">
+											/ {{ coins.USDT[index].base }}</span> </div>
+									<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+										coins.USDT[index].volume
+										}}</span>
+								</div>
+								<div class="col-4 px-0 d-flex flex-column">
+									<span
+										v-bind:class="[coins.USDT[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+										style="font-size: 13px;">{{ coins.USDT[index].close }}</span>
+									<span style="opacity: .5; font-size: 11px;">{{
+										coins.USDT[index].usdRate.toFixed(2)
+										}} USD</span>
+								</div>
+								<div class="col px-0 d-flex align-items-center justify-content-center">
+									<span
+										v-bind:class="[coins.USDT[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+										coins.USDT[index].rose
+										}}</span>
+								</div>
+							</div>
+						</router-link>
+					</div>
+				</div>
+				<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 2" @click="isSidebarOpen = false">
+					<div v-for=" (item, index) in coins.BTC">
+						<router-link :to="coins.BTC[index].href">
+							<div class="row ws-ex-tr w-100 mx-0">
+								<div class="col-5 px-0 d-flex flex-column">
+									<div class="d-flex align-items-center"> <span
+											style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+											coins.BTC[index].coin
+											}}</span><span style="opacity: .5; font-size: 11px;">
+											/ {{ coins.BTC[index].base }}</span> </div>
+									<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+										coins.BTC[index].volume
+										}}</span>
+								</div>
+								<div class="col-4 px-0 d-flex flex-column">
+									<span
+										v-bind:class="[coins.BTC[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+										style="font-size: 13px;">{{ coins.BTC[index].close }}</span>
+									<span style="opacity: .5; font-size: 11px;">{{
+										coins.BTC[index].usdRate.toFixed(2)
+										}} USD</span>
+								</div>
+								<div class="col px-0 d-flex align-items-center justify-content-center">
+									<span
+										v-bind:class="[coins.BTC[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+										coins.BTC[index].rose
+										}}</span>
+								</div>
+							</div>
+						</router-link>
+					</div>
+				</div>
+				<div class="ws-ex-table px-2" v-if="wsBaseCoinTab == 2" @click="isSidebarOpen = false">
+					<div v-for=" (item, index) in coins.ETH">
+						<router-link :to="coins.ETH[index].href">
+							<div class="row ws-ex-tr w-100 mx-0">
+								<div class="col-5 px-0 d-flex flex-column">
+									<div class="d-flex align-items-center"> <span
+											style="font-weight: 500; padding-right: 3px; font-size: 13px;">{{
+											coins.ETH[index].coin
+											}}</span><span style="opacity: .5; font-size: 11px;">
+											/ {{ coins.ETH[index].base }}</span> </div>
+									<span style="opacity: .5; font-size: 11px;">24H Vol . {{
+										coins.ETH[index].volume
+										}}</span>
+								</div>
+								<div class="col-4 px-0 d-flex flex-column">
+									<span
+										v-bind:class="[coins.ETH[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+										style="font-size: 13px;">{{ coins.ETH[index].close }}</span>
+									<span style="opacity: .5; font-size: 11px;">{{
+										coins.ETH[index].usdRate.toFixed(2)
+										}} USD</span>
+								</div>
+								<div class="col px-0 d-flex align-items-center justify-content-center">
+									<span
+										v-bind:class="[coins.ETH[index].rose.indexOf('-') > -1 ? 'ws-ex-talbe-sell' : 'ws-ex-talbe-buy']">{{
+										coins.ETH[index].rose
+										}}</span>
+								</div>
+							</div>
+						</router-link>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="ws-exchange-head p-2">
 
 			<span class="w-100 d-flex justify-content-center align-items-center "
 				v-if="isListOpen && !isBuySellOpen">Market</span>
-			<span  class="w-100 d-flex justify-content-between align-items-center py-1"
+			<span @click="isListOpen = true" class="w-100 d-flex justify-content-start align-items-center py-1"
 				v-if="!isListOpen && !isBuySellOpen">
+				<b-icon icon="chevron-left" variant="light"></b-icon>
+				<div class="ps-2">{{ currentCoin.coin }}/{{ currentCoin.base }}</div>
+			</span>
+			<span class="w-100 d-flex justify-content-between align-items-center py-1"
+				v-if="!isListOpen && isBuySellOpen">
 				<div class="d-flex align-items-center">
-					<span @click="isListOpen = true" >
-						<b-icon icon="chevron-left" variant="light"></b-icon>
+					<span @click="isSidebarOpen = true">
+						<b-icon icon="menu-button-wide" variant="light"></b-icon>
 					</span>
 					<div class="ps-2">{{ currentCoin.coin }}/{{ currentCoin.base }}</div>
 				</div>
-				<!-- 2 -->
-			</span>
-			<span @click="isBuySellOpen = false" class="w-100 d-flex justify-content-start align-items-center py-1"
-				v-if="!isListOpen && isBuySellOpen">
-			
-				<b-icon icon="chevron-left" variant="light"></b-icon>
-				<div class="ps-2">{{ currentCoin.coin }}/{{ currentCoin.base }}</div>
+				<div class="d-flex align-items-center">
+					<div class="item mx-1" @click="currentCoinFavorChange">
+						<Icon v-if="currentCoinIsFavor" type="ios-star" color="#f0a70a" size="19" />
+						<Icon v-else type="ios-star-outline" color="#f0a70a" size="19" />
+					</div>
+					<router-link
+						:to="'/exchange/'+currentCoin.coin.toLowerCase()+'_'+currentCoin.base.toLowerCase()+'?tab=2'"
+						class="mx-2" style="font-size: 15px;">
+						<b-icon icon="graph-up" variant="light"></b-icon>
+					</router-link>
+				</div>
 			</span>
 		</div>
 		<div class="main ws-exchange-parent">
@@ -272,11 +427,11 @@
 					<div class="trade_panel trade_panel_logout">
 						<div class="ws-sell-buy-tabs">
 							<span v-bind:class="[isBuyTabOpen ? 'active buys' : 'buys']"
-								@click="isBuyTabOpen = true">buy
+								@click="isBuyTabOpen = true">Buy
 								<div></div>
 							</span>
 							<span v-bind:class="[!isBuyTabOpen ? 'active selles' : 'selles']"
-								@click="isBuyTabOpen = false">sell <div></div></span>
+								@click="isBuyTabOpen = false">Sell <div></div></span>
 						</div>
 						<div class="mask" v-show="!isLogin">
 							<span>{{ $t("common.please") }}
@@ -312,34 +467,37 @@
 						</div>
 						<div class="trade_bd">
 							<div class="panel panel_buy" v-if="isBuyTabOpen">
-								<div v-if="isLogin" class="hd hd_login">
-									<span>{{ currentCoin.base }}</span>
-									<span>{{ wallet.base | toFloor(baseCoinScale) }}</span>
-									<span>{{ $t("exchange.canuse") }}</span>
-									<router-link :to="rechargeUSDTUrl">{{ $t("exchange.recharge") }}</router-link>
-									<!-- <a :href="rechargeUSDTUrl">{{$t("exchange.recharge")}}</a> -->
-								</div>
-								<div class="hd" v-else>
-								</div>
+
+
 								<div class="bd bd_limited" v-show="!showMarket">
 									<Form ref="formValidate">
+										<div class="ws-padding-remove">
+											<FormItem>
+												<Input @on-keyup="keyEvent" v-model="form.buy.limitPrice"
+													:placeholder="$t('exchange.buyprice')"></Input>
+												<label class="after">{{ currentCoin.base }}</label>
+												<p class="math_price d-flex w-100 justify-content-start ">≈
+													{{ currentCoin.usdRate / currentCoin.close * form.buy.limitPrice *
+													CNYRate || 0 | toFixed(2)
+													}}
+													USD</p>
+											</FormItem>
+										</div>
 										<FormItem>
-											<label class="before">{{ $t('exchange.buyprice') }}</label>
-											<Input @on-keyup="keyEvent" v-model="form.buy.limitPrice"
-												:placeholder="$t('exchange.buyprice')"></Input>
-											<label class="after">{{ currentCoin.base }}</label>
-											<p class="math_price">≈
-												{{ currentCoin.usdRate / currentCoin.close * form.buy.limitPrice *
-												CNYRate || 0 | toFixed(2)
-												}}
-												USD</p>
-										</FormItem>
-										<FormItem>
-											<label class="before">{{ $t('exchange.buynum') }}</label>
+											<label class="before">Amount </label>
 											<Input @on-keyup="keyEvent" v-model="form.buy.limitAmount"
-												:placeholder="$t('exchange.buynum')"></Input>
+												placeholder=""></Input>
 											<label class="after">{{ currentCoin.coin }}</label>
 										</FormItem>
+										<div class="d-flex justify-content-start align-items-center"
+											style="opacity:.4 ;">
+											<div v-if="isLogin"
+												class="hd hd_login d-flex justify-content-end align-items-center">
+												<span>{{ $t("exchange.canuse") }} : </span>
+												<span class="mx-0">{{ wallet.base | toFloor(baseCoinScale) }}</span>
+												<span>{{ currentCoin.base }}</span>
+											</div>
+										</div>
 										<div class="slider-wrap">
 											<Slider class="silder-buy" v-model="sliderBuyLimitPercent" :step="25"
 												show-tip="always" :tip-format="tipFormat" :disabled="sliderBuyDisabled">
@@ -350,16 +508,17 @@
 												<div class="slider-block"></div>
 											</div>
 										</div>
-										<div class="total buy_total">
+										<div class="total buy_total" style="font-size: 13px !important;">
 											{{ $t("exchange.amount") }}
-											<span>{{ form.buy.limitTurnover | toFloor(baseCoinScale) }}</span>
+											<span style="opacity: .4;">{{ form.buy.limitTurnover |
+												toFloor(baseCoinScale) }}</span>
 											{{ currentCoin.base }}
 										</div>
 										<Button v-if="exchangeable == 1" class="bg-green" @click="buyWithLimitPrice">{{
 											$t("exchange.buyin")
-											}}({{ currentCoin.coin }})</Button>
-										<Button v-else class="bg-gray">{{ $t("exchange.buyin") }}({{ currentCoin.coin
-											}})</Button>
+											}} {{ currentCoin.coin }}</Button>
+										<Button v-else class="bg-gray">{{ $t("exchange.buyin") }} {{ currentCoin.coin
+											}}</Button>
 									</Form>
 								</div>
 								<div class="bd bd_market" v-show="showMarket">
@@ -398,34 +557,38 @@
 								</div>
 							</div>
 							<div class="panel panel_sell" v-if="!isBuyTabOpen">
-								<div v-if="isLogin" class="hd hd_login">
-									<span>{{ $t("exchange.canuse") }}</span>
-									<span>{{ wallet.coin | toFloor(coinScale) }}</span>
-									<span>{{ currentCoin.coin }}</span>
-									<router-link :to="rechargeCoinUrl">{{ $t("exchange.recharge") }}</router-link>
-									<!-- <a :href="rechargeCoinUrl">{{$t("exchange.recharge")}}</a> -->
-								</div>
-								<div class="hd" v-else>
-								</div>
+
 								<div class="bd bd_limited" v-show="!showMarket">
 									<Form ref="formValidate">
+										<div class="ws-padding-remove">
+
+											<FormItem>
+												<Input @on-keyup="keyEvent" v-model="form.sell.limitPrice"
+													:placeholder="$t('exchange.sellprice')"></Input>
+												<label class="after">{{ currentCoin.base }}</label>
+												<p class="math_price d-flex w-100 justify-content-start ">≈
+													{{ currentCoin.usdRate / currentCoin.close * form.sell.limitPrice *
+													CNYRate || 0 | toFixed(2)
+													}}
+													USD</p>
+											</FormItem>
+										</div>
+
 										<FormItem>
-											<label class="before">{{ $t('exchange.sellprice') }}</label>
-											<Input @on-keyup="keyEvent" v-model="form.sell.limitPrice"
-												:placeholder="$t('exchange.sellprice')"></Input>
-											<label class="after">{{ currentCoin.base }}</label>
-											<p class="math_price">≈
-												{{ currentCoin.usdRate / currentCoin.close * form.sell.limitPrice *
-												CNYRate || 0 | toFixed(2)
-												}}
-												USD</p>
-										</FormItem>
-										<FormItem>
-											<label class="before">{{ $t('exchange.sellnum') }}</label>
+											<label class="before">Amount</label>
 											<Input @on-keyup="keyEvent" v-model="form.sell.limitAmount"
 												:placeholder="$t('exchange.sellnum')"></Input>
 											<label class="after">{{ currentCoin.coin }}</label>
 										</FormItem>
+										<div class="d-flex justify-content-start align-items-center"
+											style="opacity:.4 ;">
+											<div v-if="isLogin"
+												class="hd hd_login d-flex justify-content-end align-items-center">
+												<span>{{ $t("exchange.canuse") }} : </span>
+												<span class="mx-0">{{ wallet.base | toFloor(baseCoinScale) }}</span>
+												<span>{{ currentCoin.base }}</span>
+											</div>
+										</div>
 										<div class="slider-wrap">
 											<Slider class="silder-sell" v-model="sliderSellLimitPercent" :step="25"
 												show-tip="always" :tip-format="tipFormat"
@@ -436,16 +599,16 @@
 												<div class="slider-block"></div>
 											</div>
 										</div>
-										<div class="total sell_total">
+										<div class="total sell_total" style="font-size: 13px !important;"> 
 											{{ $t("exchange.amount") }}
-											<span>{{ form.sell.limitTurnover | toFloor(coinScale) }}</span>
+											<span style="opacity: .4;">{{ form.sell.limitTurnover | toFloor(coinScale) }}</span>
 											{{ currentCoin.base }}
 										</div>
 										<Button v-if="exchangeable == 1" class="bg-red" @click="sellLimitPrice">{{
 											$t("exchange.sellout")
-											}}({{ currentCoin.coin }})</Button>
-										<Button v-else class="bg-gray">{{ $t("exchange.sellout") }}({{ currentCoin.coin
-											}})</Button>
+											}} {{ currentCoin.coin }} </Button>
+										<Button v-else class="bg-gray">{{ $t("exchange.sellout") }} {{ currentCoin.coin
+											}} </Button>
 									</Form>
 								</div>
 								<div class="bd bd_market" v-show="showMarket">
@@ -499,7 +662,7 @@
 							:data="plate.bidRows" :no-data-text="$t('common.nodata')">
 						</Table> -->
 						<div>
-							<div class="row mx-0 py-2 px-1">
+							<div class="row mx-0 py-2 ">
 								<div class="col-6 px-0 text-start " style="font-size: 11px; opacity: .7;">Price(USDT)
 								</div>
 								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">Amount({{
@@ -507,11 +670,11 @@
 							</div>
 							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.askRows"
 								v-if="index < 5">
-								<div v-bind:class="[plate.askRows[index].direction == 'SELL' ? 'text-danger col-6 px-0 text-start ' : 'text-success col-3 px-0 text-start ']"
+								<div v-bind:class="[plate.askRows[index].direction == 'SELL' ? 'text-danger col-6 px-0 text-start ' : 'text-success col-6 px-0 text-start ']"
 									style="font-size: 11px; opacity: 1; text-transform:lowercase !important;">{{
 									plate.askRows[index].price }}</div>
 								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">{{
-									plate.askRows[index].amount }}</div>
+									plate.askRows[index].amount.toFixed(5) }}</div>
 								<span class="ws-plate-progress"
 									:style="{ width: ((plate.askRows[index].position /10) * 100).toFixed(2) + '%', backgroundColor: '#4621299e' }"></span>
 							</div>
@@ -523,15 +686,17 @@
 									}}</span>
 								<span v-if="currentCoin.change > 0" class="buy">↑</span>
 								<span v-else-if="currentCoin.change < 0" class="sell">↓</span>
-								<span class="price-cny" style="font-size: 11px !important; display: flex !important; padding-top: 2px !important; opacity:.5;" ≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
+								<span class="price-cny"
+									style="font-size: 11px !important; display: flex !important; padding-top: 2px !important; opacity:.5;"
+									≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
 							</div>
 							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.bidRows"
 								v-if="index < 5">
-								<div v-bind:class="[plate.bidRows[index].direction == 'SELL' ? 'text-danger col-6 px-0 text-start ' : 'text-success col-3 px-0 text-start ']"
+								<div v-bind:class="[plate.bidRows[index].direction == 'SELL' ? 'text-danger col-6 px-0 text-start ' : 'text-success col-6 px-0 text-start ']"
 									style="font-size: 11px; opacity: 1; text-transform:lowercase !important;">{{
 									plate.bidRows[index].price }}</div>
 								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">{{
-									plate.bidRows[index].amount }}</div>
+									plate.bidRows[index].amount.toFixed(5) }}</div>
 								<span class="ws-plate-progress"
 									:style="{ width: ((plate.bidRows[index].position /10) * 100).toFixed(2) + '%', backgroundColor: 'rgb(15,54,46)' }"></span>
 							</div>
@@ -621,8 +786,8 @@
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
 								{{ new Date(trade.rows[index].time * 1000).toISOString().slice(14, -5) }}</div>
 							<div v-bind:class="[trade.rows[index].direction == 'SELL' ? 'text-danger col-3 px-0 text-center ' : 'text-success col-3 px-0 text-center ']"
-								style="font-size: 12px; opacity: 1; text-transform:capitalize !important;">{{
-								trade.rows[index].direction.toLowerCase() }}</div>
+								style="font-size: 11px; opacity: 1; text-transform:lowercase !important;">{{
+								trade.rows[index].direction }}</div>
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{
 								trade.rows[index].price }}</div>
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{
@@ -658,20 +823,20 @@
 			<div class="ws-sell-buy w-100" v-if="!isListOpen && !isBuySellOpen">
 				<div class="w-100 d-flex align-items-center">
 					<div class="d-flex col p-1">
-						<router-link :to="'/buysell/'+currentCoin.coin.toLowerCase()+'_'+currentCoin.base.toLowerCase()"
+						<button @click="isBuySellOpen = true, isBuyTabOpen = true"
 							v-if="enableMarketBuy == 1 && exchangeable == 1" class="btn btn-danger w-100">{{
 							$t("exchange.buyin")
-							}} {{ currentCoin.coin }} </router-link>
-						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.buyin") }} {{ currentCoin.coin
-							}} </button>
+							}}({{ currentCoin.coin }})</button>
+						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.buyin") }}({{ currentCoin.coin
+							}})</button>
 					</div>
 					<div class="d-flex col p-1">
-						<router-link :to="'/buysell/'+currentCoin.coin.toLowerCase()+'_'+currentCoin.base.toLowerCase()"
+						<button @click="isBuySellOpen = true, isBuyTabOpen = false"
 							v-if="enableMarketSell == 1 && exchangeable == 1" class="btn btn-success w-100">{{
 							$t("exchange.sellout")
-							}} {{ currentCoin.coin }} </router-link>
-						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.sellout") }} {{ currentCoin.coin
-							}} </button>
+							}}({{ currentCoin.coin }})</button>
+						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.sellout") }}({{ currentCoin.coin
+							}})</button>
 					</div>
 					<div class="d-flex flex-column align-items-center ps-2">
 						<div class="item" @click="currentCoinFavorChange">
@@ -702,7 +867,7 @@
 				<router-link v-show="selectedOrder === 'history'" class="linkmore" to="/uc/entrust/history">
 					All</router-link>
 			</div>
-			<div class="table">
+			<div class="table pb-5">
 				<Table height="240" v-if="selectedOrder === 'current'" :columns="currentOrder.columns"
 					:data="currentOrder.rows" :no-data-text="$t('common.nodata')"></Table>
 				<div v-else>
@@ -711,8 +876,8 @@
 							<div class="d-flex align-items-center">
 								<span
 									v-bind:class="[historyOrder.rows[index].direction == 'SELL' ? 'text-danger' : 'text-success']"
-									style="font-size:12px; text-transform: lowercase;">{{
-									historyOrder.rows[index].direction }}</span>
+									style="font-size:12px; text-transform: capitalize;">{{
+									historyOrder.rows[index].direction.toLowerCase() }}</span>
 								<span class="ps-3" style="font-size:12px;">{{ historyOrder.rows[index].symbol }}</span>
 							</div>
 							<span style="font-size:12px;">Deal</span>
@@ -1234,11 +1399,12 @@
 		data() {
 			let self = this;
 			return {
+				isSidebarOpen: false,
 				isBuyTabOpen: true,
-				isListOpen: true,
+				isListOpen: false,
 				wsBaseCoinTab: 2,
 				wsPlateTab: 1,
-				isBuySellOpen: false,
+				isBuySellOpen: true,
 				sliderStep: [25, 50, 75, 100],
 				sliderBuyLimitPercent: 0,
 				sliderSellLimitPercent: 0,
@@ -2298,19 +2464,12 @@
 			// console.log(this.plate.askRows);
 			// console.log(this.plate);
 			// console.log(this.trade);
-			// console.log(this.historyOrder)
-			let ws_path = window.location.hash.split('?')[1]
-			if(ws_path == 'tab=2'){
-				this.isListOpen=false
-			}
+			console.log(this.historyOrder)
 		},
 		mounted: function () {
 			// console.log(this.coins);
 		},
 		methods: {
-			expandBnt(){
-				document.querySelector('.fullscreen').click()
-			},
 			seachInputChange() {
 				this.searchKey = this.searchKey.toUpperCase();
 				if (this.basecion == "favor") {
