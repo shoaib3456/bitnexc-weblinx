@@ -643,53 +643,71 @@ body {
     border-bottom: 2px solid #FFA800;
 }
 
-.ws-filter-tab svg {
-    font-size: 18px;
-}
 
 .ws-filter-form .ivu-form-item {
-    display:flex !important;
-    flex-direction:column !important;
-  margin-bottom:10px !important;
-  margin-right:0px !important;
-  }
-  .ws-filter-form .ivu-form-item-content{
-    margin:0 !important;
-  }
-  .ws-filter-form .ivu-form-item-label{
-    text-align:left !important;
-  color:white  !important;
-  opacity:.7;
-  width: unset !important;
-  }
-  .ws-filter-form .ivu-form-item-content .ivu-select,
-  .ws-filter-form .ivu-form-item-content .ivu-date-picker{
-  width:100% !important;
-  background-color:#1A212B !important;
-  }
-  .ws-filter-form input,
-  .ws-filter-form .ivu-select-selection{
-  background-color:#1A212B !important;
-  border:none !important;
-  color:white !important;
-  }
-  .ws-filter-form .ivu-picker-panel-body{
-  background-color:#1A212B !important;
-  }
-  .ws-filter-form .ivu-select-dropdown{
-  background-color:#1A212B !important;
-  margin:0;
-  color:white !important;
-  }
-  .ws-filter-form .ivu-select-dropdown li{
-  color:white !important;
-  color:white !important;
-  }
+    display: flex !important;
+    flex-direction: column !important;
+    margin-bottom: 10px !important;
+    margin-right: 0px !important;
+}
 
+.ws-filter-form .ivu-form-item-content {
+    margin: 0 !important;
+}
 
+.ws-filter-form .ivu-form-item-label {
+    text-align: left !important;
+    color: white !important;
+    opacity: .7;
+    width: unset !important;
+}
 
+.ws-filter-form .ivu-form-item-content .ivu-select,
+.ws-filter-form .ivu-form-item-content .ivu-date-picker {
+    width: 100% !important;
+    background-color: #1A212B !important;
+}
 
+.ws-filter-form input,
+.ws-filter-form .ivu-select-selection {
+    background-color: #1A212B !important;
+    border: none !important;
+    color: white !important;
+}
 
+.ws-filter-form .ivu-picker-panel-body {
+    background-color: #1A212B !important;
+}
+
+.ws-filter-form .ivu-select-dropdown {
+    background-color: #1A212B !important;
+    margin: 0;
+    color: white !important;
+}
+
+.ws-filter-form .ivu-select-dropdown li {
+    color: white !important;
+    color: white !important;
+}
+
+.form-switch .form-check-input {
+    border-radius: 0px;
+}
+
+.form-check-input:checked {
+    background-color: #0E151F;
+    border-color: #0E151F;
+}
+
+.form-check-input {
+    background-color: #0E151F;
+    border-color: #0E151F;
+    width: 40px;
+}
+
+.form-switch .form-check-input {
+    /* filter: invert(1); */
+}
 
 
 
@@ -719,4 +737,292 @@ body {
         width: 100% !important;
         height: unset !important;
     }
+}
+
+.form-ws-ss .ivu-form .ivu-form-item-label {
+    text-align: left !important;
+}
+
+.form-ws-ss .ivu-form-item-required .ivu-form-item-label:before {
+    display: none !important;
+}
+
+.form-ws-ss .ivu-input {
+    background-color: transparent !important;
+    border: none !important;
+    text-align: end !important;
+}
+
+.form-ws-ss .ivu-form-item {
+
+    border-bottom: 1px solid #8080804a !important;
+    padding-bottom: 6px !important;
+}
+
+.form-ws-ss .ivu-form-item-label {
+    color: #d5d5d5 !important;
+}
+
+.ws-form-ss-pic {
+    display: flex !important;
+    justify-content: space-between !important;
+    border-bottom: 1px solid #8080804a !important;
+    padding-bottom: 15px !important;
+}
+
+.ws-form-ss-pic span {
+    font-size: 13px !important;
+    opacity: .7 !important;
+}
+
+.form-ws-ss .ivu-btn {
+    background-color: rgb(255, 193, 7) !important;
+    border: none !important;
+    border-radius: 3px !important;
+    overflow: hidder !important;
+}
+
+.form-ws-ss .ivu-btn span,
+.form-ws-ss .ivu-btn .ivu-icon {
+    color: black !important;
+    font-weight: 600 !important;
+}
+
+.ws-phone-bind .ivu-form-item-content {
+    margin-left: 0px !important;
+
+}
+
+.ws-phone-bind .ivu-btn {
+    padding: 8px 10px !important;
+    font-size: 15px !important;
+}
+
+.ws-phone-bind .ivu-form-item {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.ws-phone-bind .ivu-form-item-content {
+    width: 100% !important;
+}
+
+.ivu-form-item-required .ivu-form-item-label:before {
+    display: none !important;
+}
+
+.ws-phone-bind .ivu-form-item-label {
+    text-align: left !important;
+    padding-left: 14px !important;
+    color: white !important;
+    font-size: 13px !important;
+    opacity: .9 !important;
+}
+
+.ws-phone-bind .ivu-form-item {
+    margin: 0 !important;
+    padding: 7px 0 !important;
+    background-color: #1A212B !important;
+    border-bottom: 2px solid #0E151F !important;
+}
+
+.ws-phone-bind input {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.ws-phone-bind .ivu-select {
+    border: none !important;
+}
+
+.ws-phone-bind .ivu-input-group-prepend {
+    border: none !important;
+    background-color: transparent !important;
+}
+
+
+
+.ws-phone-bind .ivu-input-group-append {
+    border: none !important;
+    font-size: 13px !important;
+    border: 1px solid #FF9900 !important;
+    transform: translateX(-10px);
+    border-radius: 6px !important;
+    padding-top: 1px !important;
+}
+
+.ws-phone-bind .ivu-input-group-append button {
+    font-size: 13px !important;
+    padding: 0px 10px !important;
+
+}
+
+.ws-phone-bind .ivu-input-group-append span {
+    color: #FF9900 !important;
+}
+
+.ws-phone-bind .ivu-form-item-label {
+    padding-bottom: 2px !important;
+    padding-top: 2px !important;
+}
+
+.ws-login-password input {
+    text-align: end;
+    padding-right: 17px !important;
+    opacity: .9;
+}
+
+.gray-btn {
+    background-color: #1A212B;
+    border: none;
+    font-size: 13px;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.notice {
+    background-color: #0E151F !important;
+}
+
+.ws-notice .ivu-col .content-wrap p,
+.ws-notice .ivu-col .content-wrap a,
+.ws-notice .ivu-col .content-wrap div,
+.ws-notice .ivu-col .content-wrap span {
+    color: black !important;
+}
+
+.ws-notice .main {
+    margin-top: 0 !important;
+}
+
+.ws-notice .ivu-page {
+    display: flex !important;
+    color: white !important;
+    justify-content: center !important;
+}
+
+.notice-list .item1 {
+    padding: 10px !important;
+    background-color: #1A212B !important;
+    margin: 10px 0 !important;
+    border-radius: 4px !important;
+}
+
+.notice .main .list .active {
+    background: #1A212B !important;
+}
+
+.notice-list .main .list {
+    padding: 0 10px !important;
+}
+
+.ws-notice .ivu-page a {
+    color: white !important;
+    padding: 10px;
+    background-color: #1A212B !important;
+}
+
+.ws-notice .ivu-page {
+    padding-top: 20px !important;
+}
+
+.notice .content-wrap {
+    margin-top: 0 !important;
+}
+
+.ws-wallet-bg {
+    background-image: url(../images/wallet-back.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 5px;
+}
+
+.ws-filter-links.active-1 {
+    border-bottom: 1px solid orange;
+}
+
+.ws-filter-links {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}
+
+.ws-wallet-search .search {
+    display: flex !important;
+}
+
+.ws-wallet-search input {
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0px !important;
+}
+
+.ws-wallet-search {
+    border-bottom: 1px solid #27313e6e !important;
+}
+
+input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.bottom-up {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #000000ab;
+    height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    z-index: 100;
+}
+
+.bottom-up div {
+    width: 100%;
+}
+
+.ws-pagee li {
+    background-color: #1a212b;
+    border: none;
+}
+
+.text-faded-1 {
+    opacity: .5;
+}
+
+.withdraw-form input {
+    width: 100% !important;
+    background-color: #1F2229 !important;
+    border: none !important;
+    border-radius: 0px !important;
+}
+
+.withdraw-form label {
+    line-height: 39px !important;
+}
+
+.ws-drop-1 button {
+    background-color: transparent !important;
+    border: none !important;
+    font-size: 13px !important;
+    padding: 0 !important;
+
+}
+
+.ws-drop-1 .dropdown {
+    margin: 0 !important;
+}
+
+.ws-drop-1 button::after {
+    display: none !important;
+}
+
+.ws-drop-1 ul {
+    padding-left: 10px;
+    background-color: #0E151F;
+}
+
+.ws-drop-1 a {
+    color: white;
+    padding: 10px !important;
 }

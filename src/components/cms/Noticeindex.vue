@@ -84,11 +84,15 @@ export default {
 
 
     },
-    computed: {
-
+    computed() {
+        console.log(this.tableData1);
+    },
+    mounted(){
+        console.log(this.tableData1);
     },
     created() {
         this.mockTableData1();
+        console.log(this.tableData1);
     }
 }
 </script>

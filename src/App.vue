@@ -78,8 +78,10 @@
           <template slot="title" class="lang-title">
             <span style="color:#bdc2ca;">{{languageValue}}</span>
           </template>
-          <MenuItem name="zh" class="lang-item" style="padding-left:20px!important;"><img
-            src="./assets/images/lang-zh.png"></img>简体中文</MenuItem>
+          <div class="ws-tab-chinese">
+            <MenuItem name="zh" class="lang-item" style="padding-left:20px!important;"><img
+              src="./assets/images/lang-zh.png"></img>简体中文</MenuItem>
+          </div>
           <MenuItem name="en" class="lang-item" style="padding-left:20px!important;"><img
             src="./assets/images/lang-en.png"></img>ENGLISH</MenuItem>
         </Submenu>
@@ -208,9 +210,9 @@
       </router-link>
     </div>
 
-    <template>
+    <!-- <template>
       <BackTop :bottom="50"></BackTop>
-    </template>
+    </template> -->
   </div>
 </template>
 <script>
@@ -271,13 +273,13 @@
       $route(to, from) {
         let path2 = window.location.hash;
         let check2 = 0
-        if (path2.indexOf('exchange') > -1 || path2.indexOf('buysell') > -1 || path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1) {
+        if (path2.indexOf('exchange') > -1 || path2.indexOf('buysell') > -1 || path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 || path2.indexOf('uc/safe') > -1 || path2.indexOf('uc/settings') > -1 || path2.indexOf('/announcement') > -1 || path2.indexOf('/uc/money') > -1 || path2.indexOf('/uc/swapAssets') > -1 || path2.indexOf('/uc/recharge') > -1 || path2.indexOf('/uc/withdraw') > -1) {
           this.isHeaderShow = false
         }
         else {
           this.isHeaderShow = true
         }
-        if (path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 ) {
+        if (path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 || path2.indexOf('uc/safe') > -1 || path2.indexOf('uc/settings') > -1 || path2.indexOf('/announcement') > -1 || path2.indexOf('/uc/money') > -1 || path2.indexOf('/uc/swapAssets') > -1 || path2.indexOf('/uc/recharge') > -1 || path2.indexOf('/uc/withdraw') > -1) {
           this.isMobilenavOpen = false
         }
         else {

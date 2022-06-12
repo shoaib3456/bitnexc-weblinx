@@ -90,6 +90,10 @@ export default [
                 component: resolve=>(require(["../components/uc/Safe"],resolve))
             },
             {
+                path: 'settings',
+                component: resolve=>(require(["../components/uc/Setting"],resolve))
+            },
+            {
                 path: 'account',
                 component: resolve=>(require(["../components/uc/Account"],resolve))
             },
