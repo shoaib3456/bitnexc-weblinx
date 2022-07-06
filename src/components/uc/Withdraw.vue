@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="nav-rights withdraw" v-if="0 > 1" >
+    <div class="nav-rights withdraw" v-if="0" >
       <div class="nav-right">
         <div class="rightarea">
           <section class="trade-groups merchant-tops" style="margin-top: 10px;">
@@ -129,9 +129,9 @@
         <b-icon icon="chevron-left" variant="light"></b-icon>
       </span>
       <div class="d-flex col py-2 justify-content-center align-items-center">
-        <span v-if="step == 0">Choose currency</span>
-        <span v-else-if="step == 5">Withdrawal record</span>
-        <span v-else>{{coinType}} Withdrawal</span>
+        <span v-if="step == 0">{{$t('appmain.Choosecurrency')}}</span>
+        <span v-else-if="step == 5">{{$t('appmain.Withdrawalrecord')}}</span>
+        <span v-else>{{coinType}} {{$t('appmain.Withdrawal')}}</span>
       </div>
     </div>
 
@@ -149,7 +149,7 @@
 
       <div v-if="step == 1" class="px-2 pb-5 withdraw-form">
         <div class="d-flex flex-column">
-          <span class="pt-3" style="font-style: 14px !important; opacity: .6;">Network</span>
+          <span class="pt-3" style="font-style: 14px !important; opacity: .6;">{{$t('appmain.Network')}}</span>
 
           <div @click="isModalOpen = true" class="d-flex align-items-center justify-content-between pt-1">
             <span :class="wsprotocolname == '' ? 'text-faded-1' : '' " style="font-style: 12px !important; "> {{
@@ -158,7 +158,7 @@
           </div>
 
           <div class="form-group mb-0 form-address w-100 pt-2">
-            <label for="controlAddress" class="controlAddress describe input-title">Withdrawal address</label>
+            <label for="controlAddress" class="controlAddress describe input-title">{{$t('appmain.Withdrawaladdress')}}</label>
             <div class="control-input-group">
               <input class="input-address" v-model="withdrawFrom.address" :placeholder="'Please enter the address'" />
             </div>
@@ -173,18 +173,18 @@
           </div>
 
           <div class="pt-2 d-flex justify-content-between align-items-center">
-            <label class="label-amount input-title">Available</label>
+            <label class="label-amount input-title">{{$t('appmain.Available')}}</label>
             <label class="label-amount input-title"> {{ balance|toFloor }} {{coinType}}</label>
           </div>
 
           <div class="p-2 " style="background-color:#1F2229 !important;">
             <div class="d-flex justify-content-between align-items-center ">
-              <label class="label-amount input-title" style="line-height: unset !important;">Fee</label>
+              <label class="label-amount input-title" style="line-height: unset !important;">{{$t('appmain.Fee')}}</label>
               <label class="label-amount input-title" style="line-height: unset !important;"> {{comFee < 0 ? '--' :
                   comFee + ' ' + coinType}} </label>
             </div>
             <div class="d-flex justify-content-between align-items-center ">
-              <label class="label-amount input-title" style="line-height: unset !important;">Arrival quantity</label>
+              <label class="label-amount input-title" style="line-height: unset !important;">{{$t('appmain.Arrivalquantity')}}</label>
               <label class="label-amount input-title" style="line-height: unset !important;">{{ comMoney < 0 ? '--' :
                   comMoney + ' ' + coinType }} </label>
             </div>
@@ -193,11 +193,11 @@
           <div class="pt-4">
             <Button id="withdrawSubmit" v-if="coinextItem.iswithdraw !== 0" long size="large" type="primary"
               style="height:40px;" :loading="withdrawLoading" @click="applyShow">
-              Submit
+              {{$t('appmain.Submit')}}
             </Button>
             <Button v-else class="withdraw-disable" long size="large" style="height:40px;" :loading="withdrawLoading"
               disabled>
-              Submit
+              {{$t('appmain.Submit')}}
             </Button>
           </div>
 
@@ -208,10 +208,10 @@
       <!-- Bottom Modal -->
       <div class="bottom-up" v-if="isModalOpen == true" @click=" isModalOpen = false">
         <div class="p-2 d-flex flex-column" style="background-color: #1A212B;">
-          <span class="w-100 text-center py-1 fw-500 fw-7"> Choose network</span>
-          <span class="text-faded-small mb-3"> Ensure the network you choose to deposit mathches the withdrawal network,
-            or
-            assets may be lost </span>
+          <span class="w-100 text-center py-1 fw-500 fw-7"> {{$t('appmain.Choosenetwork')}}</span>
+          <span class="text-faded-small mb-3"> 
+            {{$t('appmain.NetworkText')}}
+           </span>
           <div v-for="item in comCoinextList()">
             <div @click="wsSelectCoinext(item.protocol,item.protocolname)" class="d-flex fw-500 py-2 px-3 my-1"
               style="background-color: #252C36;">
@@ -232,23 +232,23 @@
               : 'Success' }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Arrival time</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.Arrivaltime')}}</span>
             <span class="fs-7 ">{{ item.addtime }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Deposit Address</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.DepositAddress')}}</span>
             <span class="fs-7  text-end" style="width: 250px ; overflow-x:hidden;">{{ item.address }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Amount</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.Amount')}}</span>
             <span class="fs-7 ">{{ item.money }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Fee</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.Fee')}}</span>
             <span class="fs-7 ">{{ item.fee }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Hash</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.Hash')}}</span>
             <span class="fs-7 text-end" style="width: 250px ; overflow-x:hidden;">{{ item.hash || '-' }}</span>
           </div>
         </div>

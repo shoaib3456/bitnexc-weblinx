@@ -4,7 +4,7 @@
 		<div class="ws-exchange-head p-2">
 
 			<span class="w-100 d-flex justify-content-center align-items-center "
-				v-if="isListOpen && !isBuySellOpen">Market</span>
+				v-if="isListOpen && !isBuySellOpen">{{$t('appmain.market')}}</span>
 			<span  class="w-100 d-flex justify-content-between align-items-center py-1"
 				v-if="!isListOpen && !isBuySellOpen">
 				<div class="d-flex align-items-center">
@@ -204,13 +204,13 @@
 							<span class="price-cny">≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
 						</div>
 						<div class="mx-0 row">
-							<div class="col-6 ws-ex-symb-text">24h High</div>
+							<div class="col-6 ws-ex-symb-text">24h {{$t('appmain.High')}}</div>
 							<div class="col-6 ws-ex-symb-text text-end">{{ currentCoin.high | toFixed(baseCoinScale) }}
 							</div>
-							<div class="col-6 ws-ex-symb-text">24h Low</div>
+							<div class="col-6 ws-ex-symb-text">24h {{$t('appmain.Low')}}</div>
 							<div class="col-6 ws-ex-symb-text text-end">{{ currentCoin.low | toFixed(baseCoinScale) }}
 							</div>
-							<div class="col-6 ws-ex-symb-text">24h Volume</div>
+							<div class="col-6 ws-ex-symb-text">24h {{$t('appmain.Volume')}}</div>
 							<div class="col-6 ws-ex-symb-text text-end">{{ currentCoin.volume }} </div>
 						</div>
 					</div>
@@ -272,11 +272,11 @@
 					<div class="trade_panel trade_panel_logout">
 						<div class="ws-sell-buy-tabs">
 							<span v-bind:class="[isBuyTabOpen ? 'active buys' : 'buys']"
-								@click="isBuyTabOpen = true">buy
+								@click="isBuyTabOpen = true">{{$t('appmain.Buy')}}
 								<div></div>
 							</span>
 							<span v-bind:class="[!isBuyTabOpen ? 'active selles' : 'selles']"
-								@click="isBuyTabOpen = false">sell <div></div></span>
+								@click="isBuyTabOpen = false">{{$t('appmain.Sell')}} <div></div></span>
 						</div>
 						<div class="mask" v-show="!isLogin">
 							<span>{{ $t("common.please") }}
@@ -303,8 +303,8 @@
 							<span @click="market_price" :class="{ active: showMarket }">{{ $t("exchange.market_price")
 								}}</span>
 							<div class="fee-wrap" style="display: none;">
-								<span>Taker{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
-								<span>Maker{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
+								<span>{{$t('appmain.Maker')}}{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
+								<span>{{$t('appmain.Taker')}}{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
 								<!-- <a href="/#/helpdetail?cate=1&id=7&cateTitle=常见问题">
                   <Icon type="ios-help-circle-outline" color="#fff" size="16"/>
                 </a> -->
@@ -500,9 +500,9 @@
 						</Table> -->
 						<div>
 							<div class="row mx-0 py-2 px-1">
-								<div class="col-6 px-0 text-start " style="font-size: 11px; opacity: .7;">Price(USDT)
+								<div class="col-6 px-0 text-start " style="font-size: 11px; opacity: .7;">{{$t('appmain.Price')}}(USDT)
 								</div>
-								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">Amount({{
+								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">{{$t('appmain.Amount')}}({{
 									currentCoin.coin }})</div>
 							</div>
 							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.askRows"
@@ -542,11 +542,9 @@
 			<div class="left plate-wrap pb-5" v-if="!isListOpen && !isBuySellOpen" style="position:relative;">
 				<div class="sc_filter">
 					<span @click="wsPlateTab = 1" :class="{ active: wsPlateTab == 1 }"
-						style="margin:0 !important;">ORDER
-						BOOK</span>
+						style="margin:0 !important;">{{$t('appmain.ORDERBOOK')}}</span>
 					<span @click="wsPlateTab = 2" :class="{ active: wsPlateTab == 2 }"
-						style="margin:0 !important;">MARKET
-						HISTORY</span>
+						style="margin:0 !important;">{{$t('appmain.MARKETHISTORY')}}</span>
 				</div>
 				<div class="lightning-panel" v-if="showCountDown" :style="{ background: countDownBgColor }">
 					<img v-if="lang == '简体中文' && publishType == 'FENTAN'"
@@ -612,17 +610,19 @@
 
 					<div>
 						<div class="row mx-0 py-2">
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Time</div>
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Side</div>
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Price(USDT)</div>
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">Amount(BTC)</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Time')}}</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Time')}}</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Price')}}({{ currentCoin.base }})</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Amount')}}({{ currentCoin.coin }})</div>
 						</div>
 						<div class="row ws-ex-tr w-100 mx-0 border-0" v-for=" (item, index) in trade.rows">
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
 								{{ new Date(trade.rows[index].time * 1000).toISOString().slice(14, -5) }}</div>
 							<div v-bind:class="[trade.rows[index].direction == 'SELL' ? 'text-danger col-3 px-0 text-center ' : 'text-success col-3 px-0 text-center ']"
-								style="font-size: 12px; opacity: 1; text-transform:capitalize !important;">{{
-								trade.rows[index].direction.toLowerCase() }}</div>
+								style="font-size: 12px; opacity: 1; text-transform:capitalize !important;">
+								<template v-if="trade.rows[index].direction == 'SELL'">{{$t('appmain.Sell')}}</template>
+								<template v-if="trade.rows[index].direction != 'SELL'">{{$t('appmain.Buy')}}</template>
+							</div>
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{
 								trade.rows[index].price }}</div>
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{
@@ -659,7 +659,7 @@
 				<div class="w-100 d-flex align-items-center">
 					<div class="d-flex col p-1">
 						<router-link :to="'/buysell/'+currentCoin.coin.toLowerCase()+'_'+currentCoin.base.toLowerCase()"
-							v-if="enableMarketBuy == 1 && exchangeable == 1" class="btn btn-danger w-100">{{
+							v-if="enableMarketBuy == 1 && exchangeable == 1" class="btn btn-success w-100">{{
 							$t("exchange.buyin")
 							}} {{ currentCoin.coin }} </router-link>
 						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.buyin") }} {{ currentCoin.coin
@@ -667,7 +667,7 @@
 					</div>
 					<div class="d-flex col p-1">
 						<router-link :to="'/buysell/'+currentCoin.coin.toLowerCase()+'_'+currentCoin.base.toLowerCase()"
-							v-if="enableMarketSell == 1 && exchangeable == 1" class="btn btn-success w-100">{{
+							v-if="enableMarketSell == 1 && exchangeable == 1" class="btn btn-danger w-100">{{
 							$t("exchange.sellout")
 							}} {{ currentCoin.coin }} </router-link>
 						<button v-else class="btn btn-secondary w-100">{{ $t("exchange.sellout") }} {{ currentCoin.coin
@@ -678,7 +678,7 @@
 							<Icon v-if="currentCoinIsFavor" type="ios-star" color="#f0a70a" size="19" />
 							<Icon v-else type="ios-star-outline" color="#f0a70a" size="19" />
 						</div>
-						<span style="font-size:12px; ">Favorites</span>
+						<span style="font-size:12px; ">{{$t('appmain.Favorites')}}</span>
 					</div>
 				</div>
 			</div>
@@ -689,18 +689,18 @@
 					<!-- {{
 					$t('exchange.curdelegation')
 					}} -->
-					Order
+					{{$t('appmain.Order')}}
 				</span>
 				<span @click="changeOrder('history')" :class="{ active: selectedOrder === 'history' }">
 					<!-- {{
 					$t('exchange.hisdelegation')
 					}} -->
-					Order History
+					{{$t('appmain.OrderHistory')}}
 				</span>
 				<router-link v-show="selectedOrder === 'current'" class="linkmore" to="/uc/entrust/current">
-					All</router-link>
+					{{$t('appmain.All')}}</router-link>
 				<router-link v-show="selectedOrder === 'history'" class="linkmore" to="/uc/entrust/history">
-					All</router-link>
+					{{$t('appmain.All')}}</router-link>
 			</div>
 			<div class="table">
 				<Table height="240" v-if="selectedOrder === 'current'" :columns="currentOrder.columns"
@@ -715,31 +715,31 @@
 									historyOrder.rows[index].direction }}</span>
 								<span class="ps-3" style="font-size:12px;">{{ historyOrder.rows[index].symbol }}</span>
 							</div>
-							<span style="font-size:12px;">Deal</span>
+							<span style="font-size:12px;">{{$t('appmain.Deal')}}</span>
 						</div>
 						<div class="row mx-0">
-							<div class="col-4 pb-1 px-0 text-faded-small text-start">Time</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-center">Type</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-end">Price({{
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{$t('appmain.Time')}}</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.Type')}}</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-end">{{$t('appmain.Price')}}({{
 								historyOrder.rows[index].baseSymbol }})</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{ historyOrder.rows[index].time }}
 							</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-center">Limit</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.limit')}}</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-end">{{ historyOrder.rows[index].price }}
 							</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-start">Amount({{
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{$t('appmain.Amount')}}({{
 								historyOrder.rows[index].coinSymbol }})</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-center">Deal/Fee</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-end">Amount</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.Deal')}}/{{$t('appmain.Fee')}}</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-end">{{$t('appmain.Amount')}}</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{ historyOrder.rows[index].amount
 								}}</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{
 								historyOrder.rows[index].tradedAmount }}</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-end">{{ historyOrder.rows[index].turnover
 								}}</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-start">Fee({{
+							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{$t('appmain.Fee')}}({{
 								historyOrder.rows[index].coinSymbol }})</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-center">Average Price({{
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.AveragePrice')}}({{
 								historyOrder.rows[index].baseSymbol }})</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-end"></div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{ historyOrder.rows[index].fee }}

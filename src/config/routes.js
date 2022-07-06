@@ -83,7 +83,7 @@ export default [
         component: resolve=>(require(["../pages/uc/MemberCenter"],resolve)),
         children: [{
                 path: '',
-                component: resolve=>(require(["../components/uc/Safe"],resolve))
+                component: resolve=>(require(["../components/uc/Main"],resolve))
             },
             {
                 path: 'safe',

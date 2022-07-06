@@ -37,8 +37,8 @@
         <b-icon icon="chevron-left" variant="light"></b-icon>
       </span>
       <div class="d-flex align-items-center">
-        <router-link class="ws-filter-links" to="/uc/entrust/current">Order</router-link>
-        <router-link class="ws-filter-links" to="/uc/entrust/history">Order History</router-link>
+        <router-link class="ws-filter-links" to="/uc/entrust/current">{{$t('appmain.Order')}}</router-link>
+        <router-link class="ws-filter-links" to="/uc/entrust/history">{{$t('appmain.OrderHistory')}}</router-link>
       </div>
       <span @click="isFilterOpen == true ? isFilterOpen = false : isFilterOpen = true ">
         <b-icon icon="filter-circle" variant="light"></b-icon>
@@ -53,31 +53,38 @@
               orders[index].direction.toLowerCase() }}</span>
             <span class="ps-3" style="font-size:12px;">{{ orders[index].symbol }}</span>
           </div>
-          <span style=" font-size: 12px;">Deal</span>
+          <span style=" font-size: 12px;">{{$t('appmain.Deal')}}</span>
         </div>
         <div class="row mx-0">
-          <div class="col-4 pb-1 px-0 text-faded-small text-start">Time</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-center">Type</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-end">Price({{
+          <div class="col-4 pb-1 px-0 text-faded-small text-start">{{$t('appmain.Time')}}</div>
+          <div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.Type')}}</div>
+          <div class="col-4 pb-1 px-0 text-faded-small text-end">{{$t('appmain.Price')}}({{
             orders[index].baseSymbol }})</div>
           <div class="col-4 pb-1 px-0 text-faded-small text-start">{{ orders[index].time }}
           </div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-center">Limit</div>
+          <div class="col-4 pb-1 px-0 text-faded-small text-center">
+            <template v-if="orders[index].type == 'LIMIT_PRICE'">
+              {{$t('appmain.Limit')}}
+            </template>
+            <template v-if="orders[index].type != 'LIMIT_PRICE'">
+              {{$t('appmain.Market')}}
+            </template>
+          </div>
           <div class="col-4 pb-1 px-0 text-faded-small text-end">{{ orders[index].price }}
           </div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-start">Amount({{
+          <div class="col-4 pb-1 px-0 text-faded-small text-start">{{$t('appmain.Amount')}}({{
             orders[index].coinSymbol }})</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-center">Deal/Fee</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-end">Amount</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-start">{{ orders[index].amount
+          <div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.Deal')}}/{{$t('appmain.Fee')}}</div>
+          <div class="col-4 pb-1 px-0 text-faded-small text-end">{{$t('appmain.Amount')}}</div>
+          <div class="col-4 pb-1 px-0 text-faded-small text-start">{{ orders[index].amount.toFixed(2)
             }}</div>
           <div class="col-4 pb-1 px-0 text-faded-small text-center">{{
-            orders[index].tradedAmount }}</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-end">{{ orders[index].turnover
+            orders[index].fee.toFixed(4) }}</div>
+          <div class="col-4 pb-1 px-0 text-faded-small text-end">{{ orders[index].amount.toFixed(2)
             }}</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-start">Fee({{
-            orders[index].coinSymbol }})</div>
-          <div class="col-4 pb-1 px-0 text-faded-small text-center">Average Price({{
+          <div class="col-4 pb-1 px-0 text-faded-small text-start">{{$t('appmain.Fee')}}({{ orders[index].direction == 'SELL' ?
+            orders[index].baseSymbol : orders[index].coinSymbol }})</div>
+          <div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.AveragePrice')}}({{
             orders[index].baseSymbol }})</div>
           <div class="col-4 pb-1 px-0 text-faded-small text-end"></div>
           <div class="col-4 pb-1 px-0 text-faded-small text-start">{{ orders[index].fee }}
@@ -87,9 +94,13 @@
         </div>
       </div>
       <div class="w-100 d-flex justify-content-center align-items-center py-4" v-if="orders.length == 0">
-        <span class="w-100 text-center" style="font-size: 12px; opacity:.7;">No Data</span>
+        <span class="w-100 text-center" style="font-size: 12px; opacity:.7;">{{$t('common.nodata')}}</span>
       </div>
     </div>
+    <div class="ws-pagee d-flex justify-content-center py-4 ">
+      <Page :total="total" :pageSize="pageSize" :current="pageNo" @on-change="loadDataPage"></Page>
+    </div>
+
     <div v-if="isFilterOpen == true" class="d-flex flex-column ws-filter-form py-2 px-2">
       <Form class="d-flex flex-column" :model="formItem" :label-width="75" inline>
         <FormItem :label="'Pair'">
@@ -393,6 +404,7 @@
                 rows.push(row);
               }
               this.orders = rows;
+              console.log(this.orders);
             }
             this.loading = false;
           });

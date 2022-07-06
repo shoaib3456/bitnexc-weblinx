@@ -614,7 +614,6 @@ iframe {
 
 .exchange .ivu-input[disabled],
 .exchange fieldset[disabled] .ivu-input {
-    border-color: transparent !important;
     cursor: unset !important;
     background: #202437;
 }
@@ -625,7 +624,6 @@ iframe {
 }
 
 .exchange .ivu-input[disabled]:hover {
-    border-color: transparent !important;
 }
 
 .exchange.day .ivu-input[disabled]:hover {

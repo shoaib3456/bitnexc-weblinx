@@ -154,7 +154,7 @@
           <b-icon icon="chevron-left" variant="light"></b-icon>
         </span>
         <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span>{{coinType}} Recharge</span>
+          <span>{{coinType}}  {{$t('appmain.Recharge')}}</span>
         </div>
       </div>
       <div v-if="step == 0">
@@ -168,20 +168,20 @@
       </div>
       <div class="p-2 py-3 pb-5 mb-5" v-if="step == 1">
         <div class="w-100 p-2 fs-7 px-3" style="background-color: #1a202b;">
-          Choose network to get deposit address
+          {{$t('appmain.RechargeText')}}
         </div>
         <div class="d-flex flex-column">
-          <span class="pt-3" style="font-style: 14px !important; opacity: .6;">Network</span>
+          <span class="pt-3" style="font-style: 14px !important; opacity: .6;">{{$t('appmain.Network')}}</span>
 
           <div @click="isModalOpen = true" class="d-flex align-items-center justify-content-between pt-1">
-            <span class="" style="font-style: 14px !important; opacity: .4;">Choose network</span>
+            <span class="" style="font-style: 14px !important; opacity: .4;">{{$t('appmain.Choosenetwork')}}</span>
             <b-icon icon="arrow-left-right" class="fs-7" variant="light"></b-icon>
           </div>
         </div>
       </div>
       <div class="p-2 py-3 pb-5" v-if="step == 2">
         <div class="d-flex flex-column">
-          <span class="" style="font-style: 14px !important; opacity: .6;">Network</span>
+          <span class="" style="font-style: 14px !important; opacity: .6;">{{$t('appmain.Network')}}</span>
           <div @click="isModalOpen = true" class="d-flex align-items-center justify-content-between pt-1">
             <span class="fw-500" style="font-style: 14px !important;">{{wsprotocolname}}</span>
             <b-icon icon="arrow-left-right" class="fs-7" variant="light"></b-icon>
@@ -190,12 +190,12 @@
 
         <template v-if="coinextItem.isrecharge !== 0">
           <div class="py-4">
-            <p class="pb-2" style="font-size:13px; opacity:.5;">Address</p>
+            <p class="pb-2" style="font-size:13px; opacity:.5;">{{$t('appmain.Address')}}</p>
             <div class="w-100 text-center d-flex flex-column align-items-center  p-2 px-3 "
               style="background-color: #1a202b;">
-              <span class=" fs-8 w-100 text-center">No BSC Binance Smart Chain(BEP20) deposit addresses have been
-                applied
-                for before. Please retrieve the deposit address.</span>
+              <span class=" fs-8 w-100 text-center">
+                {{$t('appmain.BinanceSmartText')}}
+                </span>
               <div class="my-3 mb-2"
                 style="cursor: pointer;padding: 2px;font-size: 13px;margin-top: 5px;background-color: #f0ac19;width: 100px;border-radius: 4px;"
                 @click="step = 3">{{ $t('uc.finance.recharge.getaddress') }}
@@ -205,7 +205,7 @@
         </template>
         <template v-else>
           <div class="py-4">
-            <p class="pb-2" style="font-size:13px; opacity:.5;">Address</p>
+            <p class="pb-2" style="font-size:13px; opacity:.5;">{{$t('appmain.Address')}}</p>
             <div class="w-100 text-center text-faded-small py-3   px-3 " style="background-color: #1a202b;">
               {{ $t('uc.finance.recharge.rechargeDisable') }}
             </div>
@@ -225,7 +225,7 @@
       </div>
       <div class="p-2 py-3 pb-5" v-if="step == 3">
 
-        <div class="w-100 text-center pb-3">Deposit Address</div>
+        <div class="w-100 text-center pb-3">{{$t('appmain.DepositAddress')}}</div>
 
         <div class="d-flex w-100 justify-content-center">
           <div class="code bg-light p-2 ">
@@ -234,7 +234,7 @@
         </div>
 
         <div class="d-flex flex-column pt-3">
-          <span class="" style="font-style: 14px !important; opacity: .6;">Network</span>
+          <span class="" style="font-style: 14px !important; opacity: .6;"> {{$t('appmain.Network')}}</span>
           <div @click="isModalOpen = true" class="d-flex align-items-center justify-content-between pt-1">
             <span class="fw-500" style="font-style: 14px !important;">{{wsprotocolname}}</span>
             <b-icon icon="arrow-left-right" class="fs-7" variant="light"></b-icon>
@@ -242,7 +242,7 @@
         </div>
 
         <template v-if="coinextItem.isrecharge !== 0">
-          <p class="py-2 " style="font-size:13px; opacity:.5;">Address</p>
+          <p class="py-2 " style="font-size:13px; opacity:.5;">{{$t('appmain.Address')}}</p>
           <div class="p-2 d-flex justify-content-between align-items-center" style="background-color: #1a202b;">
             <span class="fs-8">
               {{ qrcode.value }}
@@ -255,7 +255,7 @@
         </template>
         <template v-else>
           <div class="py-4">
-            <p class="pb-2" style="font-size:13px; opacity:.5;">Address</p>
+            <p class="pb-2" style="font-size:13px; opacity:.5;">{{$t('appmain.Address')}}</p>
             <div class="w-100 text-center text-faded-small py-3   px-3 " style="background-color: #1a202b;">
               {{ $t('uc.finance.recharge.rechargeDisable') }}
             </div>
@@ -275,10 +275,10 @@
       </div>
       <div class="bottom-up" v-if="isModalOpen == true" @click=" isModalOpen = false">
         <div class="p-2 d-flex flex-column" style="background-color: #1A212B;">
-          <span class="w-100 text-center py-1 fw-500 fw-7">Choose Network</span>
-          <span class="text-faded-small mb-3"> Ensure the network you choose to deposit mathches the withdrawal network,
-            or
-            assets may be lost </span>
+          <span class="w-100 text-center py-1 fw-500 fw-7">{{$t('appmain.Choosenetwork')}}</span>
+          <span class="text-faded-small mb-3">
+            {{$t('appmain.NetworkText')}}
+         </span>
           <div v-for="item in comCoinextList()">
             <div @click="wsSelectCoinext(item.protocol,item.protocolname)" class="d-flex fw-500 py-2 px-3 my-1"
               style="background-color: #252C36;">
@@ -295,7 +295,7 @@
           <b-icon icon="chevron-left" variant="light"></b-icon>
         </span>
         <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span>Deposit record FIL</span>
+          <span>{{$t('appmain.DepositrecordFIL')}}</span>
         </div>
       </div>
 
@@ -304,19 +304,19 @@
           style="border-bottom: 1px solid #27313e6e !important;">
           <span class="fs-6 fw-500 pb-2">{{ item.coinname }}</span>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Arrival time</span>
+            <span class="fs-7 " style="opacity: .5;"> {{$t('appmain.Arrivaltime')}}</span>
             <span class="fs-7 ">{{ item.addtime }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Deposit Address</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.DepositAddress')}}</span>
             <span class="fs-7  text-end" style="width: 250px ; overflow-x:hidden;">{{ item.address }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Amount</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.Amount')}}</span>
             <span class="fs-7 ">{{ item.money.toFixed(1) }}</span>
           </div>
           <div class="d-flex pb-1 align-items-center justify-content-between">
-            <span class="fs-7 " style="opacity: .5;">Hash</span>
+            <span class="fs-7 " style="opacity: .5;">{{$t('appmain.Hash')}}</span>
             <span class="fs-7 text-end" style="width: 250px ; overflow-x:hidden;">{{ item.hash }}</span>
           </div>
         </div>

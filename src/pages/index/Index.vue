@@ -8,7 +8,7 @@
               <div class="notice-item" v-for="(item,index) in FAQList">
                 <div class="cal_content">
                   <span></span>
-                  <router-link target="_blank" :to="{path: '/announcement/' + item.id}">[ {{item.createTime}} ]
+                  <router-link target="_blank" :to="{path: '/announcement/0' + item.id}">[ {{item.createTime}} ]
                     {{strde(item.title)}}</router-link>
                 </div>
               </div>
@@ -22,7 +22,7 @@
       <div class="section" id="page1">
         <!-- <div v-if="lang==='简体中文'"> -->
 
-        <div class="spin-wrap ws-spin-wrap banner-panel">
+        <div class="spin-wrap ws-spin-wrap banner-panel" style="background-color: #141E2B !important;">
           <img style="height: 100%;" src="../../assets/images/bannerbg.png" class="d-none"></img>
           <p
             style="text-align:center;font-size:40px;color:#fff;position:absolute;top: 70px;width:100%;letter-spacing:5px;text-shadow: 0px 0px 10px #000000;">
@@ -34,7 +34,7 @@
             <div class="swiper-container" id="swiper_container">
               <div class="swiper-wrapper">
                 <div class="swiper-slide" v-for="(item,index) in picList">
-                  <a v-if="item.linkUrl&&item.linkUrl!=' '&&item.linkUrl!='1'" :href="item.linkUrl" target="_blank">
+                  <a v-if="item.linkUrl&&item.linkUrl!=' '&&item.linkUrl!='1'" :href="item.linkUrl" >
                     <div class="activity-item">
                       <img :src="item.url"></img>
                     </div>
@@ -47,56 +47,76 @@
               <div class="swiper-pagination"></div>
             </div>
           </div>
-          <div class="d-flex align-items px-3 w-100 ws-spin-wrap-slide">
-            <div class="d-flex col align-items-center">
-              <b-icon icon="exclamation-circle-fill" variant="warning"></b-icon>
-              <span style="font-size: 12px;" class="ps-2">System Maintanace Notice</span>
+          <div class="d-flex align-items-center px-3 w-100 ws-spin-wrap-slide">
+            <b-icon style="font-size: 20px;" icon="volume-down-fill" variant="warning"></b-icon>
+            <div class="col ws-slider">
+              <template v-for="(item,index) in FAQList">
+                <router-link :to="{path: '/announcement/' + item.id}"
+                  :style="'animation-name:wslide'+index+';animation-duration:5s; animation-iteration-count:infinite; animation-timing-function:forwards;'"
+                  class="ws-slider-items d-flex col align-items-center">
+                  <span style="font-size: 12px;" class="ps-2">{{strde(item.title)}}</span>
+                </router-link>
+              </template>
             </div>
-            <a href="" class="text-warning" style="font-size: 12px;">More</a>
+
+            <router-link to="/announcement/0" class="text-warning" style="font-size: 12px;">{{$t('common.more')}}</router-link>
           </div>
         </div>
       </div>
       <div class="px-3 ws-sec-1  d-block">
         <div class="w-100  py-2 d-flex justify-content-between align-items-center">
           <div class="d-flex flex-column">
-            <span style="font-size: 16px; font-weight:400;">Wallet</span>
-            <span style="font-size: 13px; opacity: .5;">Total Value (USDT)</span>
-            <span style="font-size: 16px; font-weight:400;">$0.0000</span>
+            <span style="font-size: 16px; font-weight:400;">{{$t('appmain.wallet')}}</span>
+            <template v-if="totalUSDT">
+              <span style="font-size: 13px; opacity: .5;">{{$t('appmain.total_value')}} (USDT)</span>
+              <span style="font-size: 16px; font-weight:400;">${{totalUSDT}}</span>
+            </template>
+            <template v-if="!totalUSDT">
+              <span style="font-size: 13px; opacity: .5;"> {{$t('appmain.view_after_login')}}</span>
+              <router-link class="mt-2 text-center" to="/login" style="color:orange !important; font-size: 11px; font-weight:400; border:1px solid gray; border-radius: 4px; padding:2px 7px;">{{$t('appmain.login_signup')}}</router-link>
+            </template>
           </div>
           <img src="../../assets/images/bit-banner-1.png" style="width: 80px;" alt="">
         </div>
         <div class="row mx-0 w-100 pb-3">
-          <div class="col-6 px-0 pe-2 d-flex justify-content-between align-items-center">
+          <router-link to='/help' class="col-6 px-0 pe-2 d-flex justify-content-between align-items-center">
             <div class="d-flex flex-column">
-              <span style="font-size: 14px; font-weight:400;">Help center</span>
-              <span style="font-size: 12px; opacity: .5;">Question/Guide/<br>info</span>
+              <span style="font-size: 14px; font-weight:400;">{{$t('appmain.helpcenter')}}</span>
+              <span style="font-size: 12px; opacity: .5;">{{$t('appmain.question')}}/{{$t('appmain.guide')}}/<br>{{$t('appmain.info')}}</span>
             </div>
             <img src="../../assets/images/cap.png" style="width: 35px;" alt="">
-          </div>
-          <div class="col-6 px-0 ps-2 d-flex justify-content-between align-items-center">
+          </router-link>
+          <router-link to='/announcement/0/' class="col-6 px-0 ps-2 d-flex justify-content-between align-items-center">
             <div class="d-flex flex-column">
-              <span style="font-size: 14px; font-weight:400;">Announcement</span>
-              <span style="font-size: 12px; opacity: .5;">News/Activities/<br>info</span>
+              <span style="font-size: 14px; font-weight:400;">{{$t('appmain.announcement')}}</span>
+              <span style="font-size: 12px; opacity: .5;">{{$t('appmain.news')}}/{{$t('appmain.activities')}}/<br>{{$t('appmain.info')}}</span>
             </div>
             <img src="../../assets/images/board.png" style="width: 35px;" alt="">
-          </div>
+          </router-link>
         </div>
       </div>
       <div class="px-1 ws-sec-1 py-3  d-block" style="border-top: 0px !important;">
-        <div class="row mx-0 w-100" >
-          <div class="col-4 d-flex flex-column align-items-center " v-for=" ({ items }, index) in dataIndex" v-if="index < 3" >
-            <span  style="font-size: 14px; font-weight:400; text-align:center;">{{dataIndex[index].symbol}}</span>
-            <span :class="[ dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger-1' : 'text-success' ]" style="font-size: 17px; font-weight:500; text-align:center;">{{dataIndex[index].price.toFixed(2) }}</span>
-            <span :class="[ dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger-1' : 'text-success' ]" style="font-size: 14px; font-weight:500; text-align:center;">{{dataIndex[index].rose}}</span>
-            <span style="font-size: 12px; opacity: .5; text-align:center;">={{dataIndex[index].close.toFixed(2)}} USD</span>
+        <div class="row mx-0 w-100">
+          <div class="col-4 d-flex flex-column align-items-center " v-for=" ({ items }, index) in dataIndex"
+            v-if="index < 3">
+            <span style="font-size: 14px; font-weight:400; text-align:center;">{{dataIndex[index].symbol}}</span>
+            <span :class="[ dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger-1' : 'text-success' ]"
+              style="font-size: 17px; font-weight:500; text-align:center;">{{dataIndex[index].price.toFixed(2) }}</span>
+            <span :class="[ dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger-1' : 'text-success' ]"
+              style="font-size: 14px; font-weight:500; text-align:center;">{{dataIndex[index].rose}}</span>
+            <span style="font-size: 12px; opacity: .5; text-align:center;">={{dataIndex[index].close.toFixed(2)}}
+              USD</span>
           </div>
         </div>
       </div>
       <div class="pb-3">
         <div class="ws-sec-1 p-0 mb-5" style="border-top: 0px !important;">
-          <div class="w-100 d-flex align-items-center justify-content-center p-2" style="border-bottom: 1px solid #0e151f73;">
-            <span v-bind:class="[isGainerOpen ? 'text-light fs-7 px-2' : 'text-faded fs-7 px-2']" class=" text-light fs-7 px-2" @click="isGainerOpen=true">Gainers</span>
-            <span v-bind:class="[!isGainerOpen ? 'text-light fs-7 px-2' : 'text-faded fs-7 px-2']" @click="isGainerOpen=false">Losers</span>
+          <div class="w-100 d-flex align-items-center justify-content-center p-2"
+            style="border-bottom: 1px solid #0e151f73;">
+            <span v-bind:class="[isGainerOpen ? 'text-light fs-7 px-2' : 'text-faded fs-7 px-2']"
+              class=" text-light fs-7 px-2" @click="isGainerOpen=true">{{$t('appmain.gainers')}}</span>
+            <span v-bind:class="[!isGainerOpen ? 'text-light fs-7 px-2' : 'text-faded fs-7 px-2']"
+              @click="isGainerOpen=false">{{$t('appmain.losers')}}</span>
           </div>
           <div v-for=" (item, index) in dataIndex" v-if="dataIndex[index].rose.indexOf('-') > -1 && !isGainerOpen ">
             <router-link :to="'exchange/'+dataIndex[index].href+'?tab=2'">
@@ -112,8 +132,7 @@
                     }}</span>
                 </div>
                 <div class="col-4 px-0 d-flex flex-column">
-                  <span
-                    v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+                  <span v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
                     style="font-size: 13px;">{{ dataIndex[index].close }}</span>
                   <span style="opacity: .5; font-size: 11px;">{{
                     dataIndex[index].usdRate.toFixed(2)
@@ -142,8 +161,7 @@
                     }}</span>
                 </div>
                 <div class="col-4 px-0 d-flex flex-column">
-                  <span
-                    v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
+                  <span v-bind:class="[dataIndex[index].rose.indexOf('-') > -1 ? 'text-danger' : 'text-success']"
                     style="font-size: 13px;">{{ dataIndex[index].close }}</span>
                   <span style="opacity: .5; font-size: 11px;">{{
                     dataIndex[index].usdRate.toFixed(2)
@@ -160,7 +178,7 @@
           </div>
         </div>
       </div>
-      
+
       <div id="pagetips" class="d-none" style="background: #172636;">
         <div class="agent-panel">
           <div class="title">
@@ -352,13 +370,30 @@
 
   import Swiper from 'swiper';
   import VueQr from 'vue-qr'
+  import Slick from 'vue-slick';
+  import 'slick-carousel/slick/slick.css';
 
   export default {
-    components: { SvgLine, SvgIndex, VueQr },
+    components: {
+      SvgLine,
+      SvgIndex,
+      VueQr,
+      Slick
+    },
     data() {
       let self = this;
       return {
-        isGainerOpen : true,
+
+        slickOptions: {
+          dots: false,
+          infinite: true,
+          speed: 100,
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          arrows: false,
+        },
+
+        isGainerOpen: true,
         lineValues: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         trendData: {
           highest: 0,
@@ -366,6 +401,7 @@
           close: 0,
           volume: 0
         },
+        tableMoney: [],
         wstrending: [],
         loading: false,
         percent: 0,
@@ -971,13 +1007,26 @@
     created: function () {
       this.init();
       console.log(this.dataIndex);
-     
-     Array.from(this.dataIndex).forEach(user => {
-      console.log(user);
-    })
+
+      Array.from(this.dataIndex).forEach(user => {
+        console.log(user);
+      })
+      this.getMoney();
     },
 
     computed: {
+      totalUSDT() {
+        if (this.isLogin) {
+          let usdtTotal = 0;
+          for (let i = 0; i < this.tableMoney.length; i++) {
+            usdtTotal += (this.tableMoney[i].balance + this.tableMoney[i].frozenBalance) * this.tableMoney[i].coin.usdRate;
+          }
+          return usdtTotal.toFixed(4);
+        }
+        else{
+          return null;
+        }
+      },
       isLogin: function () {
         return this.$store.getters.isLogin;
       },
@@ -1008,9 +1057,25 @@
       this.getCNYRate();
       this.getSymbol();
       //this.initSwiper();
-      
+
     },
     methods: {
+      getMoney() {
+        if (this.isLogin) {
+          this.$http.post(this.host + "/uc/asset/wallet").then(response => {
+            var resp = response.body;
+            if (resp.code == 0) {
+              this.tableMoney = resp.data;
+              for (let i = 0; i < this.tableMoney.length; i++) {
+                this.tableMoney[i]["coinType"] = this.tableMoney[i].coin.unit;
+              }
+            }
+            else {
+              // this.$Message.error(this.loginmsg);
+            }
+          });
+        }
+      },
       seachInputChange() {
         this.searchKey = this.searchKey.toUpperCase();
         if (this.choseBtn == 0) {
@@ -2150,7 +2215,7 @@
 
 
 <style> -->
-  <!-- .section .ivu-carousel-dots-inside {
+<!-- .section .ivu-carousel-dots-inside {
     bottom: 20px;
   }
 

@@ -974,7 +974,7 @@ input:focus {
     height: 100vh;
     display: flex;
     align-items: flex-end;
-    z-index: 100;
+    z-index: 10000000;
 }
 
 .bottom-up div {
@@ -1025,4 +1025,260 @@ input:focus {
 .ws-drop-1 a {
     color: white;
     padding: 10px !important;
+}
+
+.helpdetail div,
+.helpdetail span,
+.helpdetail ul,
+.helpdetail li,
+.helpdetail p {
+    color: black !important;
+}
+
+@media screen and (max-width: 768px) {
+    .helpdetail {
+        padding: 0px 0px 0px 0px !important;
+    }
+}
+
+.swap .order {
+    min-height: unset !important;
+    margin-bottom: 0px !important;
+    margin-top: 0px !important;
+}
+
+.order-handler span {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}
+
+.swap .order .order-handler>span.active {
+    background-color: unset !important;
+}
+
+.swap .order .order-handler>span {
+    text-transform: uppercase;
+}
+
+.ivu-form-item {
+    padding: 0 !important;
+}
+
+.swap .open .ivu-input {
+    background-color: transparent !important;
+    border-radius: 0px !important;
+    border: 1px solid rgb(53, 64, 78) !important;
+}
+
+.ws-select {
+    background-color: transparent !important;
+    width: 100%;
+    border: 1px solid rgb(53, 64, 78) !important;
+    padding: 5px !important;
+    font-size: 12px;
+    color: gray !important;
+}
+
+.ws-select option {
+    background-color: black;
+}
+
+.table> :not(:first-child) {
+    border-top: none !important;
+}
+
+.operate button {
+    border: none !important;
+
+}
+
+.swap .open-close .operate .open-up,
+.swap .open-close .operate .open-down {
+    flex: 0 0 100% !important;
+}
+
+.swap .open-close .operate .open-down {
+    background-color: #ff3155 !important;
+}
+
+.swap .ivu-table-header {
+    display: none !important;
+}
+
+.ws-transfer-inp .ivu-input-number {
+    margin: 0px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+}
+
+.ws-transfer-inp input {
+    background-color: #0E151F !important;
+    border: none !important;
+}
+
+.ws-transfer-inp {
+    border-bottom: 1px solid rgb(26, 33, 43);
+}
+
+.ws-setting-banner {
+    position: relative;
+}
+
+.ws-setting-banner img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.ws-setting-banner .inner {
+    position: absolute;
+    height: 100%;
+    width: 50%;
+}
+
+.ws-fund-page .ivu-page-item,
+.ws-fund-page li {
+    background-color: #1A212B !important;
+    border: none !important;
+}
+
+.ws-filter-funding-form .ivu-date-picker {
+    width: 100% !important;
+}
+
+.ws-filter-funding-form .ivu-select {
+    width: 100% !important;
+}
+
+.ws-filter-funding-form button {
+    margin-left: 0px !important;
+    margin-top: 20px;
+    padding: 8px !important;
+    border-radius: 5px !important;
+}
+
+.ws-slider {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 20px;
+    position: relative;
+}
+
+.ws-slider-items {
+    position: absolute;
+    transform: translateY(20px);
+}
+
+@keyframes wslide0 {
+    0% {
+        transform: translateY(0px);
+    }
+
+    30% {
+        transform: translateY(0px);
+    }
+
+    60% {
+        transform: translateY(-20px);
+    }
+
+    100% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes wslide1 {
+    0% {
+        transform: translateY(20px);
+    }
+
+    30% {
+        transform: translateY(20px);
+    }
+
+    60% {
+        transform: translateY(0px);
+    }
+
+    100% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes wslide2 {
+    0% {
+        transform: translateY(20px);
+    }
+
+    30% {
+        transform: translateY(20px);
+    }
+
+    60% {
+        transform: translateY(20px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.ws-market-select {
+    width: 100%;
+    background-color: transparent !important;
+    color: white !important;
+    border: none;
+    text-align: center;
+    font-size: 13px;
+    opacity: .8;
+}
+
+select:focus {
+    outline: none;
+    border: none;
+}
+
+.ws-market-select option {
+    color: white !important;
+    filter: invert(1);
+    background-color: #13161D;
+    font-size: 14px;
+
+}
+
+.exchange .ivu-input[disabled] {
+    border-color: gray !important;
+}
+
+.exchange .ivu-input[disabled]:hover {
+    border-color: gray !important;
+}
+
+.exchange .ivu-input[disabled],
+.exchange fieldset[disabled] .ivu-input {
+    border-color: gray !important;
+}
+
+.trade_bd .panel {
+    padding-top: 5px !important;
+}
+
+.ws-trade-wrap .ivu-form {
+    margin-top: 10px !important;
+}
+
+.withdraw-disable {
+    background-color: #F0A70A !important;
+    border: none !important;
+    opacity: .4 !important;
+}
+
+.ivu-notice-notice {
+    transform: translateY(40px) !important;
+    width: 100vw !important;
+}
+.exchange .main .center .imgtable .handler {
+    top: 40px !important;
+    right: 13px !important;
 }

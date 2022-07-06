@@ -6,7 +6,7 @@
         <b-icon icon="chevron-left" variant="light"></b-icon>
       </router-link>
       <div class="d-flex col py-2 justify-content-center align-items-center">
-        <span>Announcements</span>
+        <span>{{$t('appmain.Announcement')}}</span>
       </div>
     </div>
     <div v-if="step == 1" class="d-flex justify-content-between align-items-center ws-filter-tab "
@@ -15,7 +15,7 @@
         <b-icon icon="chevron-left" variant="light"></b-icon>
       </span>
       <div class="d-flex col py-2 justify-content-center align-items-center">
-        <span>平台公告</span>
+        <span>{{$t('appmain.Announcement')}}</span>
       </div>
     </div>
     <div class="notice ws-notice">

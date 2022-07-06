@@ -7,13 +7,13 @@
                     <router-link to="/uc">
                         <b-icon icon="chevron-left" variant="light"></b-icon>
                     </router-link>
-                    <div class="d-flex col py-2 justify-content-center align-items-center">
-                        <span>Setting</span>
+                    <div class="d-flex col py-2 justify-content-center align-items-center text-capitalize">
+                        <span>{{$t('appmain.settings')}}</span>
                     </div>
                 </div>
                 <div @click="step=1" class="py-2 d-flex justify-content-between align-items-center ws-filter-tab "
                     style="border-bottom: 7px solid #0E151F; border-top: 7px solid #0E151F;">
-                    <span class="fs-7 pb-1">Language</span>
+                    <span class="fs-7 pb-1">{{$t('appmain.Language')}}</span>
                     <div class="d-flex align-items-center">
                         <span class="px-1 fs-7">
                             <b-icon icon="chevron-right" variant="light"></b-icon>
@@ -22,25 +22,25 @@
                 </div>
                 <router-link to="/announcement/0" class="py-2 d-flex justify-content-between align-items-center ws-filter-tab "
                     style="border-bottom: 2px solid #0E151F;">
-                    <span class="fs-7 pb-1">Announcement</span>
+                    <span class="fs-7 pb-1">{{$t('appmain.Announcement')}}</span>
                     <div class="d-flex align-items-center">
                         <span class="px-1 fs-7">
                             <b-icon icon="chevron-right" variant="light"></b-icon>
                         </span>
                     </div>
                 </router-link>
-                <div class="py-2 d-flex justify-content-between align-items-center ws-filter-tab "
+                <router-link to="/help" class="py-2 d-flex justify-content-between align-items-center ws-filter-tab "
                     style="border-bottom: 2px solid #0E151F;">
-                    <span class="fs-7 pb-1">Help center</span>
+                    <span class="fs-7 pb-1">{{$t('appmain.Helpcenter')}}</span>
                     <div class="d-flex align-items-center">
                         <span class="px-1 fs-7">
                             <b-icon icon="chevron-right" variant="light"></b-icon>
                         </span>
                     </div>
-                </div>
+                </router-link>
             </div>
             <div class="py-5 px-3">
-                <button class="gray-btn w-100 " @click="logout">Sign out</button>
+                <button class="gray-btn w-100 " @click="logout"> {{$t('appmain.Signout')}}</button>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
                         <b-icon icon="chevron-left" variant="light"></b-icon>
                     </span>
                     <div class="d-flex col py-2 justify-content-center align-items-center">
-                        <span>Language</span>
+                        <span>{{$t('appmain.Language')}}</span>
                     </div>
                 </div>
                 <div @click="changelanguage('en')" class="py-2 d-flex  align-items-center ws-filter-tab "

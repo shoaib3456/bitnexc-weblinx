@@ -337,319 +337,70 @@
         </div>
       </div>
     </div> -->
-    <div v-if="step==0">
-      <div class="d-flex justify-content-between align-items-center ws-filter-tab " style="padding-top: 3px !important; padding-bottom:3px !important;">
-        <router-link to="/uc">
-          <b-icon icon="chevron-left" variant="light"></b-icon>
-        </router-link>
-        <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span>{{$t('appmain.SecuritySettings')}}</span>
-        </div>
-      </div>
-      <div class="p-2 px-3" style="font-size: 11px; opacity: .5;">
-        {{$t('appmain.SecuritySettingsText')}}
-      </div>
-      <div class=" py-1 d-flex justify-content-between align-items-center ws-filter-tab "
-        style="border-bottom: 1px solid #0E151F;">
-        <span class="fs-7">{{$t('appmain.ProfilePicture')}}</span>
-        <div class="d-flex align-items-center">
-          <img src="../../assets/images/avater.png" style="width:40px; border-radius:50%; " alt="">
-          <span class="px-1 fs-7">
-            <b-icon icon="chevron-right" variant="light"></b-icon>
-          </span>
-        </div>
-      </div>
-      <div class=" py-2 d-flex justify-content-between align-items-center ws-filter-tab "
-        style="border-bottom: 1px solid #0E151F;">
-        <span class="fs-7">{{$t('appmain.Identification')}}</span>
-        <div class="d-flex align-items-center fs-7">
-          <span v-if="user.realVerified==1">{{$t('uc.safe.verifypass')}}</span>
-          <span v-else-if="user.realAuditing==1">{{$t('uc.safe.binding')}}</span>
-          <a class="fs-7 text-light" style="opacity: .5;" @click="step=1"
-            v-else-if="user.realVerified==0&&user.realAuditing==0&&user.realNameRejectReason!=null"
-            :title="user.realNameRejectReason">{{$t('uc.safe.bindretry')}}</a>
-          <a v-else class="fs-7 text-light" style="opacity: .5;" @click="step=1">{{$t('uc.safe.notverified')}}</a>
-          <span class="px-1 fs-7">
-            <b-icon icon="chevron-right" variant="light"></b-icon>
-          </span>
-        </div>
-      </div>
-      <div @click="step=3" class=" py-2 d-flex justify-content-between align-items-center ws-filter-tab "
-        style="border-bottom: 1px solid #0E151F;">
-        <span class="fs-7">{{$t('appmain.Phone')}}</span>
-        <div class="d-flex align-items-center">
-          <span class="fs-7 text-warning" style="opacity: .5;" v-if="user.phoneVerified==1">{{$t('uc.safe.binded')}}</span>
-          <a v-else class=" fs-7 text-light" style="opacity: .5;"  >{{$t('uc.safe.bind')}}</a>
-          <span class="px-1">
-            <b-icon icon="chevron-right" variant="light"></b-icon>
-          </span>
-        </div>
-      </div>
-      <div @click="step=4" class=" py-2 d-flex justify-content-between align-items-center ws-filter-tab "
-        style="border-bottom: 1px solid #0E151F;">
-        <span class="fs-7">{{$t('appmain.loginpassword')}}</span>
-        <div class="d-flex align-items-center">
-          <span class="fs-7 text-warning">{{$t('appmain.edit')}}</span>
-          <span class="px-1">
-            <b-icon icon="chevron-right" variant="light"></b-icon>
-          </span>
-        </div>
-      </div>
-      <div @click="step=5" class=" py-2 d-flex justify-content-between align-items-center ws-filter-tab "
-        style="border-bottom: 6px solid #0E151F;">
-        <span class="fs-7">{{$t('appmain.Fundpassword')}}</span>
-        <div class="d-flex align-items-center">
-          <a class="fs-7 text-light" style="opacity: .5;" v-if="user.fundsVerified==0" >{{$t('uc.safe.set')}}</a>
-          <a class="fs-7 text-light" style="opacity: .5;" v-else >{{$t('uc.safe.edit')}}</a>
-          <span class="px-1">
-            <b-icon icon="chevron-right" variant="light"></b-icon>
-          </span>
-        </div>
-      </div>
-      <!-- <div class=" py-2 d-flex justify-content-between align-items-center ws-filter-tab "
-        style="border-bottom: 6px solid #0E151F;">
-        <span class="fs-7">Gesture password</span>
-        <div class="d-flex align-items-center">
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked">
-          </div>
-        </div>
-      </div> -->
-
-    </div>
-    <!-- verification -->
     <div>
-      <div v-if="step==1" class="d-flex justify-content-between align-items-center ws-filter-tab ">
-        <a @click="step=0">
-          <b-icon icon="chevron-left" variant="light"></b-icon>
-        </a>
-        <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span>{{$t('appmain.Authentication')}}</span>
-        </div>
-        <span class="fs-7 text-warning" @click="handleSubmit('formValidate6')">
-          {{$t('uc.safe.save')}}
-        </span>
-      </div>
-      <div v-if="step==2" class="d-flex justify-content-between align-items-center ws-filter-tab ">
-        <a @click="step=1">
-          <b-icon icon="chevron-left" variant="light"></b-icon>
-        </a>
-        <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span>{{$t('appmain.Authentication')}}</span>
-        </div>
-        <span class="fs-7 text-warning" @click="handleSubmit('formValidate6')">
-          {{$t('uc.safe.save')}}
-        </span>
-      </div>
-      <div class=" form-ws-ss px-3">
-        <Form ref="formValidate6" :model="formValidate6" :rules="ruleValidate" :label-width="85"
-          style="text-align:center;">
-          <FormItem label="Name" prop="realName" class="pt-3" v-if="step==1">
-            <Input v-model="formValidate6.realName" placeholder="Enter Name" size="large"></Input>
-          </FormItem>
-          <FormItem label="ID Number" prop="idCard" v-if="step==1">
-            <Input v-model="formValidate6.idCard" placeholder="Enter ID Number" size="large"></Input>
-          </FormItem>
-          <div class="ws-form-ss-pic" @click="step=2" v-if="step==1">
-            <span>{{$t('appmain.IDPhoto')}}</span>
-            <span>{{$t('appmain.Authentication')}}</span>
+      <router-link to="/uc/settings" class="pb-0 pt-3 d-flex justify-content-end ws-filter-tab">
+        <b-icon icon="gear" style="font-size: 18px;" variant="light"></b-icon>
+      </router-link>
+      <router-link to="/uc/safe"
+        class="d-flex justify-content-between align-items-center ws-filter-tab pt-1 mb-2  pb-3">
+        <div class="col d-flex align-items-center">
+          <img src="../../assets/images/avater.png" style="width:44px; width:44px; border-radius:50%; " alt="">
+          <div class="d-flex flex-column ps-3">
+            <span class="fs-7 pb-1">{{user.username}}</span>
+            <span class="fs-9" style="opacity: .6;">{{$t('appmain.Welcometo')}} bitnexc.com</span>
           </div>
-          <div v-if="step==2">
-            <Col span="100">
-            <input type="hidden" name="imgPreview" :value="imgPreview" />
-            <div class="idcard-title">{{$t('uc.safe.upload_positive')}}</div>
-            <img id="frontCardImg" style="width: 180px;height: 120px;" :src="frontCardImg">
-            <div class="acc_sc">
-              <Upload ref="upload1" :before-upload="beforeUpload" :on-success="frontHandleSuccess"
-                :headers="uploadHeaders" :action="uploadUrl">
-                <Button icon="ios-cloud-upload-outline">{{$t('uc.safe.upload')}}</Button>
-              </Upload>
-            </div>
-            </Col>
-            <Col span="100">
-            <input type="hidden" name="imgNext" :value="imgNext" />
-            <div class="idcard-title">{{$t('uc.safe.upload_negative')}}</div>
-            <img id="backCardImg" style="width: 180px;height: 120px;" :src="backCardImg">
-            <div class="acc_sc">
-              <Upload ref="upload2" :before-upload="beforeUpload" :on-success="backHandleSuccess"
-                :headers="uploadHeaders" :action="uploadUrl">
-                <Button icon="ios-cloud-upload-outline">{{$t('uc.safe.upload')}}</Button>
-              </Upload>
-            </div>
-            </Col>
-            <Col span="100">
-            <input type="hidden" name="imgLast" :value="imgLast" />
-            <div class="idcard-title">{{$t('uc.safe.upload_hand')}}</div>
-            <img id="handCardImg" style="width: 180px;height: 120px;" :src="handCardImg">
-            <div class="acc_sc">
-              <Upload ref="upload3" :before-upload="beforeUpload" :on-success="handHandleSuccess"
-                :headers="uploadHeaders" :action="uploadUrl">
-                <Button icon="ios-cloud-upload-outline">{{$t('uc.safe.upload')}}</Button>
-              </Upload>
-            </div>
-            </Col>
-          </div>
-        </Form>
+        </div>
+        <b-icon icon="chevron-right" variant="light"></b-icon>
+      </router-link>
+    </div>
+    <div class="px-1">
+      <div class="px-3  ws-filter-tab d-flex flex-column mb-2" style="padding-top:10px; padding-bottom:10px;">
+        <span class="ps-1 fs-8 d-flex align-items-center" style="border-left: 3px solid orange; line-height: 14px ;">{{$t('appmain.Assets')}}</span>
+        <div  class="px-4 pt-3 d-flex justify-content-between align-items-center">
+          <router-link to="/uc/money" class="d-flex flex-column align-items-center">
+            <b-icon icon="wallet" variant="warning"></b-icon>
+            <span class="fs-9 pt-2"  style="opacity: .6;">{{$t('appmain.wallet')}}</span>
+          </router-link>
+          <router-link to="/uc/record" class="d-flex flex-column align-items-center">
+            <b-icon icon="clipboard" variant="warning"></b-icon>
+            <span class="fs-9 pt-2"  style="opacity: .6;">{{$t('appmain.Funding')}}</span>
+          </router-link>
+          <router-link to="/uc/account" class="d-flex flex-column align-items-center">
+            <b-icon icon="menu-button-wide-fill" variant="warning"></b-icon>
+            <span class="fs-9 pt-2"  style="opacity: .6;">{{$t('appmain.Collections')}}</span>
+          </router-link>
+          <router-link to="/uc/safe?tab=fund" class="d-flex flex-column align-items-center">
+            <b-icon icon="key" variant="warning"></b-icon>
+            <span class="fs-9 pt-2"  style="opacity: .6;">{{$t('appmain.Fund')}}</span>
+          </router-link>
+        </div>
+      </div>
+      <InviteVue/>
+      <div class="ws-setting-banner mb-2">
+        <div class="inner d-flex flex-column align-items-center justify-content-center">
+          <span class="fs-6 pb-2">{{$t('appmain.MyTrigger')}}</span>
+          <router-link to="/uc/entrust/current" style="cursor: pointer; padding: 3px; font-size: 11px; margin-top: 0px; background-color: rgb(240, 172, 25); width: 70px; border-radius: 4px; color:white; text-align: center;">
+            {{$t('appmain.Exchange')}}
+          </router-link>
+        </div>
+        <img src="../../assets/images/setting-banner-2.png" alt="">
+      </div>
+      <div class="ws-setting-banner mb-2">
+        <div class="inner d-flex flex-column align-items-center justify-content-center">
+          <span class="fs-6 pb-2">{{$t('appmain.SecuritySettings')}}</span>
+          <router-link to="/uc/safe" style="cursor: pointer; padding: 3px; font-size: 11px; margin-top: 0px; background-color: rgb(240, 172, 25); width: 80px; border-radius: 4px; color:white; text-align: center;">
+            {{$t('appmain.Personalinfo')}}
+          </router-link>
+        </div>
+        <img src="../../assets/images/setting-banner-1.png" alt="">
       </div>
     </div>
-    <!-- Phone Bind -->
-    <div v-if="step==3" class="ws-phone-bind">
-      <div class="d-flex justify-content-between align-items-center ws-filter-tab ">
-        <a @click="step=0">
-          <b-icon icon="chevron-left" variant="light"></b-icon>
-        </a>
-        <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span>{{$t('appmain.Bindphone')}}</span>
-        </div>
-      </div>
-      <div>
-        <Form ref="formValidate3" class="h-100 " :model="formValidate3" :rules="ruleValidate" :label-width="110">
-          <div class="pt-2 col">
-            <FormItem :label="$t('appmain.Country')" prop="mobile">
-              <Input v-model="formValidate3.mobile" placeholder="Mobile" size="large">
-              <Select v-model="country" slot="prepend" style="width: 80px;border:1px solid #27313e;">
-                <Option v-for="(area,index) in areas" :key="index" :value="area.zhName" :label="'+' + area.areaCode">
-                  <span style="text-align:right;display:inline-block;width:30px;">+{{area.areaCode}}</span>
-                  <span style="text-align:left;display:inline-block;margin-left:10px;color:#ccc;width:80px;"
-                    v-if="lang=='简体中文'">{{area.zhName}}</span>
-                  <span style="text-align:left;display:inline-block;margin-left:10px;color:#ccc;width:80px;"
-                    v-else>{{area.enName}}</span>
-                </Option>
-              </Select>
-              </Input>
-            </FormItem>
-            <FormItem :label="$t('appmain.Code')" prop="vailCode2">
-              <Input v-model="formValidate3.vailCode2" :placeholder="$t('appmain.Code')" size="large">
-              <div class="timebox" slot="append">
-                <Button @click="send(2)" :disabled="sendMsgDisabled2">
-                  <span v-if="sendMsgDisabled2">{{time2+$t('uc.safe.second')}}</span>
-                  <span v-if="!sendMsgDisabled2">{{$t('appmain.Send')}}</span>
-                </Button>
-              </div>
-              </Input>
-            </FormItem>
-            <FormItem  :label="$t('appmain.loginpassword')" prop="password">
-              <Input v-model="formValidate3.password" :placeholder="$t('appmain.loginpassword')" size="large" type="password"></Input>
-            </FormItem>
-          </div>
-          <FormItem>
-            <Button type="warning" class="w-100" @click="handleSubmit('formValidate3')">{{$t('appmain.StartBinding')}}</Button>
-          </FormItem>
-        </Form>
-      </div>
-    </div>
-    <!-- Login Password -->
-    <div v-if="step==4" class="ws-phone-bind ws-login-password">
-      <div class="d-flex justify-content-between align-items-center ws-filter-tab ">
-        <a @click="step=0">
-          <b-icon icon="chevron-left" variant="light"></b-icon>
-        </a>
-        <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span> {{$t('appmain.ChangeLoginPassword')}}</span>
-        </div>
-        <span class="fs-7 text-warning" @click="handleSubmit('formValidate4')">
-          {{$t('uc.safe.save')}}
-        </span>
-      </div>
-      <div class="pt-2">
-        <Form ref="formValidate4" :model="formValidate4" :rules="ruleValidate" :label-width="95">
-          <FormItem  :label="$t('appmain.OldPassword')" prop="oldPw">
-            <Input v-model="formValidate4.oldPw" :placeholder="$t('appmain.OldPassword')" size="large" type="password"></Input>
-          </FormItem>
-          <FormItem :label="$t('appmain.NewPassword')" prop="newPw">
-            <Input v-model="formValidate4.newPw" size="large" :placeholder="$t('appmain.NewPassword')" type="password"></Input>
-          </FormItem>
-          <FormItem :label="$t('appmain.ConfirmPassword')" prop="newPwConfirm">
-            <Input v-model="formValidate4.newPwConfirm" size="large" :placeholder="$t('appmain.ConfirmPassword')"
-              type="password"></Input>
-          </FormItem>
-          <FormItem :label="$t('appmain.Code')" prop="vailCode3">
-            <Input v-model="formValidate4.vailCode3" :placeholder="$t('appmain.Code')" size="large">
-            <div class="timebox" slot="append">
-              <Button @click="send(3)"
-                style="padding: 8px 15px 8px;border-bottom-left-radius: unset;border-top-left-radius: unset;"
-                :disabled="sendMsgDisabled3">
-                <span v-if="sendMsgDisabled3">{{time3+$t('uc.safe.second')}}</span>
-                <span v-if="!sendMsgDisabled3">{{$t('appmain.Send')}}</span>
-              </Button>
-            </div>
-            </Input>
-          </FormItem>
-        </Form>
-      </div>
-    </div>
-    <!-- Fund Password -->
-    <div v-if="step==5" class="ws-phone-bind ws-login-password">
-      <div class="d-flex justify-content-between align-items-center ws-filter-tab ">
-        <a @click="step=0">
-          <b-icon icon="chevron-left" variant="light"></b-icon>
-        </a>
-        <div class="d-flex col py-2 justify-content-center align-items-center">
-          <span>{{$t('appmain.ChangeLoginPassword')}}</span>
-        </div>
-        <span class="fs-7 text-warning" v-show="user.fundsVerified!=1" @click="handleSubmit('formValidate7')"> {{$t('uc.safe.save')}}</span>
-        <span class="fs-7 text-warning" v-show="user.fundsVerified==1  && !fGetBackFundpwd" @click="handleSubmit('formValidate5')"> {{$t('uc.safe.save')}}</span>
-        <span class="fs-7 text-warning" v-show="user.fundsVerified==1 && fGetBackFundpwd"  @click="handleSubmit('formValidate8')"> {{$t('uc.safe.save')}}</span>
-      </div>
-      <div class="pt-2">
-        <div class="detail-list" v-show="user.fundsVerified!=1">
-          <Form ref="formValidate7" :model="formValidate7" :rules="ruleValidate" :label-width="85">
-            <FormItem :label="$t('uc.safe.fundpwd')" prop="pw7">
-              <Input v-model="formValidate7.pw7" size="large" type="password"></Input>
-            </FormItem>
-            <FormItem :label="$t('uc.safe.confirmpwd')" prop="pw7Confirm">
-              <Input v-model="formValidate7.pw7Confirm" size="large" type="password"></Input>
-            </FormItem>
-          </Form>
-        </div>
-        <div class="detail-list" v-show="user.fundsVerified==1  && !fGetBackFundpwd">
-          <Form ref="formValidate5" :model="formValidate5" :rules="ruleValidate" :label-width="95">
-            <FormItem :label="$t('uc.safe.oldfundpwd')" prop="oldPw">
-              <Input v-model="formValidate5.oldPw" size="large" type="password"></Input>
-            </FormItem>
-            <FormItem :label="$t('uc.safe.newfundpwd')" prop="newMPw">
-              <Input v-model="formValidate5.newMPw" size="large" type="password"></Input>
-            </FormItem>
-            <FormItem :label="$t('uc.safe.confirmnewpwd')" prop="newMPwConfirm">
-              <Input v-model="formValidate5.newMPwConfirm" size="large" type="password"></Input>
-            </FormItem>
-
-            <p style="text-align:right;">
-              <a @click="handleReset('formValidate8');fGetBackFundpwd=!fGetBackFundpwd"
-                style="color:#f0ac19;">{{$t('appmain.Forgotpassword')}}?</a>
-            </p>
-          </Form>
-        </div>
-        <div class="detail-list" v-show="user.fundsVerified==1 && fGetBackFundpwd">
-          <Form ref="formValidate8" :model="formValidate8" :rules="ruleValidate" :label-width="85">
-            <FormItem :label="$t('uc.safe.newfundpwd')" prop="newMPw8">
-              <Input v-model="formValidate8.newMPw8" size="large" type="password"></Input>
-            </FormItem>
-            <FormItem :label="$t('uc.safe.confirmnewpwd')" prop="newMPwConfirm8">
-              <Input v-model="formValidate8.newMPwConfirm8" size="large" type="password"></Input>
-            </FormItem>
-            <FormItem :label="$t('uc.safe.emailcode')" prop="vailCode5">
-              <Input v-model="formValidate8.vailCode5" size="large">
-              <div class="timebox" slot="append">
-                <Button @click="send(5)"
-                  style="padding: 8px 15px 8px;border-bottom-left-radius: unset;border-top-left-radius: unset;"
-                  :disabled="sendMsgDisabled5">
-                  <span v-if="sendMsgDisabled5">{{time5+$t('uc.safe.second')}}</span>
-                  <span v-if="!sendMsgDisabled5">{{$t('uc.safe.clickget')}}</span>
-                </Button>
-              </div>
-              </Input>
-            </FormItem>
-          </Form>
-        </div>
-      </div>
-    </div>
-
   </div>
 </template>
 <script>
+import InviteVue from '../../pages/invite/Invite.vue';
   export default {
-    components: {},
+    components: { InviteVue },
     data() {
       const validatePass = (rule, value, callback) => {
         if (value === "") {
@@ -1329,12 +1080,6 @@
       level == 1 && (this.memberlevel = "超级群主");
       level == 2 && (this.memberlevel = "超级合伙人");
       this.getAreas();
-
-      let wspath = this.$route.query.tab || "";
-      if(wspath == 'fund'){
-        this.step = 5
-      }
-
     }
   };
 </script>

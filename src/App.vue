@@ -190,23 +190,23 @@
     <div class="ws-mobile-nav py-2 px-2" v-if="isMobilenavOpen">
       <router-link exact to="/" class="d-flex flex-column align-items-center text-center">
         <img src="./assets/images/home-icon.svg" alt="">
-        <span class="ws-mobile-nav-title">Home</span>
+        <span class="ws-mobile-nav-title">{{$t("appmain.home")}}</span>
       </router-link>
       <router-link to="/exchange" class="d-flex flex-column align-items-center text-center">
         <img src="./assets/images/candlestick-icon.svg" alt="">
-        <span class="ws-mobile-nav-title">Market</span>
+        <span class="ws-mobile-nav-title">{{$t("appmain.market")}}</span>
       </router-link>
       <router-link to="/buysell/btc_usdt" class="d-flex flex-column align-items-center text-center">
         <img src="./assets/images/exchange-icon.svg" alt="">
-        <span class="ws-mobile-nav-title">Exchange</span>
+        <span class="ws-mobile-nav-title">{{$t("appmain.exchange")}}</span>
       </router-link>
       <router-link to="/swap/btc_usdt" class="d-flex flex-column align-items-center text-center">
         <img src="./assets/images/pad-icon.svg" alt="">
-        <span class="ws-mobile-nav-title">Future</span>
+        <span class="ws-mobile-nav-title">{{$t("appmain.future")}}</span>
       </router-link>
-      <router-link to="/uc/safe" class="d-flex flex-column align-items-center text-center">
+      <router-link to="/uc" class="d-flex flex-column align-items-center text-center">
         <img src="./assets/images/user-icon.svg" alt="">
-        <span class="ws-mobile-nav-title">MY</span>
+        <span class="ws-mobile-nav-title">{{$t("appmain.my")}}</span>
       </router-link>
     </div>
 
@@ -273,13 +273,13 @@
       $route(to, from) {
         let path2 = window.location.hash;
         let check2 = 0
-        if (path2.indexOf('exchange') > -1 || path2.indexOf('buysell') > -1 || path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 || path2.indexOf('uc/safe') > -1 || path2.indexOf('uc/settings') > -1 || path2.indexOf('/announcement') > -1 || path2.indexOf('/uc/money') > -1 || path2.indexOf('/uc/swapAssets') > -1 || path2.indexOf('/uc/recharge') > -1 || path2.indexOf('/uc/withdraw') > -1) {
+        if (path2.indexOf('exchange') > -1 || path2.indexOf('buysell') > -1 || path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 || path2.indexOf('uc/safe') > -1 || path2.indexOf('uc/settings') > -1 || path2.indexOf('/announcement') > -1 || path2.indexOf('/uc/money') > -1 || path2.indexOf('/uc/swapAssets') > -1 || path2.indexOf('/uc/recharge') > -1 || path2.indexOf('/uc/withdraw') > -1 || path2.indexOf('/help') > -1 || path2.indexOf('/account') > -1  || path2.indexOf('/swap') > -1 || path2.indexOf('/uc') > -1) {
           this.isHeaderShow = false
         }
         else {
           this.isHeaderShow = true
         }
-        if (path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 || path2.indexOf('uc/safe') > -1 || path2.indexOf('uc/settings') > -1 || path2.indexOf('/announcement') > -1 || path2.indexOf('/uc/money') > -1 || path2.indexOf('/uc/swapAssets') > -1 || path2.indexOf('/uc/recharge') > -1 || path2.indexOf('/uc/withdraw') > -1) {
+        if (path2.indexOf('entrust/current') > -1 || path2.indexOf('entrust/history') > -1 || path2.indexOf('uc/safe') > -1 || path2.indexOf('uc/settings') > -1 || path2.indexOf('/announcement') > -1 || path2.indexOf('/uc/money') > -1 || path2.indexOf('/uc/swapAssets') > -1 || path2.indexOf('/uc/recharge') > -1 || path2.indexOf('/uc/withdraw') > -1 || path2.indexOf('/help') > -1 || path2.indexOf('/account') > -1 || path2.indexOf('/uc/record') > -1) {
           this.isMobilenavOpen = false
         }
         else {

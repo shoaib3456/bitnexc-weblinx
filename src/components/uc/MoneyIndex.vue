@@ -81,15 +81,15 @@
         <b-icon icon="chevron-left" variant="light"></b-icon>
       </span>
       <div class="d-flex col py-2 justify-content-center align-items-center">
-        <span>Wallet</span>
+        <span>{{$t('appmain.Wallet')}}</span>
       </div>
       <div class="ws-drop-1">
         <b-dropdown size="sm" dropleft  text="Detail" class="m-2">
           <b-dropdown-item-button>
-            <router-link to="/uc/recharge?name=deposit-record">Deposit record</router-link>
+            <router-link to="/uc/recharge?name=deposit-record">{{$t('appmain.Depositrecord')}}</router-link>
           </b-dropdown-item-button>
           <b-dropdown-item-button>
-            <router-link to="/uc/withdraw?name=withdraw-record"> Withdraw record</router-link>
+            <router-link to="/uc/withdraw?name=withdraw-record">{{$t('appmain.Withdrawrecord')}}</router-link>
           </b-dropdown-item-button>
         </b-dropdown>
       </div>
@@ -99,9 +99,9 @@
       <div class="ws-wallet-bg p-3 ">
         <div class="row mx-0">
           <div class="col-lg-6 px-0 d-flex flex-column">
-            <span class="fs-7">Total Value(USDT)</span>
+            <span class="fs-7">{{$t('appmain.TotalValue')}}(USDT)</span>
             <span class="fs-5 py-1 fw-500">${{totalUSDT}}</span>
-            <span class="fs-7">≈ ¥{{totalCny}} USD</span>
+            <span class="fs-7">≈ {{ totalUSDT }} USD</span>
           </div>
         </div>
       </div>
@@ -109,23 +109,23 @@
       <div class="py-2 row mx-0">
         <div class="col d-flex  px-0">
           <router-link to='/uc/recharge' class="gray-btn d-flex justify-content-center text-center py-1 w-100 col"
-            style="min-width:100% !important; color: white !important;">Deposit</router-link>
+            style="min-width:100% !important; color: white !important;">{{$t('appmain.Deposit')}}</router-link>
         </div>
         <div class="col d-flex  px-2">
           <router-link to='/uc/withdraw' class="gray-btn d-flex justify-content-center text-center py-1 w-100 col"
-            style="min-width:100% !important; color: white !important;">Withdraw</router-link>
+            style="min-width:100% !important; color: white !important;">{{$t('appmain.Withdraw')}}</router-link>
         </div>
         <div class="col d-flex  px-0">
-          <router-link to='' class="gray-btn d-flex justify-content-center text-center py-1 w-100 col"
-            style="min-width:100% !important; color: white !important;">Transfer</router-link>
+          <router-link to='/uc/swapAssets?show=transfer' class="gray-btn d-flex justify-content-center text-center py-1 w-100 col"
+            style="min-width:100% !important; color: white !important;">{{$t('appmain.Transfer')}}</router-link>
         </div>
       </div>
 
       <div class="d-flex align-items-center w-100" style="border-bottom:1px solid rgba(0, 0, 0, 0.404) ;">
         <span @click="isFutresOpen = false" :class="!isFutresOpen ? 'active-1 ws-filter-links ' : 'ws-filter-links' "
-          style="font-size: 14px !important ;">Fiat and Spot</span>
+          style="font-size: 14px !important ;"> {{$t('appmain.FiatandSpot')}}</span>
         <span @click="isFutresOpen = true" :class="isFutresOpen ? 'active-1 ws-filter-links '  : 'ws-filter-links'"
-          style="font-size: 14px !important ;">Futures</span>
+          style="font-size: 14px !important ;">{{$t('appmain.Futures')}}</span>
       </div>
       <div v-if="!isFutresOpen">
         <div class="ws-wallet-search pt-2">
@@ -140,15 +140,15 @@
             <span class="fw-500">{{ items.coinType }}</span>
             <div class="row mx-0 pt-2">
               <div class="col-4 px-0 d-flex flex-column">
-                <span class="fs-8 text-faded-small">Available</span>
+                <span class="fs-8 text-faded-small">{{$t('appmain.Available')}}</span>
                 <span class="fs-9">{{ items.balance.toFixed(7) }}</span>
               </div>
               <div class="col-5 px-0 d-flex flex-column">
-                <span class="fs-8 text-faded-small">In Order</span>
+                <span class="fs-8 text-faded-small">{{$t('appmain.InOrder')}} </span>
                 <span class="fs-9">{{ items.frozenBalance.toFixed(7) }}</span>
               </div>
               <div class="col-3 px-0 d-flex flex-column">
-                <span class="fs-8 text-faded-small">To be released</span>
+                <span class="fs-8 text-faded-small"> {{$t('appmain.Tobereleased')}}</span>
                 <span class="fs-9">{{ items.toReleased.toFixed(7) }}</span>
               </div>
             </div>
@@ -164,12 +164,12 @@
     <div class="bottom-up" v-if="isModalOpen == true" @click=" isModalOpen = false">
       <div class="d-flex text-danger flex-column justify-content-center " style="background-color: #1A212B;">
         <router-link :to="'/uc/recharge?name='+DepsiteWithdrawName" v-if="wscanRecharge == true"
-          class="text-success p-2 text-center" style="border-bottom:1px solid rgba(0, 0, 0, 0.404) ;">Deposit
+          class="text-success p-2 text-center" style="border-bottom:1px solid rgba(0, 0, 0, 0.404) ;"> {{$t('appmain.Deposit')}}
         </router-link>
         <router-link :to="'/uc/withdraw?name='+DepsiteWithdrawName" v-if="wscanWithdraw == true"
-          class="text-danger p-2 text-center">Witdraw</router-link>
+          class="text-danger p-2 text-center"> {{$t('appmain.Withdraw')}}</router-link>
         <span v-if="!wscanRecharge && !wscanWithdraw" class="p-3 text-center text-light fs-8">
-          Does not support Deposit & Witdraw
+          {{$t('appmain.WithdrawText1')}}
         </span>
       </div>
     </div>
