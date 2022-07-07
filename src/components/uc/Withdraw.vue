@@ -105,20 +105,22 @@
             </div>
           </section>
 
-          <Modal :title="$t('uc.safe.fundpwd')" v-model="withdrawFromVisible" :mask-closable="false">
-            <Input name="a" style="display: none" type="password" />
-            <Input name="a" v-model="withdrawFrom.payPwd" type="password"
-              :placeholder="$t('common.inputpleaseselect')" />
-            <div slot="footer">
-              <Button @click="withdrawFromVisible = false">{{$t('common.close')}}</Button>
-              <Button type="primary" @click="apply" :loading="withdrawLoading">{{$t('common.ok')}}</Button>
-            </div>
-          </Modal>
+          
 
 
         </div>
       </div>
     </div>
+    
+    <Modal :title="$t('uc.safe.fundpwd')" v-model="withdrawFromVisible" :mask-closable="false">
+      <Input name="a" style="display: none" type="password" />
+      <Input name="a" v-model="withdrawFrom.payPwd" type="password"
+        :placeholder="$t('common.inputpleaseselect')" />
+      <div slot="footer">
+        <Button @click="withdrawFromVisible = false">{{$t('common.close')}}</Button>
+        <Button type="primary" @click="apply" :loading="withdrawLoading">{{$t('common.ok')}}</Button>
+      </div>
+    </Modal>
 
     <div class="d-flex justify-content-between align-items-center ws-filter-tab "
       style="padding-top: 3px !important; padding-bottom:3px !important;">
