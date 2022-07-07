@@ -1282,3 +1282,6 @@ select:focus {
     top: 40px !important;
     right: 13px !important;
 }
+.ivu-modal-content .ivu-btn.ivu-btn-default span{
+    color: black !important;
+}
