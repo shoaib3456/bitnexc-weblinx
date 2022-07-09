@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="nav-rights withdraw" v-if="0" >
+    <div class="nav-rights withdraw" v-if="0">
       <div class="nav-right">
         <div class="rightarea">
           <section class="trade-groups merchant-tops" style="margin-top: 10px;">
@@ -105,22 +105,22 @@
             </div>
           </section>
 
-          
+
 
 
         </div>
       </div>
     </div>
-    
-    <Modal :title="$t('uc.safe.fundpwd')" v-model="withdrawFromVisible" :mask-closable="false">
-      <Input name="a" style="display: none" type="password" />
-      <Input name="a" v-model="withdrawFrom.payPwd" type="password"
-        :placeholder="$t('common.inputpleaseselect')" />
-      <div slot="footer">
-        <Button @click="withdrawFromVisible = false">{{$t('common.close')}}</Button>
-        <Button type="primary" @click="apply" :loading="withdrawLoading">{{$t('common.ok')}}</Button>
-      </div>
-    </Modal>
+    <div class="ws-witdraw-modal">
+      <Modal :title="$t('uc.safe.fundpwd')" v-model="withdrawFromVisible" :mask-closable="false">
+        <Input name="a" style="display: none" type="password" />
+        <Input name="a" v-model="withdrawFrom.payPwd" type="password" :placeholder="$t('common.inputpleaseselect')" />
+        <div slot="footer">
+          <Button @click="withdrawFromVisible = false">{{$t('common.close')}}</Button>
+          <Button type="primary" @click="apply" :loading="withdrawLoading">{{$t('common.ok')}}</Button>
+        </div>
+      </Modal>
+    </div>
 
     <div class="d-flex justify-content-between align-items-center ws-filter-tab "
       style="padding-top: 3px !important; padding-bottom:3px !important;">
@@ -160,7 +160,8 @@
           </div>
 
           <div class="form-group mb-0 form-address w-100 pt-2">
-            <label for="controlAddress" class="controlAddress describe input-title">{{$t('appmain.Withdrawaladdress')}}</label>
+            <label for="controlAddress"
+              class="controlAddress describe input-title">{{$t('appmain.Withdrawaladdress')}}</label>
             <div class="control-input-group">
               <input class="input-address" v-model="withdrawFrom.address" :placeholder="'Please enter the address'" />
             </div>
@@ -181,12 +182,14 @@
 
           <div class="p-2 " style="background-color:#1F2229 !important;">
             <div class="d-flex justify-content-between align-items-center ">
-              <label class="label-amount input-title" style="line-height: unset !important;">{{$t('appmain.Fee')}}</label>
+              <label class="label-amount input-title"
+                style="line-height: unset !important;">{{$t('appmain.Fee')}}</label>
               <label class="label-amount input-title" style="line-height: unset !important;"> {{comFee < 0 ? '--' :
                   comFee + ' ' + coinType}} </label>
             </div>
             <div class="d-flex justify-content-between align-items-center ">
-              <label class="label-amount input-title" style="line-height: unset !important;">{{$t('appmain.Arrivalquantity')}}</label>
+              <label class="label-amount input-title"
+                style="line-height: unset !important;">{{$t('appmain.Arrivalquantity')}}</label>
               <label class="label-amount input-title" style="line-height: unset !important;">{{ comMoney < 0 ? '--' :
                   comMoney + ' ' + coinType }} </label>
             </div>
@@ -211,9 +214,9 @@
       <div class="bottom-up" v-if="isModalOpen == true" @click=" isModalOpen = false">
         <div class="p-2 d-flex flex-column" style="background-color: #1A212B;">
           <span class="w-100 text-center py-1 fw-500 fw-7"> {{$t('appmain.Choosenetwork')}}</span>
-          <span class="text-faded-small mb-3"> 
+          <span class="text-faded-small mb-3">
             {{$t('appmain.NetworkText')}}
-           </span>
+          </span>
           <div v-for="item in comCoinextList()">
             <div @click="wsSelectCoinext(item.protocol,item.protocolname)" class="d-flex fw-500 py-2 px-3 my-1"
               style="background-color: #252C36;">
@@ -1160,5 +1163,46 @@
         }
       }
     }
+  }
+
+  .ivu-modal-content {
+    background-color: #1A212B !important;
+    color: white !important;
+  }
+
+  .ivu-modal-header p,
+  .ivu-modal-header-inner {
+    color: white !important;
+    font-size: 14px !important;
+    text-align: center !important;
+  }
+
+  .ivu-modal-header {
+    border: none !important;
+  }
+
+  .ivu-modal-footer {
+    border: none !important;
+  }
+
+  .ivu-modal-content .ivu-input {
+    background-color: #252C36 !important;
+    border: none !important;
+    padding: 10px !important;
+    height: 40px !important;
+  }
+
+  .ivu-modal-footer div {
+    display: flex !important;
+  }
+
+  .ivu-modal-footer div button {
+    flex: 1;
+  }
+
+  .ivu-modal-footer div button:nth-child(1) {
+    background-color: #A2A2A2 !important;
+    border-color: #A2A2A2 !important;
+    color: white !important;
   }
 </style>

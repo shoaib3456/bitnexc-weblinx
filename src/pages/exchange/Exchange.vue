@@ -5,10 +5,10 @@
 
 			<span class="w-100 d-flex justify-content-center align-items-center "
 				v-if="isListOpen && !isBuySellOpen">{{$t('appmain.market')}}</span>
-			<span  class="w-100 d-flex justify-content-between align-items-center py-1"
+			<span class="w-100 d-flex justify-content-between align-items-center py-1"
 				v-if="!isListOpen && !isBuySellOpen">
 				<div class="d-flex align-items-center">
-					<span @click="isListOpen = true" >
+					<span @click="isListOpen = true">
 						<b-icon icon="chevron-left" variant="light"></b-icon>
 					</span>
 					<div class="ps-2">{{ currentCoin.coin }}/{{ currentCoin.base }}</div>
@@ -17,7 +17,7 @@
 			</span>
 			<span @click="isBuySellOpen = false" class="w-100 d-flex justify-content-start align-items-center py-1"
 				v-if="!isListOpen && isBuySellOpen">
-			
+
 				<b-icon icon="chevron-left" variant="light"></b-icon>
 				<div class="ps-2">{{ currentCoin.coin }}/{{ currentCoin.base }}</div>
 			</span>
@@ -303,8 +303,10 @@
 							<span @click="market_price" :class="{ active: showMarket }">{{ $t("exchange.market_price")
 								}}</span>
 							<div class="fee-wrap" style="display: none;">
-								<span>{{$t('appmain.Maker')}}{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
-								<span>{{$t('appmain.Taker')}}{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent }}</span>
+								<span>{{$t('appmain.Maker')}}{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent
+									}}</span>
+								<span>{{$t('appmain.Taker')}}{{ $t("exchange.fees_rate") }}：{{ symbolFee | toPercent
+									}}</span>
 								<!-- <a href="/#/helpdetail?cate=1&id=7&cateTitle=常见问题">
                   <Icon type="ios-help-circle-outline" color="#fff" size="16"/>
                 </a> -->
@@ -500,9 +502,11 @@
 						</Table> -->
 						<div>
 							<div class="row mx-0 py-2 px-1">
-								<div class="col-6 px-0 text-start " style="font-size: 11px; opacity: .7;">{{$t('appmain.Price')}}(USDT)
+								<div class="col-6 px-0 text-start " style="font-size: 11px; opacity: .7;">
+									{{$t('appmain.Price')}}(USDT)
 								</div>
-								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">{{$t('appmain.Amount')}}({{
+								<div class="col-6 px-0 text-end " style="font-size: 11px; opacity: .7;">
+									{{$t('appmain.Amount')}}({{
 									currentCoin.coin }})</div>
 							</div>
 							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.askRows"
@@ -523,7 +527,9 @@
 									}}</span>
 								<span v-if="currentCoin.change > 0" class="buy">↑</span>
 								<span v-else-if="currentCoin.change < 0" class="sell">↓</span>
-								<span class="price-cny" style="font-size: 11px !important; display: flex !important; padding-top: 2px !important; opacity:.5;" ≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
+								<span class="price-cny"
+									style="font-size: 11px !important; display: flex !important; padding-top: 2px !important; opacity:.5;"
+									≈ {{ currentCoin.usdRate * CNYRate | toFixed(2) }} USD</span>
 							</div>
 							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.bidRows"
 								v-if="index < 5">
@@ -610,14 +616,18 @@
 
 					<div>
 						<div class="row mx-0 py-2">
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Time')}}</div>
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Time')}}</div>
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Price')}}({{ currentCoin.base }})</div>
-							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">{{$t('appmain.Amount')}}({{ currentCoin.coin }})</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
+								{{$t('appmain.Time')}}</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
+								{{$t('appmain.Time')}}</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
+								{{$t('appmain.Price')}}({{ currentCoin.base }})</div>
+							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
+								{{$t('appmain.Amount')}}({{ currentCoin.coin }})</div>
 						</div>
 						<div class="row ws-ex-tr w-100 mx-0 border-0" v-for=" (item, index) in trade.rows">
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
-								{{ new Date(trade.rows[index].time * 1000).toISOString().slice(14, -5) }}</div>
+								{{trade.rows[index].time }}</div>
 							<div v-bind:class="[trade.rows[index].direction == 'SELL' ? 'text-danger col-3 px-0 text-center ' : 'text-success col-3 px-0 text-center ']"
 								style="font-size: 12px; opacity: 1; text-transform:capitalize !important;">
 								<template v-if="trade.rows[index].direction == 'SELL'">{{$t('appmain.Sell')}}</template>
@@ -729,7 +739,8 @@
 							</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{$t('appmain.Amount')}}({{
 								historyOrder.rows[index].coinSymbol }})</div>
-							<div class="col-4 pb-1 px-0 text-faded-small text-center">{{$t('appmain.Deal')}}/{{$t('appmain.Fee')}}</div>
+							<div class="col-4 pb-1 px-0 text-faded-small text-center">
+								{{$t('appmain.Deal')}}/{{$t('appmain.Fee')}}</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-end">{{$t('appmain.Amount')}}</div>
 							<div class="col-4 pb-1 px-0 text-faded-small text-start">{{ historyOrder.rows[index].amount
 								}}</div>
@@ -2300,15 +2311,19 @@
 			// console.log(this.trade);
 			// console.log(this.historyOrder)
 			let ws_path = window.location.hash.split('?')[1]
-			if(ws_path == 'tab=2'){
-				this.isListOpen=false
+			if (ws_path == 'tab=2') {
+				this.isListOpen = false
 			}
+
+			setInterval(() => {
+				getTrade();
+			}, 3000)
 		},
 		mounted: function () {
 			// console.log(this.coins);
 		},
 		methods: {
-			expandBnt(){
+			expandBnt() {
 				document.querySelector('.fullscreen').click()
 			},
 			seachInputChange() {
@@ -3087,19 +3102,20 @@
 						}
 						for (let ii = 0; ii < this.trade.rows.length; ii++) {
 
-							// function msToTime(s) {
-							// 	var ms = s % 1000;
-							// 	s = (s - ms) / 1000;
-							// 	var secs = s % 60;
-							// 	s = (s - secs) / 60;
-							// 	var mins = s % 60;
-							// 	var hrs = (s - mins) / 60;
+							function msToTime(t) {
+								const milliseconds = t
 
-							// 	return hrs + ':' + mins + ':' + secs 
-							// }
-							// this.trade.rows[ii].time = msToTime(this.trade.rows[ii].time)
+								const dateObject = new Date(milliseconds)
 
-							// this.trade.rows[ii].time  = new Date(this.trade.rows[ii].time * 1000).toISOString().slice(11, -1);
+								// 30/03/2022, 12:13:49
+								// 03-30 12:13
+
+								let getrowdate = dateObject.toLocaleString();
+								getrowdate = getrowdate.split(',')
+								return getrowdate[1];
+							}
+							this.trade.rows[ii].time = msToTime(this.trade.rows[ii].time)
+
 						}
 					});
 			},

@@ -172,7 +172,7 @@ export default {
       this.$store.state.HeaderActiveName = "0";
 
       if (this.isLogin) {
-        this.$router.push("/uc/safe");
+        this.$router.push("/");
       } else {
         this.initGtCaptcha();
       }
@@ -247,7 +247,7 @@ export default {
                 if (this.$route.query.key != null && this.$route.query.key != "") {
                   localStorage.setItem("USERKEY", this.$route.query.key);
                 }
-                this.$router.push("/uc/safe");
+                this.$router.push("/");
               } else {
                 this.$Message.error(resp.message);
               }
