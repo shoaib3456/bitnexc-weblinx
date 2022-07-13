@@ -619,7 +619,7 @@
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
 								{{$t('appmain.Time')}}</div>
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
-								{{$t('appmain.Time')}}</div>
+								{{$t('appmain.Side')}}</div>
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
 								{{$t('appmain.Price')}}({{ currentCoin.base }})</div>
 							<div class="col-3 px-0 text-center " style="font-size: 11px; opacity: .7;">
@@ -3168,6 +3168,21 @@
 							var resp = JSON.parse(msg.body);
 							if (resp.length > 0) {
 								for (var i = 0; i < resp.length; i++) {
+									function msToTime(t) {
+										const milliseconds = t
+
+										const dateObject = new Date(milliseconds)
+
+										// 30/03/2022, 12:13:49
+										// 03-30 12:13
+
+										let getrowdate = dateObject.toLocaleString();
+										getrowdate = getrowdate.split(',')
+										return getrowdate[1];
+									}
+
+									resp[i].time = msToTime(resp[i].time)
+
 									that.trade.rows.unshift(resp[i]);
 								}
 							}
