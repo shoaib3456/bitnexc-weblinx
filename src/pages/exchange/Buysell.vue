@@ -682,7 +682,7 @@
 									currentCoin.coin }})</div>
 							</div>
 							<div class="row ws-ex-tr py-2 w-100 mx-0 border-0" v-for=" (item, index) in plate.askRows"
-								v-if="index < 5">
+								v-if="index > 4">
 								<div v-bind:class="[plate.askRows[index].direction == 'SELL' ? 'text-danger col-6 px-0 text-start ' : 'text-success col-6 px-0 text-start ']"
 									style="font-size: 11px; opacity: 1; text-transform:lowercase !important;">{{
 									plate.askRows[index].price }}</div>
